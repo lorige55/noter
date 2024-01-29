@@ -1,21 +1,31 @@
 <!-- eslint-disable vue/require-v-for-key -->
 <script>
 import '@passageidentity/passage-elements/passage-auth'
+import { initializeApp } from 'firebase/app'
+import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore'
+
 export default {
   data() {
     return {
       isLoggedIn: false,
       appId: 'JlXUGO3ZcoTO3pK2BSb38cc2',
       authToken: '',
-      notes: [],
       noteIndex: ['Loading...'],
       activeDocumentContent: 'Select a note to edit.',
-      activeDocument: ''
+      activeDocument: '',
+      firebaseConfig: {
+        apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
+        authDomain: 'noter-6e08f.firebaseapp.com',
+        projectId: 'noter-6e08f',
+        storageBucket: 'noter-6e08f.appspot.com',
+        messagingSenderId: '967538971502',
+        appId: '1:967538971502:web:6d31288c8ade545465277f'
+      }
     }
   },
   methods: {
     async getDocument(item) {
-      const app = initializeApp(firebaseConfig)
+      const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       let docRef = doc(db, this.authToken, item)
       let docSnap = await getDoc(docRef)
@@ -23,14 +33,13 @@ export default {
       this.activeDocument = item
     },
     saveActiveDocument() {
-      this.activeDocumentContent
-      const app = initializeApp(firebaseConfig)
+      const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       let docRef = doc(db, this.authToken, this.activeDocument)
       setDoc(docRef, { note: this.activeDocumentContent })
     },
     async deleteDocument(item) {
-      const app = initializeApp(firebaseConfig)
+      const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       const indexToRemove = this.noteIndex.indexOf(item)
 
@@ -44,9 +53,10 @@ export default {
       console.log(this.noteIndex)
 
       await deleteDoc(doc(db, this.authToken, item))
+      console.log('Document deleted.')
     },
     createNewDocument() {
-      const app = initializeApp(firebaseConfig)
+      const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       const newNoteName = prompt('Enter a name for your new note:')
 
@@ -60,6 +70,24 @@ export default {
 
       this.activeDocumentContent = 'This is a note.'
       this.activeDocument = newNoteName
+    },
+    renameDocument(item) {
+      let newName = prompt('Enter a new name for this note:')
+
+      const app = initializeApp(this.firebaseConfig)
+      const db = getFirestore(app)
+
+      const indexToRemove = this.noteIndex.indexOf(item)
+
+      if (indexToRemove !== -1) {
+        this.noteIndex.splice(indexToRemove, 1, newName)
+
+        let docRef = doc(db, this.authToken, 'noteIndex')
+        setDoc(docRef, { index: this.noteIndex })
+
+        docRef = doc(db, this.authToken, newName)
+        setDoc(docRef, { note: this.activeDocumentContent })
+      }
     }
   },
   beforeMount() {
@@ -72,40 +100,23 @@ export default {
     }
   },
   async mounted() {
-    const app = initializeApp(firebaseConfig)
+    const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
-    const docRef = doc(db, this.authToken, 'noteIndex')
+    let docRef = doc(db, this.authToken, 'noteIndex')
     let docSnap = await getDoc(docRef)
+    console.log(docSnap.data())
 
     if (docSnap.exists()) {
       this.noteIndex = docSnap.data().index
-
-      let i = 0
-
-      do {
-        let docRef = doc(db, this.authToken, this.noteIndex[i])
-        let docSnap = await getDoc(docRef)
-        this.notes.push(docSnap.data().note)
-        i++
-      } while (i < this.noteIndex.length)
     } else {
-      console.log('No noteIndex document!')
+      console.log('No noteIndex document! Creating one plus a default note.')
+      setDoc(docRef, { index: ['Welcome!'] })
+      this.noteIndex = ['Welcome!']
+      docRef = doc(db, this.authToken, 'Welcome!')
+      setDoc(docRef, { note: 'This is your first note! Have fun!' })
+      this.activeDocumentContent = 'This is your first note! Have fun!'
     }
   }
-}
-
-// Import the functions you need from the SDKs you need
-import { initializeApp } from 'firebase/app'
-import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore'
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
-  authDomain: 'noter-6e08f.firebaseapp.com',
-  projectId: 'noter-6e08f',
-  storageBucket: 'noter-6e08f.appspot.com',
-  messagingSenderId: '967538971502',
-  appId: '1:967538971502:web:6d31288c8ade545465277f'
 }
 </script>
 
@@ -117,11 +128,14 @@ const firebaseConfig = {
   </div>
 
   <div v-else>
-    <div class="position-absolute top-0 start-0" style="width: 200px">
+    <div class="position-absolute top-0 start-0" style="width: 25vb">
       <ul class="list-group">
         <li class="list-group-item" v-for="item in noteIndex">
-          <button class="btn btn-dark" @click="getDocument(item)">{{ item }}</button>
-          <buttton class="btn btn-danger" @click="deleteDocument(item)"
+          <button class="btn" @click="getDocument(item)">{{ item }}</button>
+          <button class="btn btn-outline-success" @click="renameDocument(item)">
+            <i class="bi bi-input-cursor-text"></i>
+          </button>
+          <buttton class="btn btn-outline-danger" @click="deleteDocument(item)"
             ><i class="bi bi-trash3"></i
           ></buttton>
         </li>
@@ -138,7 +152,7 @@ const firebaseConfig = {
     </div>
     <div class="position-absolute top-0 end-0">
       <button class="btn btn-dark" @click="saveActiveDocument()">Save</button>
-      <button class="btn btn-success" @click="createNewDocument()">
+      <button class="btn btn-outline-success" @click="createNewDocument()">
         <i class="bi bi-plus-circle"></i>
       </button>
     </div>
