@@ -20,7 +20,8 @@ export default {
         storageBucket: 'noter-6e08f.appspot.com',
         messagingSenderId: '967538971502',
         appId: '1:967538971502:web:6d31288c8ade545465277f'
-      }
+      },
+      errorMessage: 'An Error has occured. Please try again or create an Issue on GitHub.'
     }
   },
   methods: {
@@ -130,12 +131,19 @@ export default {
   <div v-else>
     <div class="position-absolute top-0 start-0" style="width: 25vb">
       <ul class="list-group">
-        <li class="list-group-item" v-for="item in noteIndex">
+        <li class="list-group-item" v-for="item in noteIndex" style="display: relative">
           <button class="btn" @click="getDocument(item)">{{ item }}</button>
-          <button class="btn btn-outline-success" @click="renameDocument(item)">
+          <button
+            class="btn btn-outline-success btnToShowOnHoverOfItem"
+            @click="renameDocument(item)"
+            style="position: absolute; right: 60px; top: 50%; transform: translateY(-50%)"
+          >
             <i class="bi bi-input-cursor-text"></i>
           </button>
-          <buttton class="btn btn-outline-danger" @click="deleteDocument(item)"
+          <buttton
+            class="btn btn-outline-danger btnToShowOnHoverOfItem"
+            @click="deleteDocument(item)"
+            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%)"
             ><i class="bi bi-trash3"></i
           ></buttton>
         </li>
@@ -143,18 +151,40 @@ export default {
     </div>
 
     <div class="position-absolute top-50 end-0 translate-middle-y">
-      <input
+      <textarea
         class="form-control"
-        type="text"
         v-model="activeDocumentContent"
         style="width: 1000px; height: 500px"
-      />
+      ></textarea>
     </div>
     <div class="position-absolute top-0 end-0">
       <button class="btn btn-dark" @click="saveActiveDocument()">Save</button>
       <button class="btn btn-outline-success" @click="createNewDocument()">
         <i class="bi bi-plus-circle"></i>
       </button>
+    </div>
+
+    <!--Error Modal-->
+    <div class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Error</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>{{ this.errorMessage }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger">Dismiss</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

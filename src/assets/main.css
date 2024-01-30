@@ -1,0 +1,8 @@
+.btnToShowOnHoverOfItem {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.list-group-item:hover .btnToShowOnHoverOfItem {
+  opacity: 1;
+}
