@@ -29,10 +29,10 @@ export default {
     async getDocument(item) {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      let docRef = doc(db, this.authToken, item)
+      this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
+      let docRef = doc(db, this.authToken, this.activeDocument)
       let docSnap = await getDoc(docRef)
       this.activeDocumentContent = docSnap.data().note
-      this.activeDocument = item
     },
     saveActiveDocument() {
       const app = initializeApp(this.firebaseConfig)
@@ -73,7 +73,7 @@ export default {
       this.activeDocumentContent = 'This is a note.'
       this.activeDocument = newNoteName
     },
-    renameDocument(item) {
+    async renameDocument(item) {
       let newName = prompt('Enter a new name for this note:')
 
       const app = initializeApp(this.firebaseConfig)
@@ -82,6 +82,9 @@ export default {
       const indexToRemove = this.shortenedNoteIndex.indexOf(item)
 
       if (indexToRemove !== -1) {
+        await deleteDoc(doc(db, this.authToken, this.noteIndex[indexToRemove]))
+        console.log('Document deleted.')
+
         this.noteIndex.splice(indexToRemove, 1, newName)
         this.shortenNoteIndex()
 
@@ -93,9 +96,8 @@ export default {
       }
     },
     shortenNoteIndex() {
-      let i = 0
       let charLimit = 20
-      do {
+      for (let i = 0; i < this.noteIndex.length; ) {
         if (this.noteIndex[i].length > charLimit) {
           let shortenedString = this.noteIndex[i].split('')
           shortenedString.splice(charLimit, this.noteIndex[i].length - charLimit, '...')
@@ -104,7 +106,7 @@ export default {
           this.shortenedNoteIndex[i] = this.noteIndex[i]
         }
         i++
-      } while (i < this.noteIndex.length)
+      }
     }
   },
   beforeMount() {
@@ -123,7 +125,8 @@ export default {
     let docSnap = await getDoc(docRef)
     console.log(docSnap.data())
 
-    if (docSnap.exists()) {
+    if (docSnap.exists() && docSnap.data().index.lenght > 0) {
+      console.log(docSnap.data().index)
       this.noteIndex = docSnap.data().index
       this.shortenNoteIndex()
     } else {
