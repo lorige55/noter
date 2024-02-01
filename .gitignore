@@ -28,3 +28,9 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Misc
+.package-lock.json
+.firebase*
+.vscode/*
+firestore.*
