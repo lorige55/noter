@@ -11,6 +11,7 @@ export default {
       appId: 'JlXUGO3ZcoTO3pK2BSb38cc2',
       authToken: '',
       noteIndex: ['Loading...'],
+      shortenedNoteIndex: ['Loading...'],
       activeDocumentContent: 'Select a note to edit.',
       activeDocument: '',
       firebaseConfig: {
@@ -42,16 +43,15 @@ export default {
     async deleteDocument(item) {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      const indexToRemove = this.noteIndex.indexOf(item)
+      const indexToRemove = this.shortenedNoteIndex.indexOf(item)
 
       if (indexToRemove !== -1) {
         this.noteIndex.splice(indexToRemove, 1)
+        this.shortenNoteIndex()
 
         let docRef = doc(db, this.authToken, 'noteIndex')
         setDoc(docRef, { index: this.noteIndex })
       }
-
-      console.log(this.noteIndex)
 
       await deleteDoc(doc(db, this.authToken, item))
       console.log('Document deleted.')
@@ -62,6 +62,7 @@ export default {
       const newNoteName = prompt('Enter a name for your new note:')
 
       this.noteIndex.push(newNoteName)
+      this.shortenNoteIndex()
 
       let docRef = doc(db, this.authToken, 'noteIndex')
       setDoc(docRef, { index: this.noteIndex })
@@ -78,10 +79,11 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
 
-      const indexToRemove = this.noteIndex.indexOf(item)
+      const indexToRemove = this.shortenedNoteIndex.indexOf(item)
 
       if (indexToRemove !== -1) {
         this.noteIndex.splice(indexToRemove, 1, newName)
+        this.shortenNoteIndex()
 
         let docRef = doc(db, this.authToken, 'noteIndex')
         setDoc(docRef, { index: this.noteIndex })
@@ -89,6 +91,20 @@ export default {
         docRef = doc(db, this.authToken, newName)
         setDoc(docRef, { note: this.activeDocumentContent })
       }
+    },
+    shortenNoteIndex() {
+      let i = 0
+      let charLimit = 20
+      do {
+        if (this.noteIndex[i].length > charLimit) {
+          let shortenedString = this.noteIndex[i].split('')
+          shortenedString.splice(charLimit, this.noteIndex[i].length - charLimit, '...')
+          this.shortenedNoteIndex[i] = shortenedString.join('')
+        } else {
+          this.shortenedNoteIndex[i] = this.noteIndex[i]
+        }
+        i++
+      } while (i < this.noteIndex.length)
     }
   },
   beforeMount() {
@@ -109,10 +125,12 @@ export default {
 
     if (docSnap.exists()) {
       this.noteIndex = docSnap.data().index
+      this.shortenNoteIndex()
     } else {
       console.log('No noteIndex document! Creating one plus a default note.')
       setDoc(docRef, { index: ['Welcome!'] })
       this.noteIndex = ['Welcome!']
+      this.shortenNoteIndex()
       docRef = doc(db, this.authToken, 'Welcome!')
       setDoc(docRef, { note: 'This is your first note! Have fun!' })
       this.activeDocumentContent = 'This is your first note! Have fun!'
@@ -131,7 +149,7 @@ export default {
   <div v-else>
     <div class="position-absolute top-0 start-0" style="width: 25vb">
       <ul class="list-group">
-        <li class="list-group-item" v-for="item in noteIndex" style="display: relative">
+        <li class="list-group-item" v-for="item in shortenedNoteIndex" style="display: relative">
           <button
             class="btn"
             @click="getDocument(item)"
