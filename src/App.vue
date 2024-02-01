@@ -132,7 +132,13 @@ export default {
     <div class="position-absolute top-0 start-0" style="width: 25vb">
       <ul class="list-group">
         <li class="list-group-item" v-for="item in noteIndex" style="display: relative">
-          <button class="btn" @click="getDocument(item)">{{ item }}</button>
+          <button
+            class="btn"
+            @click="getDocument(item)"
+            style="padding-left: 0 !important; margin: 5px"
+          >
+            {{ item }}
+          </button>
           <button
             class="btn btn-outline-success btnToShowOnHoverOfItem"
             @click="renameDocument(item)"
