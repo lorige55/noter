@@ -96,7 +96,7 @@ export default {
       }
     },
     shortenNoteIndex() {
-      let charLimit = 20
+      let charLimit = 15
       for (let i = 0; i < this.noteIndex.length; ) {
         if (this.noteIndex[i].length > charLimit) {
           let shortenedString = this.noteIndex[i].split('')
@@ -150,9 +150,13 @@ export default {
   </div>
 
   <div v-else>
-    <div class="position-absolute top-0 start-0" style="width: 25vb">
+    <div class="position-absolute top-0 start-0" style="width: 25vw">
       <ul class="list-group">
-        <li class="list-group-item" v-for="item in shortenedNoteIndex" style="display: relative">
+        <li
+          class="list-group-item"
+          v-for="item in shortenedNoteIndex"
+          style="position: relative; width: 25vb"
+        >
           <button
             class="btn"
             @click="getDocument(item)"
@@ -160,19 +164,20 @@ export default {
           >
             {{ item }}
           </button>
-          <button
-            class="btn btn-outline-success btnToShowOnHoverOfItem"
-            @click="renameDocument(item)"
-            style="position: absolute; right: 60px; top: 50%; transform: translateY(-50%)"
-          >
-            <i class="bi bi-input-cursor-text"></i>
-          </button>
-          <buttton
-            class="btn btn-outline-danger btnToShowOnHoverOfItem"
-            @click="deleteDocument(item)"
-            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%)"
-            ><i class="bi bi-trash3"></i
-          ></buttton>
+          <div style="position: absolute; top: 50%; right: 20px; transform: translateY(-50%)">
+            <button
+              type="button"
+              class="btn btn-outline-dark"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-three-dots"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li @click="renameDocument(item)" class="dropdown-item"><a>Rename Note</a></li>
+              <li @click="deleteDocument(item)" class="dropdown-item"><a>Delete Note</a></li>
+            </ul>
+          </div>
         </li>
       </ul>
     </div>
