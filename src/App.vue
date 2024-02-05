@@ -95,7 +95,7 @@ export default {
       }
     },
     shortenNoteIndex() {
-      let charLimit = 32
+      let charLimit = 30
       for (let i = 0; i < this.noteIndex.length; ) {
         if (this.noteIndex[i].length > charLimit) {
           let shortenedString = this.noteIndex[i].split('')
@@ -168,7 +168,15 @@ export default {
             <li v-for="item in shortenedNoteIndex" :key="item" class="list-group-item">
               <div class="row">
                 <div class="col-9">
-                  <button class="btn" @click="getDocument(item)">{{ item }}</button>
+                  <button
+                    class="btn"
+                    :class="{
+                      bold: noteIndex[shortenedNoteIndex.indexOf(item)] === activeDocument
+                    }"
+                    @click="getDocument(item)"
+                  >
+                    {{ item }}
+                  </button>
                 </div>
                 <div class="col-3 text-right">
                   <div class="btn-group ms-auto">
