@@ -73,25 +73,33 @@ export default {
       this.activeDocument = newNoteName
     },
     async renameDocument(item) {
-      let newName = prompt('Enter a new name for this note:')
+      let newName = prompt('Enter a new name for this note:', item)
 
-      const app = initializeApp(this.firebaseConfig)
-      const db = getFirestore(app)
+      if (newName.length < 1) {
+        const errorModal = document.getElementById('errorModal')
 
-      const indexToRemove = this.shortenedNoteIndex.indexOf(item)
+        this.errorMessage = 'The name cannot be empty.'
 
-      if (indexToRemove !== -1) {
-        await deleteDoc(doc(db, this.authToken, this.noteIndex[indexToRemove]))
-        console.log('Document deleted.')
+        errorModal.show()
+      } else {
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
 
-        this.noteIndex.splice(indexToRemove, 1, newName)
-        this.shortenNoteIndex()
+        const indexToRemove = this.shortenedNoteIndex.indexOf(item)
 
-        let docRef = doc(db, this.authToken, 'noteIndex')
-        setDoc(docRef, { index: this.noteIndex })
+        if (indexToRemove !== -1) {
+          await deleteDoc(doc(db, this.authToken, this.noteIndex[indexToRemove]))
+          console.log('Document deleted.')
 
-        docRef = doc(db, this.authToken, newName)
-        setDoc(docRef, { note: this.activeDocumentContent })
+          this.noteIndex.splice(indexToRemove, 1, newName)
+          this.shortenNoteIndex()
+
+          let docRef = doc(db, this.authToken, 'noteIndex')
+          setDoc(docRef, { index: this.noteIndex })
+
+          docRef = doc(db, this.authToken, newName)
+          setDoc(docRef, { note: this.activeDocumentContent })
+        }
       }
     },
     shortenNoteIndex() {
@@ -213,7 +221,7 @@ export default {
     </div>
 
     <!--Error Modal-->
-    <div class="modal" tabindex="-1">
+    <div class="modal" id="errorModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
