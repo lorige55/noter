@@ -95,7 +95,7 @@ export default {
       }
     },
     shortenNoteIndex() {
-      let charLimit = 15
+      let charLimit = 32
       for (let i = 0; i < this.noteIndex.length; ) {
         if (this.noteIndex[i].length > charLimit) {
           let shortenedString = this.noteIndex[i].split('')
@@ -171,10 +171,10 @@ export default {
                   <button class="btn" @click="getDocument(item)">{{ item }}</button>
                 </div>
                 <div class="col-3 text-right">
-                  <div class="btn-group">
+                  <div class="btn-group ms-auto">
                     <button
                       type="button"
-                      class="btn btn-outline-dark dropdown-toggle"
+                      class="btn"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
                     >
