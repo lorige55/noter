@@ -124,8 +124,7 @@ export default {
     let docSnap = await getDoc(docRef)
     console.log(docSnap.data())
 
-    if (docSnap.exists() && docSnap.data().index.lenght > 0) {
-      console.log(docSnap.data().index)
+    if (docSnap.exists() && docSnap.data().index[0].length > 0) {
       this.noteIndex = docSnap.data().index
       this.shortenNoteIndex()
     } else {
