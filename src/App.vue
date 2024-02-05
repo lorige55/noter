@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/require-v-for-key -->
 <script>
 import '@passageidentity/passage-elements/passage-auth'
 import { initializeApp } from 'firebase/app'
@@ -150,50 +149,60 @@ export default {
   </div>
 
   <div v-else>
-    <div class="position-absolute top-0 start-0" style="width: 25vw">
-      <ul class="list-group">
-        <li
-          class="list-group-item"
-          v-for="item in shortenedNoteIndex"
-          style="position: relative; width: 25vb"
-        >
-          <button
-            class="btn"
-            @click="getDocument(item)"
-            style="padding-left: 0 !important; margin: 5px"
-          >
-            {{ item }}
+    <nav class="navbar navbar-expand-lg bg-body-tertiary text-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Noter</a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <button class="btn btn-dark" @click="saveActiveDocument()">Save</button>
+          <button class="btn btn-outline-success" @click="createNewDocument()">
+            <i class="bi bi-plus-circle"></i>
           </button>
-          <div style="position: absolute; top: 50%; right: 20px; transform: translateY(-50%)">
-            <button
-              type="button"
-              class="btn btn-outline-dark"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <i class="bi bi-three-dots"></i>
-            </button>
-            <ul class="dropdown-menu">
-              <li @click="renameDocument(item)" class="dropdown-item"><a>Rename Note</a></li>
-              <li @click="deleteDocument(item)" class="dropdown-item"><a>Delete Note</a></li>
-            </ul>
-          </div>
-        </li>
-      </ul>
-    </div>
+        </div>
+      </div>
+    </nav>
 
-    <div class="position-absolute top-50 end-0 translate-middle-y">
-      <textarea
-        class="form-control"
-        v-model="activeDocumentContent"
-        style="width: 1000px; height: 500px"
-      ></textarea>
-    </div>
-    <div class="position-absolute top-0 end-0">
-      <button class="btn btn-dark" @click="saveActiveDocument()">Save</button>
-      <button class="btn btn-outline-success" @click="createNewDocument()">
-        <i class="bi bi-plus-circle"></i>
-      </button>
+    <div class="container-fluid mt-3">
+      <div class="row">
+        <!-- Left Side: List of Cards -->
+        <div class="col-md-3">
+          <ul class="list-group">
+            <li v-for="item in shortenedNoteIndex" :key="item" class="list-group-item">
+              <div class="row">
+                <div class="col-9">
+                  <button class="btn" @click="getDocument(item)">{{ item }}</button>
+                </div>
+                <div class="col-3 text-right">
+                  <div class="btn-group">
+                    <button
+                      type="button"
+                      class="btn btn-outline-dark dropdown-toggle"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li @click="renameDocument(item)" class="dropdown-item">
+                        <a>Rename Note</a>
+                      </li>
+                      <li @click="deleteDocument(item)" class="dropdown-item">
+                        <a>Delete Note</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Right Side: TextArea -->
+        <div class="col-md-9">
+          <div class="form-group">
+            <textarea class="form-control" v-model="activeDocumentContent" rows="10"></textarea>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!--Error Modal-->
