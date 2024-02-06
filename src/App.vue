@@ -21,7 +21,9 @@ export default {
         messagingSenderId: '967538971502',
         appId: '1:967538971502:web:6d31288c8ade545465277f'
       },
-      errorMessage: 'An Error has occured. Please try again or create an Issue on GitHub.'
+      errorMessage: 'An Error has occured. Please try again or create an Issue on GitHub.',
+      conformationMessage: '',
+      itemToDelete: ''
     }
   },
   methods: {
@@ -39,21 +41,33 @@ export default {
       let docRef = doc(db, this.authToken, this.activeDocument)
       setDoc(docRef, { note: this.activeDocumentContent })
     },
-    async deleteDocument(item) {
-      const app = initializeApp(this.firebaseConfig)
-      const db = getFirestore(app)
-      const indexToRemove = this.shortenedNoteIndex.indexOf(item)
+    async deleteDocument(item, attempt) {
+      if (attempt == 1) {
+        this.conformationMessage =
+          'Are you sure you want to delete "' +
+          this.noteIndex[this.shortenedNoteIndex.indexOf(item)] +
+          '"? This action cannot be undone.'
 
-      if (indexToRemove !== -1) {
-        this.noteIndex.splice(indexToRemove, 1)
-        this.shortenNoteIndex()
+        this.conformationModal.show()
 
-        let docRef = doc(db, this.authToken, 'noteIndex')
-        setDoc(docRef, { index: this.noteIndex })
+        this.itemToDelete = item
+      } else if (attempt == 2) {
+        item = this.itemToDelete
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        const indexToRemove = this.shortenedNoteIndex.indexOf(item)
+
+        if (indexToRemove !== -1) {
+          this.noteIndex.splice(indexToRemove, 1)
+          this.shortenNoteIndex()
+
+          let docRef = doc(db, this.authToken, 'noteIndex')
+          setDoc(docRef, { index: this.noteIndex })
+        }
+
+        await deleteDoc(doc(db, this.authToken, item))
+        console.log('Document deleted.')
       }
-
-      await deleteDoc(doc(db, this.authToken, item))
-      console.log('Document deleted.')
     },
     createNewDocument() {
       const app = initializeApp(this.firebaseConfig)
@@ -76,11 +90,9 @@ export default {
       let newName = prompt('Enter a new name for this note:', item)
 
       if (newName.length < 1) {
-        const errorModal = document.getElementById('errorModal')
+        this.errorMessage = 'You cannot name a note nothing!'
 
-        this.errorMessage = 'The name cannot be empty.'
-
-        errorModal.show()
+        this.errorModal.show()
       } else {
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
@@ -144,6 +156,9 @@ export default {
       setDoc(docRef, { note: 'This is your first note! Have fun!' })
       this.activeDocumentContent = 'This is your first note! Have fun!'
     }
+    this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
+
+    this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
   }
 }
 </script>
@@ -200,7 +215,7 @@ export default {
                       <li @click="renameDocument(item)" class="dropdown-item">
                         <a>Rename Note</a>
                       </li>
-                      <li @click="deleteDocument(item)" class="dropdown-item">
+                      <li @click="deleteDocument(item, 1)" class="dropdown-item">
                         <a>Delete Note</a>
                       </li>
                     </ul>
@@ -221,8 +236,8 @@ export default {
     </div>
 
     <!--Error Modal-->
-    <div class="modal" id="errorModal" tabindex="-1">
-      <div class="modal-dialog">
+    <div ref="errorModal" class="modal" id="errorModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Error</h5>
@@ -234,10 +249,43 @@ export default {
             ></button>
           </div>
           <div class="modal-body">
-            <p>{{ this.errorMessage }}</p>
+            <p>{{ errorMessage }}</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-danger">Dismiss</button>
+            <button data-bs-dismiss="modal" type="button" class="btn btn-danger">Dismiss</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Conformation Modal-->
+    <div id="conformationModal" ref="conformationModal" class="modal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Are you sure?</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              {{ conformationMessage }}
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-bs-dismiss="modal"
+              @click="deleteDocument('thisStringDoesntMatter', 2)"
+            >
+              Delete
+            </button>
           </div>
         </div>
       </div>
