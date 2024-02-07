@@ -134,6 +134,10 @@ export default {
         }
         i++
       }
+    },
+    beforeUnload() {
+      this.saveActiveDocument()
+      localStorage.setItem('lastNote', this.activeDocument)
     }
   },
   beforeMount() {
@@ -154,6 +158,9 @@ export default {
     if (docSnap.exists() && docSnap.data().index[0].length > 0) {
       this.noteIndex = docSnap.data().index
       this.shortenNoteIndex()
+      if (localStorage.getItem('lastNote') !== null) {
+        this.getDocument(localStorage.getItem('lastNote'))
+      }
     } else {
       setDoc(docRef, { index: ['Welcome!'] })
       this.noteIndex = ['Welcome!']
@@ -165,6 +172,8 @@ export default {
     this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
 
     this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
+
+    window.addEventListener('beforeunload', this.beforeUnload())
   }
 }
 </script>
