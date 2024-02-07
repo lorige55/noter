@@ -23,7 +23,8 @@ export default {
       },
       errorMessage: 'An Error has occured. Please try again or create an Issue on GitHub.',
       conformationMessage: '',
-      itemToDelete: ''
+      itemToDelete: '',
+      activeSavingProcesses: 0
     }
   },
   methods: {
@@ -40,6 +41,19 @@ export default {
       const db = getFirestore(app)
       let docRef = doc(db, this.authToken, this.activeDocument)
       setDoc(docRef, { note: this.activeDocumentContent })
+      console.log('Document saved.')
+    },
+    autoSave() {
+      this.activeSavingProcesses++
+      console.log(this.activeSavingProcesses)
+      setTimeout(() => {
+        console.log(this.activeSavingProcesses)
+        if (this.activeSavingProcesses == 1) {
+          this.saveActiveDocument()
+          console.log('saved')
+        }
+        this.activeSavingProcesses--
+      }, 3000)
     },
     async deleteDocument(item, attempt) {
       if (attempt == 1) {
@@ -229,7 +243,12 @@ export default {
         <!-- Right Side: TextArea -->
         <div class="col-md-9">
           <div class="form-group">
-            <textarea class="form-control" v-model="activeDocumentContent" rows="10"></textarea>
+            <textarea
+              @input="autoSave()"
+              class="form-control"
+              v-model="activeDocumentContent"
+              rows="10"
+            ></textarea>
           </div>
         </div>
       </div>
