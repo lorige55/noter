@@ -32,6 +32,7 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
+      localStorage.setItem('lastNote', this.activeDocument)
       let docRef = doc(db, this.authToken, this.activeDocument)
       let docSnap = await getDoc(docRef)
       this.activeDocumentContent = docSnap.data().note
@@ -94,6 +95,7 @@ export default {
 
       this.activeDocumentContent = 'This is a note.'
       this.activeDocument = newNoteName
+      localStorage.setItem('lastNote', this.activeDocument)
     },
     async renameDocument(item) {
       let newName = prompt('Enter a new name for this note:', item)
@@ -134,10 +136,6 @@ export default {
         }
         i++
       }
-    },
-    beforeUnload() {
-      this.saveActiveDocument()
-      localStorage.setItem('lastNote', this.activeDocument)
     }
   },
   beforeMount() {
@@ -172,8 +170,6 @@ export default {
     this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
 
     this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
-
-    window.addEventListener('beforeunload', this.beforeUnload())
   }
 }
 </script>
