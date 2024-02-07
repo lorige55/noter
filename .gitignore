@@ -34,3 +34,4 @@ coverage
 .firebase*
 .vscode/*
 firestore.*
+firebase.*

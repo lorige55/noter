@@ -234,6 +234,24 @@ export default {
                 </div>
               </div>
             </li>
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col-9">
+                  <div class="input-group mb-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Enter a Name"
+                      aria-label="Note Name"
+                      aria-describedby="saveButton"
+                    />
+                    <button class="btn btn-outline-success" type="button" id="saveButton">
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </li>
           </ul>
         </div>
 
