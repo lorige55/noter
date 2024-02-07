@@ -12,6 +12,7 @@ export default {
       authToken: '',
       noteIndex: ['Loading...'],
       shortenedNoteIndex: ['Loading...'],
+      keyIndex: ['Loading...'],
       activeDocumentContent: 'Select a note to edit.',
       activeDocument: '',
       firebaseConfig: {
@@ -30,19 +31,27 @@ export default {
   },
   methods: {
     async getDocument(item) {
+      if (this.activeDocument !== '') {
+        this.saveActiveDocument()
+        this.activeSavingProcesses = 0
+      }
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
-      localStorage.setItem('lastNote', this.activeDocument)
-      let docRef = doc(db, this.authToken, this.activeDocument)
+      localStorage.setItem('lastNote', this.encryptString(this.activeDocument))
+      let docRef = doc(db, this.authToken, this.keyIndex[this.shortenedNoteIndex.indexOf(item)])
       let docSnap = await getDoc(docRef)
-      this.activeDocumentContent = docSnap.data().note
+      this.activeDocumentContent = this.decryptString(docSnap.data().note)
     },
     saveActiveDocument() {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      let docRef = doc(db, this.authToken, this.activeDocument)
-      setDoc(docRef, { note: this.activeDocumentContent })
+      let docRef = doc(
+        db,
+        this.authToken,
+        this.keyIndex[this.noteIndex.indexOf(this.activeDocument)]
+      )
+      setDoc(docRef, { note: this.encryptString(this.activeDocumentContent) })
     },
     autoSave() {
       this.activeSavingProcesses++
@@ -72,27 +81,32 @@ export default {
         if (indexToRemove !== -1) {
           this.noteIndex.splice(indexToRemove, 1)
           this.shortenNoteIndex()
-
-          let docRef = doc(db, this.authToken, 'noteIndex')
-          setDoc(docRef, { index: this.noteIndex })
+          await deleteDoc(doc(db, this.authToken, this.keyIndex[indexToRemove]))
+          this.keyIndex.splice(indexToRemove, 1)
+          let docRef = doc(db, this.authToken, 'keyIndex')
+          setDoc(docRef, { index: this.keyIndex })
         }
-
-        await deleteDoc(doc(db, this.authToken, item))
       }
     },
     createNewDocument() {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      const newNoteName = prompt('Enter a name for your new note:')
+      const newNoteName = prompt('Enter a name for your new note:', 'For Example: "Banana"')
 
       this.noteIndex.push(newNoteName)
       this.shortenNoteIndex()
 
-      let docRef = doc(db, this.authToken, 'noteIndex')
-      setDoc(docRef, { index: this.noteIndex })
+      let key = this.generateKey()
+      this.keyIndex.push(key)
 
-      docRef = doc(db, this.authToken, newNoteName)
-      setDoc(docRef, { note: 'This is a note.' })
+      let docRef = doc(db, this.authToken, 'keyIndex')
+      setDoc(docRef, { index: this.keyIndex })
+
+      docRef = doc(db, this.authToken, key)
+      setDoc(docRef, {
+        note: this.encryptString('This is a note.'),
+        title: this.encryptString(newNoteName)
+      })
 
       this.activeDocumentContent = 'This is a note.'
       this.activeDocument = newNoteName
@@ -112,16 +126,18 @@ export default {
         const indexToRemove = this.shortenedNoteIndex.indexOf(item)
 
         if (indexToRemove !== -1) {
-          await deleteDoc(doc(db, this.authToken, this.noteIndex[indexToRemove]))
+          await deleteDoc(
+            doc(db, this.authToken, this.encryptString(this.noteIndex[indexToRemove]))
+          )
 
           this.noteIndex.splice(indexToRemove, 1, newName)
           this.shortenNoteIndex()
 
           let docRef = doc(db, this.authToken, 'noteIndex')
-          setDoc(docRef, { index: this.noteIndex })
+          setDoc(docRef, { index: this.encryptArray(this.noteIndex) })
 
           docRef = doc(db, this.authToken, newName)
-          setDoc(docRef, { note: this.activeDocumentContent })
+          setDoc(docRef, { note: this.encryptString(this.activeDocumentContent) })
         }
       }
     },
@@ -137,6 +153,22 @@ export default {
         }
         i++
       }
+    },
+    encryptString(string) {
+      string = string.toString()
+      let encrypted = CryptoJS.Rabbit.encrypt(string, this.authToken).toString()
+      return btoa(encrypted)
+    },
+    decryptString(string) {
+      string = string.toString()
+      string = atob(string)
+      const bytes = CryptoJS.Rabbit.decrypt(string, this.authToken)
+      return bytes.toString(CryptoJS.enc.Utf8)
+    },
+    generateKey() {
+      let key = CryptoJS.lib.WordArray.random(128 / 8)
+      key.toString(CryptoJS.enc.Base64)
+      return btoa(key)
     }
   },
   beforeMount() {
@@ -151,21 +183,30 @@ export default {
   async mounted() {
     const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
-    let docRef = doc(db, this.authToken, 'noteIndex')
+    let docRef = doc(db, this.authToken, 'keyIndex')
     let docSnap = await getDoc(docRef)
 
     if (docSnap.exists() && docSnap.data().index[0].length > 0) {
-      this.noteIndex = docSnap.data().index
+      this.keyIndex = docSnap.data().index
+      for (let i = 0; i < this.keyIndex.length; i++) {
+        let docRef = doc(db, this.authToken, this.keyIndex[i])
+        let docSnap = await getDoc(docRef)
+        this.noteIndex[i] = this.decryptString(docSnap.data().title)
+      }
       this.shortenNoteIndex()
       if (localStorage.getItem('lastNote') !== null) {
-        this.getDocument(localStorage.getItem('lastNote'))
+        this.getDocument(this.decryptString(localStorage.getItem('lastNote')))
       }
     } else {
-      setDoc(docRef, { index: ['Welcome!'] })
+      let key = this.generateKey()
+      setDoc(docRef, { index: [key] })
       this.noteIndex = ['Welcome!']
       this.shortenNoteIndex()
-      docRef = doc(db, this.authToken, 'Welcome!')
-      setDoc(docRef, { note: 'This is your first note! Have fun!' })
+      docRef = doc(db, this.authToken, key)
+      setDoc(docRef, {
+        note: this.encryptString('This is your first note! Have fun!'),
+        title: this.encryptString('Welcome!')
+      })
       this.activeDocumentContent = 'This is your first note! Have fun!'
     }
     this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
