@@ -189,7 +189,6 @@ export default {
       <div class="container-fluid">
         <a class="navbar-brand" href="#">Noter</a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <button class="btn btn-dark" @click="saveActiveDocument()">Save</button>
           <button class="btn btn-outline-success" @click="createNewDocument()">
             <i class="bi bi-plus-circle"></i>
           </button>
