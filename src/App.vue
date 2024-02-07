@@ -41,16 +41,12 @@ export default {
       const db = getFirestore(app)
       let docRef = doc(db, this.authToken, this.activeDocument)
       setDoc(docRef, { note: this.activeDocumentContent })
-      console.log('Document saved.')
     },
     autoSave() {
       this.activeSavingProcesses++
-      console.log(this.activeSavingProcesses)
       setTimeout(() => {
-        console.log(this.activeSavingProcesses)
         if (this.activeSavingProcesses == 1) {
           this.saveActiveDocument()
-          console.log('saved')
         }
         this.activeSavingProcesses--
       }, 3000)
@@ -80,7 +76,6 @@ export default {
         }
 
         await deleteDoc(doc(db, this.authToken, item))
-        console.log('Document deleted.')
       }
     },
     createNewDocument() {
@@ -115,7 +110,6 @@ export default {
 
         if (indexToRemove !== -1) {
           await deleteDoc(doc(db, this.authToken, this.noteIndex[indexToRemove]))
-          console.log('Document deleted.')
 
           this.noteIndex.splice(indexToRemove, 1, newName)
           this.shortenNoteIndex()
@@ -156,13 +150,11 @@ export default {
     const db = getFirestore(app)
     let docRef = doc(db, this.authToken, 'noteIndex')
     let docSnap = await getDoc(docRef)
-    console.log(docSnap.data())
 
     if (docSnap.exists() && docSnap.data().index[0].length > 0) {
       this.noteIndex = docSnap.data().index
       this.shortenNoteIndex()
     } else {
-      console.log('No noteIndex document! Creating one plus a default note.')
       setDoc(docRef, { index: ['Welcome!'] })
       this.noteIndex = ['Welcome!']
       this.shortenNoteIndex()
