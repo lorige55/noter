@@ -1,3 +1,4 @@
+<!-- eslint-disable no-undef -->
 <script>
 import '@passageidentity/passage-elements/passage-auth'
 import { initializeApp } from 'firebase/app'
