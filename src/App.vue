@@ -12,7 +12,7 @@ export default {
       authToken: '',
       noteIndex: ['Loading...'],
       shortenedNoteIndex: ['Loading...'],
-      keyIndex: ['Loading...'],
+      keyIndex: [],
       activeDocumentContent: 'Select a note to edit.',
       activeDocument: '',
       firebaseConfig: {
@@ -155,12 +155,10 @@ export default {
       }
     },
     encryptString(string) {
-      string = string.toString()
       let encrypted = CryptoJS.Rabbit.encrypt(string, this.authToken).toString()
       return btoa(encrypted)
     },
     decryptString(string) {
-      string = string.toString()
       string = atob(string)
       const bytes = CryptoJS.Rabbit.decrypt(string, this.authToken)
       return bytes.toString(CryptoJS.enc.Utf8)
