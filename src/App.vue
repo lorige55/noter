@@ -12,9 +12,9 @@ export default {
       authToken: '',
       noteIndex: ['Loading...'],
       shortenedNoteIndex: ['Loading...'],
-      keyIndex: [],
+      keyIndex: ['Loading...'],
       activeDocumentContent: 'Select a note to edit.',
-      activeDocument: null,
+      activeDocument: '',
       firebaseConfig: {
         apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
         authDomain: 'noter-6e08f.firebaseapp.com',
@@ -31,6 +31,10 @@ export default {
   },
   methods: {
     async getDocument(item) {
+      if (this.activeDocument !== '') {
+        this.saveActiveDocument()
+        this.activeSavingProcesses = 0
+      }
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
@@ -106,7 +110,7 @@ export default {
 
       this.activeDocumentContent = 'This is a note.'
       this.activeDocument = newNoteName
-      localStorage.setItem('lastNote', this.encryptString(this.activeDocument))
+      localStorage.setItem('lastNote', this.activeDocument)
     },
     async renameDocument(item) {
       let newName = prompt('Enter a new name for this note:', item)
@@ -151,12 +155,14 @@ export default {
       }
     },
     encryptString(string) {
+      string = string.toString()
       let encrypted = CryptoJS.Rabbit.encrypt(string, this.authToken).toString()
       return btoa(encrypted)
     },
     decryptString(string) {
-      const decodedString = atob(string)
-      const bytes = CryptoJS.Rabbit.decrypt(decodedString, this.authToken)
+      string = string.toString()
+      string = atob(string)
+      const bytes = CryptoJS.Rabbit.decrypt(string, this.authToken)
       return bytes.toString(CryptoJS.enc.Utf8)
     },
     generateKey() {
@@ -240,7 +246,7 @@ export default {
                   <button
                     class="btn"
                     :class="{
-                      bold: activeDocument === noteIndex[shortenedNoteIndex.indexOf(item)]
+                      bold: noteIndex[shortenedNoteIndex.indexOf(item)] === activeDocument
                     }"
                     @click="getDocument(item)"
                   >
