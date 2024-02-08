@@ -3,9 +3,6 @@
 Hi there! Thanks for checking out this repo! Noter is a Note-App specifically for Students. It's, as you can see, still in development. Therefor it has many bugs and lacks a lot of features. If (I don't know why) you'd want to try it out, just follow these steps:
 
 ## Installation
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
 ### 1. Install required Software
 
 To be able to run Noter and host it for yourself, you need to make sure that you've installed [Node.js](https://nodejs.org/en) and [Git](https://git-scm.com/downloads)
