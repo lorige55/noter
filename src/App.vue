@@ -14,7 +14,7 @@ export default {
       shortenedNoteIndex: ['Loading...'],
       keyIndex: [],
       activeDocumentContent: 'Select a note to edit.',
-      activeDocument: '',
+      activeDocument: null,
       firebaseConfig: {
         apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
         authDomain: 'noter-6e08f.firebaseapp.com',
@@ -31,10 +31,6 @@ export default {
   },
   methods: {
     async getDocument(item) {
-      if (this.activeDocument !== '') {
-        this.saveActiveDocument()
-        this.activeSavingProcesses = 0
-      }
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
@@ -110,7 +106,7 @@ export default {
 
       this.activeDocumentContent = 'This is a note.'
       this.activeDocument = newNoteName
-      localStorage.setItem('lastNote', this.activeDocument)
+      localStorage.setItem('lastNote', this.encryptString(this.activeDocument))
     },
     async renameDocument(item) {
       let newName = prompt('Enter a new name for this note:', item)
@@ -159,8 +155,8 @@ export default {
       return btoa(encrypted)
     },
     decryptString(string) {
-      string = atob(string)
-      const bytes = CryptoJS.Rabbit.decrypt(string, this.authToken)
+      const decodedString = atob(string)
+      const bytes = CryptoJS.Rabbit.decrypt(decodedString, this.authToken)
       return bytes.toString(CryptoJS.enc.Utf8)
     },
     generateKey() {
@@ -244,7 +240,7 @@ export default {
                   <button
                     class="btn"
                     :class="{
-                      bold: noteIndex[shortenedNoteIndex.indexOf(item)] === activeDocument
+                      bold: activeDocument === noteIndex[shortenedNoteIndex.indexOf(item)]
                     }"
                     @click="getDocument(item)"
                   >
