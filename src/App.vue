@@ -10,9 +10,9 @@ export default {
       isLoggedIn: false,
       appId: 'JlXUGO3ZcoTO3pK2BSb38cc2',
       authToken: '',
-      noteIndex: ['Loading...'],
+      noteIndex: [],
       shortenedNoteIndex: ['Loading...'],
-      keyIndex: ['Loading...'],
+      keyIndex: [],
       activeDocumentContent: 'Select a note to edit.',
       activeDocument: '',
       firebaseConfig: {
@@ -155,12 +155,12 @@ export default {
       }
     },
     encryptString(string) {
-      string = string.toString()
+      string.toString()
       let encrypted = CryptoJS.Rabbit.encrypt(string, this.authToken).toString()
       return btoa(encrypted)
     },
     decryptString(string) {
-      string = string.toString()
+      string.toString()
       string = atob(string)
       const bytes = CryptoJS.Rabbit.decrypt(string, this.authToken)
       return bytes.toString(CryptoJS.enc.Utf8)
@@ -199,7 +199,8 @@ export default {
       }
     } else {
       let key = this.generateKey()
-      setDoc(docRef, { index: [key] })
+      this.keyIndex = [key]
+      setDoc(docRef, { index: this.keyIndex })
       this.noteIndex = ['Welcome!']
       this.shortenNoteIndex()
       docRef = doc(db, this.authToken, key)
@@ -207,6 +208,7 @@ export default {
         note: this.encryptString('This is your first note! Have fun!'),
         title: this.encryptString('Welcome!')
       })
+      this.activeDocument = 'Welcome!'
       this.activeDocumentContent = 'This is your first note! Have fun!'
     }
     this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
