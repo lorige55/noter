@@ -26,7 +26,8 @@ export default {
       errorMessage: 'An Error has occured. Please try again or create an Issue on GitHub.',
       conformationMessage: '',
       itemToDelete: '',
-      activeSavingProcesses: 0
+      activeSavingProcesses: 0,
+      secretKey: ''
     }
   },
   methods: {
@@ -96,7 +97,7 @@ export default {
       this.noteIndex.push(newNoteName)
       this.shortenNoteIndex()
 
-      let key = this.generateKey()
+      let key = this.generateKey(128)
       this.keyIndex.push(key)
 
       let docRef = doc(db, this.authToken, 'keyIndex')
@@ -155,18 +156,20 @@ export default {
       }
     },
     encryptString(string) {
-      string.toString()
+      console.log(string)
+      string = string.toString()
       let encrypted = CryptoJS.Rabbit.encrypt(string, this.authToken).toString()
       return btoa(encrypted)
     },
     decryptString(string) {
-      string.toString()
+      console.log(string)
+      string = string.toString()
       string = atob(string)
       const bytes = CryptoJS.Rabbit.decrypt(string, this.authToken)
       return bytes.toString(CryptoJS.enc.Utf8)
     },
-    generateKey() {
-      let key = CryptoJS.lib.WordArray.random(128 / 8)
+    generateKey(length) {
+      let key = CryptoJS.lib.WordArray.random(length / 8)
       key.toString(CryptoJS.enc.Base64)
       return btoa(key)
     }
@@ -183,9 +186,20 @@ export default {
   async mounted() {
     const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
-    let docRef = doc(db, this.authToken, 'keyIndex')
-    let docSnap = await getDoc(docRef)
 
+    let docRef = doc(db, this.authToken, 'secretKey')
+    let docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      this.secretKey = docSnap.data().key
+    } else {
+      let key = this.generateKey(256)
+      docRef = doc(db, this.authToken, 'secretKey')
+      setDoc(docRef, { key: key })
+      this.secretKey = key
+    }
+
+    docRef = doc(db, this.authToken, 'keyIndex')
+    docSnap = await getDoc(docRef)
     if (docSnap.exists() && docSnap.data().index[0].length > 0) {
       this.keyIndex = docSnap.data().index
       for (let i = 0; i < this.keyIndex.length; i++) {
@@ -198,7 +212,7 @@ export default {
         this.getDocument(this.decryptString(localStorage.getItem('lastNote')))
       }
     } else {
-      let key = this.generateKey()
+      let key = this.generateKey(128)
       this.keyIndex = [key]
       setDoc(docRef, { index: this.keyIndex })
       this.noteIndex = ['Welcome!']
@@ -214,6 +228,8 @@ export default {
     this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
 
     this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
+
+    this.securityModal = new bootstrap.Modal(this.$refs.securityModal)
   }
 }
 </script>
@@ -232,6 +248,9 @@ export default {
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <button class="btn btn-outline-success" @click="createNewDocument()">
             <i class="bi bi-plus-circle"></i>
+          </button>
+          <button class="btn btn-outline-dark" @click="securityModal.show()">
+            <i class="bi bi-shield-lock-fill"></i>
           </button>
         </div>
       </div>
@@ -363,6 +382,47 @@ export default {
             >
               Delete
             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Secret Key Modal-->
+    <div class="modal" tabindex="-1" ref="securityModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Privacy & Security</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              To protect your privacy, the title and content of your Notes get encrypted before they
+              are saved in the cloud. Noter uses the
+              <a
+                href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard"
+                class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                >AES</a
+              >
+              encryption algorithm with a 256-bit key. This key is essential for encrypting and
+              decrypting all of your data. The key is by default stored in the cloud. If you want
+              full Privacy, you have to store the secret Key on your own. However then, you have to
+              enter the secret Key again everytime you use Noter on a new Device/Browser. If you
+              loose the key all your data is lost forever.
+            </p>
+            <p>
+              This is your Secret Key: <br />
+              <code>{{ secretKey }}</code>
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
           </div>
         </div>
       </div>
