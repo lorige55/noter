@@ -206,10 +206,6 @@ export default {
       this.authToken = localStorage.getItem('psg_auth_token').split('.')[0]
     }
 
-    this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
-    this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
-    this.securityModal = new bootstrap.Modal(this.$refs.securityModal)
-
     const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
 
@@ -223,7 +219,7 @@ export default {
         if (localStorage.getItem('secretKey') !== null) {
           this.secretKey = localStorage.getItem('secretKey')
         } else {
-          this.securityModal.show()
+          this.$refs.securityModal.show()
         }
       }
     } else {
@@ -262,6 +258,10 @@ export default {
         this.activeDocumentContent = 'This is your first note! Have fun!'
       }
     }
+
+    this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
+    this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
+    this.securityModal = new bootstrap.Modal(this.$refs.securityModal)
   }
 }
 </script>
@@ -324,24 +324,6 @@ export default {
                         <a>Delete Note</a>
                       </li>
                     </ul>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="list-group-item">
-              <div class="row">
-                <div class="col-9">
-                  <div class="input-group mb-3">
-                    <input
-                      type="text"
-                      class="form-control"
-                      placeholder="Enter a Name"
-                      aria-label="Note Name"
-                      aria-describedby="saveButton"
-                    />
-                    <button class="btn btn-outline-success" type="button" id="saveButton">
-                      Save
-                    </button>
                   </div>
                 </div>
               </div>
