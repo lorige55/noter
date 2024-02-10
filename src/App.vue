@@ -197,7 +197,7 @@ export default {
       localStorage.setItem('secretKey', this.secretKey)
     }
   },
-  beforeMount() {
+  async mounted() {
     if (
       localStorage.getItem('psg_auth_token') !== null &&
       localStorage.getItem('psg_last_login') !== null
@@ -205,8 +205,7 @@ export default {
       this.isLoggedIn = true
       this.authToken = localStorage.getItem('psg_auth_token').split('.')[0]
     }
-  },
-  async mounted() {
+
     this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
     this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
     this.securityModal = new bootstrap.Modal(this.$refs.securityModal)
@@ -484,8 +483,8 @@ export default {
               <p>
                 Note: We strongly recommend to use a randomly generated Secret Key from us. However,
                 if you want, you could edit the generated key or even set your completly own one.
-                Don't loose it!
               </p>
+              <p class="text-danger">If you loose your Secret Key, all your data is lost!</p>
             </div>
             <br />
             <div class="form-check form-switch">
