@@ -52,7 +52,10 @@ export default {
         this.authToken,
         this.keyIndex[this.noteIndex.indexOf(this.activeDocument)]
       )
-      setDoc(docRef, { note: this.encryptString(this.activeDocumentContent) })
+      setDoc(docRef, {
+        note: this.encryptString(this.activeDocumentContent),
+        title: this.encryptString(this.activeDocument)
+      })
     },
     autoSave() {
       this.activeSavingProcesses++
@@ -156,13 +159,11 @@ export default {
       }
     },
     encryptString(string) {
-      console.log(string)
       string = string.toString()
       let encrypted = CryptoJS.Rabbit.encrypt(string, this.authToken).toString()
       return btoa(encrypted)
     },
     decryptString(string) {
-      console.log(string)
       string = string.toString()
       string = atob(string)
       const bytes = CryptoJS.Rabbit.decrypt(string, this.authToken)
@@ -402,18 +403,16 @@ export default {
           </div>
           <div class="modal-body">
             <p>
-              To protect your privacy, the title and content of your Notes get encrypted before they
-              are saved in the cloud. Noter uses the
+              To ensure privacy, Notes are encrypted using
               <a
                 href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard"
                 class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                >AES</a
+                >AES-256</a
               >
-              encryption algorithm with a 256-bit key. This key is essential for encrypting and
-              decrypting all of your data. The key is by default stored in the cloud. If you want
-              full Privacy, you have to store the secret Key on your own. However then, you have to
-              enter the secret Key again everytime you use Noter on a new Device/Browser. If you
-              loose the key all your data is lost forever.
+              before saving to the cloud. The encryption key is crucial for data security and is
+              stored by default in the cloud. For full privacy, store the key yourself, but remember
+              you'll need to enter it every time you switch devices or browsers. Losing the key
+              means losing all your data permanently.
             </p>
             <p>
               This is your Secret Key: <br />
