@@ -1,6 +1,7 @@
 <!-- eslint-disable no-undef -->
 <script>
 import '@passageidentity/passage-elements/passage-auth'
+import { PassageUser } from '@passageidentity/passage-auth/passage-user'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore'
 
@@ -8,12 +9,13 @@ export default {
   data() {
     return {
       isLoggedIn: false,
+      user: null,
+      userId: null,
       appId: 'JlXUGO3ZcoTO3pK2BSb38cc2',
-      authToken: '',
       noteIndex: [],
       shortenedNoteIndex: ['Loading...'],
       keyIndex: [],
-      activeDocumentContent: 'Select a note to edit.',
+      activeDocumentContent: 'Loading...',
       activeDocument: '',
       firebaseConfig: {
         apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
@@ -42,18 +44,14 @@ export default {
       const db = getFirestore(app)
       this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
       localStorage.setItem('lastNote', this.encryptString(this.activeDocument))
-      let docRef = doc(db, this.authToken, this.keyIndex[this.shortenedNoteIndex.indexOf(item)])
+      let docRef = doc(db, this.userId, this.keyIndex[this.shortenedNoteIndex.indexOf(item)])
       let docSnap = await getDoc(docRef)
       this.activeDocumentContent = this.decryptString(docSnap.data().note)
     },
     saveActiveDocument() {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      let docRef = doc(
-        db,
-        this.authToken,
-        this.keyIndex[this.noteIndex.indexOf(this.activeDocument)]
-      )
+      let docRef = doc(db, this.userId, this.keyIndex[this.noteIndex.indexOf(this.activeDocument)])
       setDoc(docRef, {
         note: this.encryptString(this.activeDocumentContent),
         title: this.encryptString(this.activeDocument)
@@ -87,9 +85,9 @@ export default {
         if (indexToRemove !== -1) {
           this.noteIndex.splice(indexToRemove, 1)
           this.shortenNoteIndex()
-          await deleteDoc(doc(db, this.authToken, this.keyIndex[indexToRemove]))
+          await deleteDoc(doc(db, this.userId, this.keyIndex[indexToRemove]))
           this.keyIndex.splice(indexToRemove, 1)
-          let docRef = doc(db, this.authToken, 'keyIndex')
+          let docRef = doc(db, this.userId, 'keyIndex')
           setDoc(docRef, { index: this.keyIndex })
         }
       }
@@ -105,10 +103,10 @@ export default {
       let key = this.generateKey(128)
       this.keyIndex.push(key)
 
-      let docRef = doc(db, this.authToken, 'keyIndex')
+      let docRef = doc(db, this.userId, 'keyIndex')
       setDoc(docRef, { index: this.keyIndex })
 
-      docRef = doc(db, this.authToken, key)
+      docRef = doc(db, this.userId, key)
       setDoc(docRef, {
         note: this.encryptString('This is a note.'),
         title: this.encryptString(newNoteName)
@@ -132,17 +130,15 @@ export default {
         const indexToRemove = this.shortenedNoteIndex.indexOf(item)
 
         if (indexToRemove !== -1) {
-          await deleteDoc(
-            doc(db, this.authToken, this.encryptString(this.noteIndex[indexToRemove]))
-          )
+          await deleteDoc(doc(db, this.userId, this.encryptString(this.noteIndex[indexToRemove])))
 
           this.noteIndex.splice(indexToRemove, 1, newName)
           this.shortenNoteIndex()
 
-          let docRef = doc(db, this.authToken, 'noteIndex')
+          let docRef = doc(db, this.userId, 'noteIndex')
           setDoc(docRef, { index: this.encryptArray(this.noteIndex) })
 
-          docRef = doc(db, this.authToken, newName)
+          docRef = doc(db, this.userId, newName)
           setDoc(docRef, { note: this.encryptString(this.activeDocumentContent) })
         }
       }
@@ -162,13 +158,13 @@ export default {
     },
     encryptString(string) {
       string = string.toString()
-      let encrypted = CryptoJS.Rabbit.encrypt(string, this.authToken).toString()
+      let encrypted = CryptoJS.Rabbit.encrypt(string, this.secretKey).toString()
       return btoa(encrypted)
     },
     decryptString(string) {
       string = string.toString()
       string = atob(string)
-      const bytes = CryptoJS.Rabbit.decrypt(string, this.authToken)
+      const bytes = CryptoJS.Rabbit.decrypt(string, this.secretKey)
       return bytes.toString(CryptoJS.enc.Utf8)
     },
     generateKey(length) {
@@ -183,7 +179,7 @@ export default {
         this.secretKeyStatus = 'locked'
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
-        let docRef = doc(db, this.authToken, 'secretKey')
+        let docRef = doc(db, this.userId, 'secretKey')
         setDoc(docRef, { key: this.secretKey })
         localStorage.setItem('secretKey', this.secretKey)
       }
@@ -192,24 +188,35 @@ export default {
       this.secretKey = this.generateKey(256)
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      let docRef = doc(db, this.authToken, 'secretKey')
+      let docRef = doc(db, this.userId, 'secretKey')
       setDoc(docRef, { key: this.secretKey })
       localStorage.setItem('secretKey', this.secretKey)
     }
   },
   async mounted() {
-    if (
-      localStorage.getItem('psg_auth_token') !== null &&
-      localStorage.getItem('psg_last_login') !== null
-    ) {
+    try {
+      const passageUser = new PassageUser()
+      const userInfo = await passageUser.userInfo()
+
+      if (userInfo === undefined) {
+        this.isLoggedIn = false
+        return
+      }
+
       this.isLoggedIn = true
-      this.authToken = localStorage.getItem('psg_auth_token').split('.')[0]
+      this.user = userInfo
+      this.userId = userInfo.id
+      console.log(this.userId) // This will log the correct value
+    } catch (error) {
+      console.error('Error fetching user info:', error)
     }
+
+    console.log(this.userId) // This will also log the correct value
 
     const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
 
-    let docRef = doc(db, this.authToken, 'secretKey')
+    let docRef = doc(db, this.userId, 'secretKey')
     let docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
       if (docSnap.data().key !== 'nah') {
@@ -224,18 +231,18 @@ export default {
       }
     } else {
       let key = this.generateKey(256)
-      docRef = doc(db, this.authToken, 'secretKey')
+      docRef = doc(db, this.userId, 'secretKey')
       setDoc(docRef, { key: key })
       this.secretKey = key
     }
 
     if (this.secretKey !== '') {
-      docRef = doc(db, this.authToken, 'keyIndex')
+      docRef = doc(db, this.userId, 'keyIndex')
       docSnap = await getDoc(docRef)
       if (docSnap.exists() && docSnap.data().index[0].length > 0) {
         this.keyIndex = docSnap.data().index
         for (let i = 0; i < this.keyIndex.length; i++) {
-          let docRef = doc(db, this.authToken, this.keyIndex[i])
+          let docRef = doc(db, this.userId, this.keyIndex[i])
           let docSnap = await getDoc(docRef)
           this.noteIndex[i] = this.decryptString(docSnap.data().title)
         }
@@ -249,7 +256,7 @@ export default {
         setDoc(docRef, { index: this.keyIndex })
         this.noteIndex = ['Welcome!']
         this.shortenNoteIndex()
-        docRef = doc(db, this.authToken, key)
+        docRef = doc(db, this.userId, key)
         setDoc(docRef, {
           note: this.encryptString('This is your first note! Have fun!'),
           title: this.encryptString('Welcome!')
