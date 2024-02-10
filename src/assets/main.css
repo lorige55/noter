@@ -1,3 +1,11 @@
 .bold {
   font-weight: bold;
 }
+
+.code-block {
+  position: relative;
+  padding: 10px;
+  background-color: #f4f4f4;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}

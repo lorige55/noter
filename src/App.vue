@@ -27,7 +27,9 @@ export default {
       conformationMessage: '',
       itemToDelete: '',
       activeSavingProcesses: 0,
-      secretKey: ''
+      secretKey: '',
+      trust: true,
+      secretKeyStatus: 'locked'
     }
   },
   methods: {
@@ -173,6 +175,26 @@ export default {
       let key = CryptoJS.lib.WordArray.random(length / 8)
       key.toString(CryptoJS.enc.Base64)
       return btoa(key)
+    },
+    changeSecretKey() {
+      if (this.secretKeyStatus == 'locked') {
+        this.secretKeyStatus = 'unlocked'
+      } else {
+        this.secretKeyStatus = 'locked'
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        let docRef = doc(db, this.authToken, 'secretKey')
+        setDoc(docRef, { key: this.secretKey })
+        localStorage.setItem('secretKey', this.secretKey)
+      }
+    },
+    generateNewSecretKey() {
+      this.secretKey = this.generateKey(256)
+      const app = initializeApp(this.firebaseConfig)
+      const db = getFirestore(app)
+      let docRef = doc(db, this.authToken, 'secretKey')
+      setDoc(docRef, { key: this.secretKey })
+      localStorage.setItem('secretKey', this.secretKey)
     }
   },
   beforeMount() {
@@ -185,13 +207,26 @@ export default {
     }
   },
   async mounted() {
+    this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
+    this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
+    this.securityModal = new bootstrap.Modal(this.$refs.securityModal)
+
     const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
 
     let docRef = doc(db, this.authToken, 'secretKey')
     let docSnap = await getDoc(docRef)
     if (docSnap.exists()) {
-      this.secretKey = docSnap.data().key
+      if (docSnap.data().key !== 'nah') {
+        this.secretKey = docSnap.data().key
+      } else {
+        this.trust = false
+        if (localStorage.getItem('secretKey') !== null) {
+          this.secretKey = localStorage.getItem('secretKey')
+        } else {
+          this.securityModal.show()
+        }
+      }
     } else {
       let key = this.generateKey(256)
       docRef = doc(db, this.authToken, 'secretKey')
@@ -199,38 +234,35 @@ export default {
       this.secretKey = key
     }
 
-    docRef = doc(db, this.authToken, 'keyIndex')
-    docSnap = await getDoc(docRef)
-    if (docSnap.exists() && docSnap.data().index[0].length > 0) {
-      this.keyIndex = docSnap.data().index
-      for (let i = 0; i < this.keyIndex.length; i++) {
-        let docRef = doc(db, this.authToken, this.keyIndex[i])
-        let docSnap = await getDoc(docRef)
-        this.noteIndex[i] = this.decryptString(docSnap.data().title)
+    if (this.secretKey !== '') {
+      docRef = doc(db, this.authToken, 'keyIndex')
+      docSnap = await getDoc(docRef)
+      if (docSnap.exists() && docSnap.data().index[0].length > 0) {
+        this.keyIndex = docSnap.data().index
+        for (let i = 0; i < this.keyIndex.length; i++) {
+          let docRef = doc(db, this.authToken, this.keyIndex[i])
+          let docSnap = await getDoc(docRef)
+          this.noteIndex[i] = this.decryptString(docSnap.data().title)
+        }
+        this.shortenNoteIndex()
+        if (localStorage.getItem('lastNote') !== null) {
+          this.getDocument(this.decryptString(localStorage.getItem('lastNote')))
+        }
+      } else {
+        let key = this.generateKey(128)
+        this.keyIndex = [key]
+        setDoc(docRef, { index: this.keyIndex })
+        this.noteIndex = ['Welcome!']
+        this.shortenNoteIndex()
+        docRef = doc(db, this.authToken, key)
+        setDoc(docRef, {
+          note: this.encryptString('This is your first note! Have fun!'),
+          title: this.encryptString('Welcome!')
+        })
+        this.activeDocument = 'Welcome!'
+        this.activeDocumentContent = 'This is your first note! Have fun!'
       }
-      this.shortenNoteIndex()
-      if (localStorage.getItem('lastNote') !== null) {
-        this.getDocument(this.decryptString(localStorage.getItem('lastNote')))
-      }
-    } else {
-      let key = this.generateKey(128)
-      this.keyIndex = [key]
-      setDoc(docRef, { index: this.keyIndex })
-      this.noteIndex = ['Welcome!']
-      this.shortenNoteIndex()
-      docRef = doc(db, this.authToken, key)
-      setDoc(docRef, {
-        note: this.encryptString('This is your first note! Have fun!'),
-        title: this.encryptString('Welcome!')
-      })
-      this.activeDocument = 'Welcome!'
-      this.activeDocumentContent = 'This is your first note! Have fun!'
     }
-    this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
-
-    this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
-
-    this.securityModal = new bootstrap.Modal(this.$refs.securityModal)
   }
 }
 </script>
@@ -390,7 +422,7 @@ export default {
 
     <!--Secret Key Modal-->
     <div class="modal" tabindex="-1" ref="securityModal">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Privacy & Security</h5>
@@ -414,14 +446,60 @@ export default {
               you'll need to enter it every time you switch devices or browsers. Losing the key
               means losing all your data permanently.
             </p>
-            <p>
-              This is your Secret Key: <br />
-              <code>{{ secretKey }}</code>
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <div v-if="trust">
+              <p>This is your Secret Key:</p>
+              <input
+                class="form-control"
+                type="text"
+                v-model="secretKey"
+                aria-label="Secret Key"
+                disabled
+                readonly
+              />
+            </div>
+            <div v-else>
+              <p>Please enter your Secret Key:</p>
+              <div class="input-group mb-3">
+                <button
+                  @click="changeSecretKey()"
+                  class="btn btn-outline-dark"
+                  type="button"
+                  id="lockButton"
+                >
+                  <div v-if="secretKeyStatus == 'locked'"><i class="bi bi-lock-fill"></i></div>
+                  <div v-else><i class="bi bi-unlock-fill"></i></div>
+                </button>
+                <input
+                  class="form-control"
+                  type="text"
+                  :value="secretKey"
+                  aria-label="Secret Key"
+                  :disabled="secretKeyStatus === 'locked'"
+                  :readonly="secretKeyStatus === 'locked'"
+                />
+                <button class="btn btn-outline-danger" @click="generateNewSecretKey()">
+                  Generate
+                </button>
+              </div>
+              <p>
+                Note: We strongly recommend to use a randomly generated Secret Key from us. However,
+                if you want, you could edit the generated key or even set your completly own one.
+                Don't loose it!
+              </p>
+            </div>
+            <br />
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                role="switch"
+                id="flexSwitchCheckChecked"
+                v-model="trust"
+              />
+              <label class="form-check-label" for="flexSwitchCheckChecked"
+                >Store Secret Key in Cloud</label
+              >
+            </div>
           </div>
         </div>
       </div>
