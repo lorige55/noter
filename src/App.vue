@@ -36,7 +36,7 @@ export default {
   },
   methods: {
     async getDocument(item) {
-      if (this.activeDocument !== '') {
+      if (this.activeDocument) {
         this.saveActiveDocument()
         this.activeSavingProcesses = 0
       }
@@ -206,12 +206,9 @@ export default {
       this.isLoggedIn = true
       this.user = userInfo
       this.userId = userInfo.id
-      console.log(this.userId) // This will log the correct value
     } catch (error) {
       console.error('Error fetching user info:', error)
     }
-
-    console.log(this.userId) // This will also log the correct value
 
     const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
