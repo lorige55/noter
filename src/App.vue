@@ -158,7 +158,7 @@ export default {
     },
     encryptString(string) {
       string = string.toString()
-      let encrypted = CryptoJS.Rabbit.encrypt(string, this.secretKey).toString()
+      let encrypted = CryptoJS.Rabbit.encrypt(string, this.secretKey)
       return btoa(encrypted)
     },
     decryptString(string) {
@@ -329,6 +329,22 @@ export default {
                       </li>
                     </ul>
                   </div>
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item d-flex align-items-center justify-content-center">
+              <div class="col-9">
+                <div class="input-group mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Enter a name for your new note"
+                    aria-label="Enter a name for your new note"
+                    aria-describedby="createButton"
+                  />
+                  <button class="btn btn-outline-success" type="button" id="createButton">
+                    Create
+                  </button>
                 </div>
               </div>
             </li>
