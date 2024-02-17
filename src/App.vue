@@ -31,7 +31,8 @@ export default {
       activeSavingProcesses: 0,
       secretKey: '',
       trust: true,
-      secretKeyStatus: 'locked'
+      secretKeyStatus: 'locked',
+      creatingNewDocument: false
     }
   },
   methods: {
@@ -92,29 +93,33 @@ export default {
         }
       }
     },
-    createNewDocument() {
-      const app = initializeApp(this.firebaseConfig)
-      const db = getFirestore(app)
-      const newNoteName = prompt('Enter a name for your new note:', 'For Example: "Banana"')
+    createNewDocument(attempt) {
+      if (attempt == 1) {
+        this.creatingNewDocument = true
+      } else if (attempt == 2) {
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        const newNoteName = document.getElementById('noteNameInput').value
+        this.noteIndex.push(newNoteName)
+        this.shortenNoteIndex()
 
-      this.noteIndex.push(newNoteName)
-      this.shortenNoteIndex()
+        let key = this.generateKey(128)
+        this.keyIndex.push(key)
 
-      let key = this.generateKey(128)
-      this.keyIndex.push(key)
+        let docRef = doc(db, this.userId, 'keyIndex')
+        setDoc(docRef, { index: this.keyIndex })
 
-      let docRef = doc(db, this.userId, 'keyIndex')
-      setDoc(docRef, { index: this.keyIndex })
+        docRef = doc(db, this.userId, key)
+        setDoc(docRef, {
+          note: this.encryptString('This is a note.'),
+          title: this.encryptString(newNoteName)
+        })
 
-      docRef = doc(db, this.userId, key)
-      setDoc(docRef, {
-        note: this.encryptString('This is a note.'),
-        title: this.encryptString(newNoteName)
-      })
-
-      this.activeDocumentContent = 'This is a note.'
-      this.activeDocument = newNoteName
-      localStorage.setItem('lastNote', this.activeDocument)
+        this.activeDocumentContent = 'This is a note.'
+        this.activeDocument = newNoteName
+        localStorage.setItem('lastNote', this.activeDocument)
+        this.creatingNewDocument = false
+      }
     },
     async renameDocument(item) {
       let newName = prompt('Enter a new name for this note:', item)
@@ -191,6 +196,20 @@ export default {
       let docRef = doc(db, this.userId, 'secretKey')
       setDoc(docRef, { key: this.secretKey })
       localStorage.setItem('secretKey', this.secretKey)
+    },
+    async trustChanged() {
+      if (!this.trust) {
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        let docRef = doc(db, this.userId, 'secretKey')
+        setDoc(docRef, { key: 'nah' })
+        localStorage.setItem('secretKey', this.secretKey)
+      } else if (this.trust) {
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        let docRef = doc(db, this.userId, 'secretKey')
+        setDoc(docRef, { key: this.secretKey })
+      }
     }
   },
   async mounted() {
@@ -282,7 +301,7 @@ export default {
       <div class="container-fluid">
         <a class="navbar-brand" href="#">Noter</a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <button class="btn btn-outline-success" @click="createNewDocument()">
+          <button class="btn btn-outline-success" @click="createNewDocument(1)">
             <i class="bi bi-plus-circle"></i>
           </button>
           <button class="btn btn-outline-dark" @click="securityModal.show()">
@@ -332,17 +351,23 @@ export default {
                 </div>
               </div>
             </li>
-            <li class="list-group-item d-flex align-items-center justify-content-center">
-              <div class="col-9">
-                <div class="input-group mb-3">
+            <li class="list-group-item w-100" v-if="creatingNewDocument">
+              <div class="col-9 w-100">
+                <div class="input-group w-100">
                   <input
                     type="text"
-                    class="form-control"
+                    class="form-control w-80"
                     placeholder="Enter a name for your new note"
                     aria-label="Enter a name for your new note"
                     aria-describedby="createButton"
+                    id="noteNameInput"
                   />
-                  <button class="btn btn-outline-success" type="button" id="createButton">
+                  <button
+                    @click="createNewDocument(2)"
+                    class="btn btn-outline-success"
+                    type="button w-20"
+                    id="createButton"
+                  >
                     Create
                   </button>
                 </div>
@@ -423,7 +448,7 @@ export default {
 
     <!--Secret Key Modal-->
     <div class="modal" tabindex="-1" ref="securityModal">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Privacy & Security</h5>
@@ -496,6 +521,7 @@ export default {
                 role="switch"
                 id="flexSwitchCheckChecked"
                 v-model="trust"
+                @change="trustChanged()"
               />
               <label class="form-check-label" for="flexSwitchCheckChecked"
                 >Store Secret Key in Cloud</label
