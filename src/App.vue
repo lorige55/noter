@@ -37,28 +37,35 @@ export default {
   },
   methods: {
     async getDocument(item) {
+      //save active document before switching
       if (this.activeDocument) {
         this.saveActiveDocument()
         this.activeSavingProcesses = 0
       }
+      //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
+      //set active document and lastNote
       this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
       localStorage.setItem('lastNote', this.activeDocument)
+      //get document from firebase and set activeDocumentContent to content
       let docRef = doc(db, this.userId, this.keyIndex[this.shortenedNoteIndex.indexOf(item)])
       let docSnap = await getDoc(docRef)
       this.activeDocumentContent = this.decryptString(docSnap.data().note)
     },
     saveActiveDocument() {
+      //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       let docRef = doc(db, this.userId, this.keyIndex[this.noteIndex.indexOf(this.activeDocument)])
+      //save document to firebase
       setDoc(docRef, {
         note: this.encryptString(this.activeDocumentContent),
         title: this.encryptString(this.activeDocument)
       })
     },
     autoSave() {
+      //save active document after 3 seconds of inactivity
       this.activeSavingProcesses++
       setTimeout(() => {
         if (this.activeSavingProcesses == 1) {
@@ -68,6 +75,7 @@ export default {
       }, 3000)
     },
     async deleteDocument(item, attempt) {
+      //if first attempt, show conformation modal
       if (attempt == 1) {
         this.conformationMessage =
           'Are you sure you want to delete "' +
@@ -78,51 +86,63 @@ export default {
 
         this.itemToDelete = item
       } else if (attempt == 2) {
+        //recover item from first attempt
         item = this.itemToDelete
+        //initialize firebase and the index of the item to remove
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
         const indexToRemove = this.shortenedNoteIndex.indexOf(item)
-
+        //remove item from lastNote in localStorage if it is the lastNote
         if (
           localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
         ) {
           localStorage.removeItem('lastNote')
           console.log('removed lastNote')
         }
-
+        //if indexToRemove is valid
         if (indexToRemove !== -1) {
+          //remove item from noteIndex and shortenNoteIndex
           this.noteIndex.splice(indexToRemove, 1)
           this.shortenNoteIndex()
+          //delete document from firebase
           await deleteDoc(doc(db, this.userId, this.keyIndex[indexToRemove]))
+          //remove key from keyIndex and push new keyIndex to firebase
           this.keyIndex.splice(indexToRemove, 1)
           let docRef = doc(db, this.userId, 'keyIndex')
           setDoc(docRef, { index: this.keyIndex })
+        } else {
+          this.errorMessage = 'An Error has occured. Please try again or create an Issue on GitHub.'
+          this.errorModal.show()
         }
+        //reload page for the user to see the changes
         location.reload()
       }
     },
     createNewDocument(attempt) {
+      //show input for new note name
       if (attempt == 1) {
         this.creatingNewDocument = true
       } else if (attempt == 2) {
+        //initialize firebase
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
+        //get new note name and push it to noteIndex, then shorten it
         const newNoteName = document.getElementById('noteNameInput').value
         this.noteIndex.push(newNoteName)
         this.shortenNoteIndex()
-
+        //generate new key and push it to keyIndex
         let key = this.generateKey(128)
         this.keyIndex.push(key)
-
+        //push new keyIndex to firebase
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
-
+        //push new note to firebase
         docRef = doc(db, this.userId, key)
         setDoc(docRef, {
           note: this.encryptString('This is a note.'),
           title: this.encryptString(newNoteName)
         })
-
+        //set activeDocument and lastNote to new note
         this.activeDocumentContent = 'This is a note.'
         this.activeDocument = newNoteName
         localStorage.setItem('lastNote', this.activeDocument)
@@ -130,34 +150,37 @@ export default {
       }
     },
     async renameDocument(item) {
+      //get a new name for the note
       let newName = prompt('Enter a new name for this note:', item)
-
+      //if the new name is empty, show error modal, else proceed
       if (newName.length < 1) {
         this.errorMessage = 'You cannot name a note nothing!'
-
         this.errorModal.show()
       } else {
+        //initialize firebase
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
-
-        const indexToRemove = this.shortenedNoteIndex.indexOf(item)
-
-        if (indexToRemove !== -1) {
-          await deleteDoc(doc(db, this.userId, this.encryptString(this.noteIndex[indexToRemove])))
-
-          this.noteIndex.splice(indexToRemove, 1, newName)
+        //get index of the item to rename
+        const indexToRename = this.shortenedNoteIndex.indexOf(item)
+        //if indexToRename is valid, proceed
+        if (indexToRename !== -1) {
+          await deleteDoc(doc(db, this.userId, this.encryptString(this.noteIndex[indexToRename])))
+          this.noteIndex.splice(indexToRename, 1, newName)
           this.shortenNoteIndex()
-
           let docRef = doc(db, this.userId, 'noteIndex')
           setDoc(docRef, { index: this.encryptArray(this.noteIndex) })
-
           docRef = doc(db, this.userId, newName)
           setDoc(docRef, { note: this.encryptString(this.activeDocumentContent) })
+        } else {
+          this.errorMessage = 'An Error has occured. Please try again or create an Issue on GitHub.'
+          this.errorModal.show()
         }
       }
     },
     shortenNoteIndex() {
+      //set char limit
       let charLimit = 30
+      //loop through noteIndex and shorten each item and set it to its position in shrotenedNoteIndex
       for (let i = 0; i < this.noteIndex.length; ) {
         if (this.noteIndex[i].length > charLimit) {
           let shortenedString = this.noteIndex[i].split('')
@@ -170,49 +193,70 @@ export default {
       }
     },
     encryptString(string) {
+      //verify that input is a string
       string = string.toString()
+      //encrypt with AES-256
       let encrypted = CryptoJS.Rabbit.encrypt(string, this.secretKey)
+      //encode to base64
       return btoa(encrypted)
     },
     decryptString(string) {
+      //verify that input is a string
       string = string.toString()
+      //decode from base64
       string = atob(string)
+      //decrypt with AES-256
       const bytes = CryptoJS.Rabbit.decrypt(string, this.secretKey)
       return bytes.toString(CryptoJS.enc.Utf8)
     },
     generateKey(length) {
+      //generate a random key
       let key = CryptoJS.lib.WordArray.random(length / 8)
       key.toString(CryptoJS.enc.Base64)
+      //encode to base64 and return
       return btoa(key)
     },
     changeSecretKey() {
       if (this.secretKeyStatus == 'locked') {
+        //changed status
         this.secretKeyStatus = 'unlocked'
       } else {
+        //changed status
         this.secretKeyStatus = 'locked'
-        const app = initializeApp(this.firebaseConfig)
-        const db = getFirestore(app)
-        let docRef = doc(db, this.userId, 'secretKey')
-        setDoc(docRef, { key: this.secretKey })
+        //if trust is true, push new key to firebase
+        if (this.trust) {
+          const app = initializeApp(this.firebaseConfig)
+          const db = getFirestore(app)
+          let docRef = doc(db, this.userId, 'secretKey')
+          setDoc(docRef, { key: this.secretKey })
+        }
+        //save new key to localStorage
         localStorage.setItem('secretKey', this.secretKey)
       }
     },
     generateNewSecretKey() {
+      //generate new key and set it to secretKey
       this.secretKey = this.generateKey(256)
-      const app = initializeApp(this.firebaseConfig)
-      const db = getFirestore(app)
-      let docRef = doc(db, this.userId, 'secretKey')
-      setDoc(docRef, { key: this.secretKey })
+      //push new key to firebase if trust is true
+      if (this.trust) {
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        let docRef = doc(db, this.userId, 'secretKey')
+        setDoc(docRef, { key: this.secretKey })
+      }
+      //save new key to localStorage
       localStorage.setItem('secretKey', this.secretKey)
     },
     async trustChanged() {
       if (!this.trust) {
+        //if trust changed to false remove secretKey from firebase
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
         let docRef = doc(db, this.userId, 'secretKey')
         setDoc(docRef, { key: 'nah' })
         localStorage.setItem('secretKey', this.secretKey)
       } else if (this.trust) {
+        //if trust changed to true, push secretKey to firebase
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
         let docRef = doc(db, this.userId, 'secretKey')
@@ -221,6 +265,7 @@ export default {
     }
   },
   async mounted() {
+    //try to authenticate
     try {
       const passageUser = new PassageUser()
       const userInfo = await passageUser.userInfo()
@@ -234,14 +279,16 @@ export default {
       this.user = userInfo
       this.userId = userInfo.id
     } catch (error) {
-      console.error('Error fetching user info:', error)
+      this.errorMessage =
+        'An Error has occured: ' + error + '. Please try again or create an Issue on GitHub.'
+      this.errorModal.show()
     }
-
+    //get secret Key from firebase
     const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
-
     let docRef = doc(db, this.userId, 'secretKey')
     let docSnap = await getDoc(docRef)
+    //if trust is true, get secretKey from firebase, else get it from localStorage or open securityModal if it is not set in localStorage
     if (docSnap.exists()) {
       if (docSnap.data().key !== 'nah') {
         this.secretKey = docSnap.data().key
@@ -254,33 +301,38 @@ export default {
         }
       }
     } else {
+      //if there is no secretKey in firebase, generate a new one and push it to firebase
       let key = this.generateKey(256)
       docRef = doc(db, this.userId, 'secretKey')
       setDoc(docRef, { key: key })
       this.secretKey = key
     }
-
+    //get keyIndex from firebase
     if (this.secretKey !== '') {
       docRef = doc(db, this.userId, 'keyIndex')
       docSnap = await getDoc(docRef)
+      //if keyIndex exists, get it
       if (docSnap.exists() && docSnap.data().index[0].length > 0) {
         this.keyIndex = docSnap.data().index
+        //loop through keyIndex and build noteIndex
         for (let i = 0; i < this.keyIndex.length; i++) {
           let docRef = doc(db, this.userId, this.keyIndex[i])
           let docSnap = await getDoc(docRef)
           this.noteIndex[i] = this.decryptString(docSnap.data().title)
         }
+        //shortenNoteIndex, obvi
         this.shortenNoteIndex()
-
         //recover last note or select first in array if equal to null
         if (localStorage.getItem('lastNote') == null) {
           localStorage.setItem('lastNote', this.noteIndex[0])
         }
         this.getDocument(localStorage.getItem('lastNote'))
       } else {
+        //if keyIndex does not exist, create a new one and push it to firebase
         let key = this.generateKey(128)
         this.keyIndex = [key]
         setDoc(docRef, { index: this.keyIndex })
+        //create default note
         this.noteIndex = ['Welcome!']
         this.shortenNoteIndex()
         docRef = doc(db, this.userId, key)
@@ -288,11 +340,12 @@ export default {
           note: this.encryptString('This is your first note! Have fun!'),
           title: this.encryptString('Welcome!')
         })
+        //set default note to active Note
         this.activeDocument = 'Welcome!'
         this.activeDocumentContent = 'This is your first note! Have fun!'
       }
     }
-
+    //initialize modals
     this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
     this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
     this.securityModal = new bootstrap.Modal(this.$refs.securityModal)
