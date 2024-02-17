@@ -44,7 +44,7 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
-      localStorage.setItem('lastNote', this.encryptString(this.activeDocument))
+      localStorage.setItem('lastNote', this.activeDocument)
       let docRef = doc(db, this.userId, this.keyIndex[this.shortenedNoteIndex.indexOf(item)])
       let docSnap = await getDoc(docRef)
       this.activeDocumentContent = this.decryptString(docSnap.data().note)
@@ -83,6 +83,13 @@ export default {
         const db = getFirestore(app)
         const indexToRemove = this.shortenedNoteIndex.indexOf(item)
 
+        if (
+          localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
+        ) {
+          localStorage.removeItem('lastNote')
+          console.log('removed lastNote')
+        }
+
         if (indexToRemove !== -1) {
           this.noteIndex.splice(indexToRemove, 1)
           this.shortenNoteIndex()
@@ -91,6 +98,7 @@ export default {
           let docRef = doc(db, this.userId, 'keyIndex')
           setDoc(docRef, { index: this.keyIndex })
         }
+        location.reload()
       }
     },
     createNewDocument(attempt) {
@@ -263,9 +271,12 @@ export default {
           this.noteIndex[i] = this.decryptString(docSnap.data().title)
         }
         this.shortenNoteIndex()
-        if (localStorage.getItem('lastNote') !== null) {
-          this.getDocument(this.decryptString(localStorage.getItem('lastNote')))
+
+        //recover last note or select first in array if equal to null
+        if (localStorage.getItem('lastNote') == null) {
+          localStorage.setItem('lastNote', this.noteIndex[0])
         }
+        this.getDocument(localStorage.getItem('lastNote'))
       } else {
         let key = this.generateKey(128)
         this.keyIndex = [key]
