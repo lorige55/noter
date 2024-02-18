@@ -32,7 +32,8 @@ export default {
       secretKey: '',
       trust: true,
       secretKeyStatus: 'locked',
-      creatingNewDocument: false
+      creatingNewDocument: false,
+      documentToRename: ''
     }
   },
   methods: {
@@ -149,32 +150,47 @@ export default {
         this.creatingNewDocument = false
       }
     },
-    async renameDocument(item) {
-      //get a new name for the note
-      let newName = prompt('Enter a new name for this note:', item)
-      //if the new name is empty, show error modal, else proceed
-      if (newName.length < 1) {
-        this.errorMessage = 'You cannot name a note nothing!'
-        this.errorModal.show()
-      } else {
-        //initialize firebase
+    async renameDocument(item, attempt) {
+      if (attempt == 1) {
+        //show input for new note name
+        this.documentToRename = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
+      } else if (attempt == 2) {
+        //get a new name for the note
+        let newName = document.getElementById('changeNoteNameInput').value
+        console.log(newName)
+        //delete old document
+        //initialize firebase and the index of the item to remove
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
-        //get index of the item to rename
-        const indexToRename = this.shortenedNoteIndex.indexOf(item)
-        //if indexToRename is valid, proceed
+        const indexToRename = this.noteIndex.indexOf(this.documentToRename)
+        //remove item from lastNote in localStorage if it is the lastNote
+        if (
+          localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
+        ) {
+          localStorage.removeItem('lastNote')
+          console.log('removed lastNote')
+        }
+        //if indexToRename is valid
         if (indexToRename !== -1) {
-          await deleteDoc(doc(db, this.userId, this.encryptString(this.noteIndex[indexToRename])))
-          this.noteIndex.splice(indexToRename, 1, newName)
+          //rename item in noteIndex and shortenNoteIndex
+          this.noteIndex[indexToRename] = newName
           this.shortenNoteIndex()
-          let docRef = doc(db, this.userId, 'noteIndex')
-          setDoc(docRef, { index: this.encryptArray(this.noteIndex) })
-          docRef = doc(db, this.userId, newName)
-          setDoc(docRef, { note: this.encryptString(this.activeDocumentContent) })
+          //backup content of note
+          let docRef = doc(db, this.userId, this.keyIndex[indexToRename])
+          let docSnap = await getDoc(docRef)
+          let backupContent = docSnap.data().note
+          //rename document in firebase
+          docRef = doc(db, this.userId, this.keyIndex[indexToRename])
+          setDoc(docRef, {
+            note: backupContent,
+            title: this.encryptString(newName)
+          })
         } else {
           this.errorMessage = 'An Error has occured. Please try again or create an Issue on GitHub.'
           this.errorModal.show()
         }
+        this.documentToRename = ''
+        location.reload()
       }
     },
     shortenNoteIndex() {
@@ -380,37 +396,63 @@ export default {
         <!-- Left Side: List of Cards -->
         <div class="col-md-3">
           <ul class="list-group">
-            <li v-for="item in shortenedNoteIndex" :key="item" class="list-group-item">
-              <div class="row">
-                <div class="col-9">
-                  <button
-                    class="btn"
-                    :class="{
-                      bold: noteIndex[shortenedNoteIndex.indexOf(item)] === activeDocument
-                    }"
-                    @click="getDocument(item)"
-                  >
-                    {{ item }}
-                  </button>
-                </div>
-                <div class="col-3 text-right">
-                  <div class="btn-group ms-auto">
+            <li v-for="item in shortenedNoteIndex" :key="item" class="list-group-item w-100">
+              <div v-if="documentToRename !== noteIndex[shortenedNoteIndex.indexOf(item)]">
+                <div class="row">
+                  <div class="col-9">
                     <button
-                      type="button"
                       class="btn"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
+                      :class="{
+                        bold: noteIndex[shortenedNoteIndex.indexOf(item)] === activeDocument
+                      }"
+                      @click="getDocument(item)"
                     >
-                      <i class="bi bi-three-dots"></i>
+                      {{ item }}
                     </button>
-                    <ul class="dropdown-menu">
-                      <li @click="renameDocument(item)" class="dropdown-item">
-                        <a>Rename Note</a>
-                      </li>
-                      <li @click="deleteDocument(item, 1)" class="dropdown-item">
-                        <a>Delete Note</a>
-                      </li>
-                    </ul>
+                  </div>
+                  <div class="col-3 text-right">
+                    <div class="btn-group ms-auto">
+                      <button
+                        type="button"
+                        class="btn"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i class="bi bi-three-dots"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li @click="renameDocument(item, 1)" class="dropdown-item">
+                          <a>Rename Note</a>
+                        </li>
+                        <li @click="deleteDocument(item, 1)" class="dropdown-item">
+                          <a>Delete Note</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="row">
+                  <div class="col-9 w-100">
+                    <div class="input-group w-100">
+                      <input
+                        type="text"
+                        class="form-control w-80"
+                        :placeholder="noteIndex[shortenedNoteIndex.indexOf(item)]"
+                        aria-label="Change the name of your note"
+                        aria-describedby="renameButton"
+                        id="changeNoteNameInput"
+                      />
+                      <button
+                        @click="renameDocument(item, 2)"
+                        class="btn btn-outline-success"
+                        type="button w-20"
+                        id="renameButton"
+                      >
+                        Rename
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
