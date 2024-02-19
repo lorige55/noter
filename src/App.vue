@@ -8,6 +8,7 @@ import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore
 export default {
   data() {
     return {
+      passageUser: null,
       isLoggedIn: false,
       user: null,
       userId: null,
@@ -278,13 +279,19 @@ export default {
         let docRef = doc(db, this.userId, 'secretKey')
         setDoc(docRef, { key: this.secretKey })
       }
+    },
+    async logout() {
+      localStorage.removeItem('psg_auth_token')
+      location.reload()
     }
   },
   async mounted() {
     //try to authenticate
     try {
-      const passageUser = new PassageUser()
-      const userInfo = await passageUser.userInfo()
+      const user = new PassageUser()
+      this.passageUser = user
+      console.log(user)
+      const userInfo = await user.userInfo()
 
       if (userInfo === undefined) {
         this.isLoggedIn = false
@@ -386,6 +393,9 @@ export default {
           </button>
           <button class="btn btn-outline-dark" @click="securityModal.show()">
             <i class="bi bi-shield-lock-fill"></i>
+          </button>
+          <button class="btn btn-outline-danger" @click="logout()">
+            <i class="bi bi-box-arrow-right"></i>
           </button>
         </div>
       </div>
