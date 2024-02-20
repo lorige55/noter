@@ -54,6 +54,7 @@ export default {
       let docRef = doc(db, this.userId, this.keyIndex[this.shortenedNoteIndex.indexOf(item)])
       let docSnap = await getDoc(docRef)
       this.activeDocumentContent = this.decryptString(docSnap.data().note)
+      this.$refs.editor.textContent = this.activeDocumentContent
     },
     saveActiveDocument() {
       //initialize firebase
@@ -67,6 +68,8 @@ export default {
       })
     },
     autoSave() {
+      //bind input to activeDocumentContent
+      this.activeDocumentContent = this.$refs.editor.textContent
       //save active document after 3 seconds of inactivity
       this.activeSavingProcesses++
       setTimeout(() => {
@@ -146,6 +149,7 @@ export default {
         })
         //set activeDocument and lastNote to new note
         this.activeDocumentContent = 'This is a note.'
+        this.$refs.editor.textContent = this.activeDocumentContent
         this.activeDocument = newNoteName
         localStorage.setItem('lastNote', this.activeDocument)
         this.creatingNewDocument = false
@@ -366,6 +370,7 @@ export default {
         //set default note to active Note
         this.activeDocument = 'Welcome!'
         this.activeDocumentContent = 'This is your first note! Have fun!'
+        this.$refs.editor.textContent = this.activeDocumentContent
       }
     }
     //initialize modals
@@ -495,12 +500,13 @@ export default {
         <!-- Right Side: TextArea -->
         <div class="col-md-9">
           <div class="form-group">
-            <textarea
-              @input="autoSave()"
+            <div
+              id="editor"
               class="form-control"
-              v-model="activeDocumentContent"
-              rows="10"
-            ></textarea>
+              contenteditable="true"
+              @input="autoSave()"
+              ref="editor"
+            ></div>
           </div>
         </div>
       </div>
