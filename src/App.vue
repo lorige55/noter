@@ -8,7 +8,6 @@ import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore
 export default {
   data() {
     return {
-      passageUser: null,
       isLoggedIn: false,
       user: null,
       userId: null,
@@ -102,7 +101,6 @@ export default {
           localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
         ) {
           localStorage.removeItem('lastNote')
-          console.log('removed lastNote')
         }
         //if indexToRemove is valid
         if (indexToRemove !== -1) {
@@ -162,7 +160,6 @@ export default {
       } else if (attempt == 2) {
         //get a new name for the note
         let newName = document.getElementById('changeNoteNameInput').value
-        console.log(newName)
         //delete old document
         //initialize firebase and the index of the item to remove
         const app = initializeApp(this.firebaseConfig)
@@ -173,7 +170,6 @@ export default {
           localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
         ) {
           localStorage.removeItem('lastNote')
-          console.log('removed lastNote')
         }
         //if indexToRename is valid
         if (indexToRename !== -1) {
@@ -293,8 +289,6 @@ export default {
     //try to authenticate
     try {
       const user = new PassageUser()
-      this.passageUser = user
-      console.log(user)
       const userInfo = await user.userInfo()
 
       if (userInfo === undefined) {
@@ -304,6 +298,7 @@ export default {
 
       this.isLoggedIn = true
       this.user = userInfo
+      console.log(this.user)
       this.userId = userInfo.id
     } catch (error) {
       this.errorMessage =
@@ -315,7 +310,7 @@ export default {
     const db = getFirestore(app)
     let docRef = doc(db, this.userId, 'secretKey')
     let docSnap = await getDoc(docRef)
-    //if trust is true, get secretKey from firebase, else get it from localStorage or open securityModal if it is not set in localStorage
+    //if trust is true, get secretKey from firebase, else get it from localStorage or open profileModal if it is not set in localStorage
     if (docSnap.exists()) {
       if (docSnap.data().key !== 'nah') {
         this.secretKey = docSnap.data().key
@@ -324,7 +319,7 @@ export default {
         if (localStorage.getItem('secretKey') !== null) {
           this.secretKey = localStorage.getItem('secretKey')
         } else {
-          this.$refs.securityModal.show()
+          this.$refs.profileModal.show()
         }
       }
     } else {
@@ -376,7 +371,7 @@ export default {
     //initialize modals
     this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
     this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
-    this.securityModal = new bootstrap.Modal(this.$refs.securityModal)
+    this.profileModal = new bootstrap.Modal(this.$refs.profileModal)
   }
 }
 </script>
@@ -396,12 +391,15 @@ export default {
           <button class="btn btn-outline-success" @click="createNewDocument(1)">
             <i class="bi bi-plus-circle"></i>
           </button>
-          <button class="btn btn-outline-dark" @click="securityModal.show()">
-            <i class="bi bi-shield-lock-fill"></i>
-          </button>
-          <button class="btn btn-outline-danger" @click="logout()">
-            <i class="bi bi-box-arrow-right"></i>
-          </button>
+          <div class="dropdown">
+            <button class="btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle"></i>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" @click="profileModal.show()">My Profile</a></li>
+              <li><a class="dropdown-item" @click="logout()">Logout</a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </nav>
@@ -506,6 +504,7 @@ export default {
               contenteditable="true"
               @input="autoSave()"
               ref="editor"
+              style="height: 90vh"
             ></div>
           </div>
         </div>
@@ -568,12 +567,12 @@ export default {
       </div>
     </div>
 
-    <!--Secret Key Modal-->
-    <div class="modal" tabindex="-1" ref="securityModal">
+    <!--My Profile Modal-->
+    <div class="modal" tabindex="-1" ref="profileModal">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Privacy & Security</h5>
+            <h4 class="modal-title">My Profile</h4>
             <button
               type="button"
               class="btn-close"
@@ -582,6 +581,33 @@ export default {
             ></button>
           </div>
           <div class="modal-body">
+            <h5>Account</h5>
+            <form>
+              <label for="email" class="form-label">Email address</label>
+              <div class="input-group mb-3 w-50">
+                <input
+                  type="text"
+                  class="form-control"
+                  :value="user.email"
+                  aria-label="Your Email Adress"
+                  aria-describedby="saveNewEmail"
+                  id="email"
+                />
+                <button class="btn btn-outline-danger" type="button" id="saveNewEmail">Save</button>
+              </div>
+              <label for="userId" class="form-label">User ID:</label>
+              <div class="mb-3 w-50">
+                <input
+                  type="text"
+                  class="form-control"
+                  :value="userId"
+                  aria-label="Your User ID"
+                  id="userId"
+                  disabled
+                />
+              </div>
+            </form>
+            <h5>Privacy & Security</h5>
             <p>
               To ensure privacy, Notes are encrypted using
               <a
