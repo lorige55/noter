@@ -283,10 +283,6 @@ export default {
     async logout() {
       localStorage.removeItem('psg_auth_token')
       location.reload()
-    },
-    changeEmail() {
-      //change email
-      this.user.changeEmail(document.getElementById('emailInput').value)
     }
   },
   async mounted() {
@@ -585,24 +581,16 @@ export default {
           <div class="modal-body">
             <h5>Account</h5>
             <form>
-              <label for="emailInput" class="form-label">Email address</label>
-              <div class="input-group mb-3 w-50">
+              <label for="emailInput" class="form-label">Email address:</label>
+              <div class="mb-3 w-50">
                 <input
                   type="text"
                   class="form-control"
                   :value="user.email"
                   aria-label="Your Email Adress"
-                  aria-describedby="saveNewEmail"
                   id="emailInput"
+                  disabled
                 />
-                <button
-                  class="btn btn-outline-danger"
-                  type="button"
-                  id="saveNewEmail"
-                  @click="changeEmail()"
-                >
-                  Save
-                </button>
               </div>
               <label for="userId" class="form-label">User ID:</label>
               <div class="mb-3 w-50">
