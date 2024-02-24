@@ -283,6 +283,10 @@ export default {
     async logout() {
       localStorage.removeItem('psg_auth_token')
       location.reload()
+    },
+    changeEmail() {
+      //change email
+      this.user.changeEmail(document.getElementById('emailInput').value)
     }
   },
   async mounted() {
@@ -290,17 +294,15 @@ export default {
     try {
       const user = new PassageUser()
       const userInfo = await user.userInfo()
-
       if (userInfo === undefined) {
         this.isLoggedIn = false
         return
       }
-
       this.isLoggedIn = true
       this.user = userInfo
-      console.log(this.user)
       this.userId = userInfo.id
     } catch (error) {
+      console.log(error)
       this.errorMessage =
         'An Error has occured: ' + error + '. Please try again or create an Issue on GitHub.'
       this.errorModal.show()
@@ -583,7 +585,7 @@ export default {
           <div class="modal-body">
             <h5>Account</h5>
             <form>
-              <label for="email" class="form-label">Email address</label>
+              <label for="emailInput" class="form-label">Email address</label>
               <div class="input-group mb-3 w-50">
                 <input
                   type="text"
@@ -591,9 +593,16 @@ export default {
                   :value="user.email"
                   aria-label="Your Email Adress"
                   aria-describedby="saveNewEmail"
-                  id="email"
+                  id="emailInput"
                 />
-                <button class="btn btn-outline-danger" type="button" id="saveNewEmail">Save</button>
+                <button
+                  class="btn btn-outline-danger"
+                  type="button"
+                  id="saveNewEmail"
+                  @click="changeEmail()"
+                >
+                  Save
+                </button>
               </div>
               <label for="userId" class="form-label">User ID:</label>
               <div class="mb-3 w-50">
