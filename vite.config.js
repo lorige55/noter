@@ -3,8 +3,16 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
+import tailwind from 'tailwindcss'
+import autoprefixer from 'autoprefixer'
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  css: {
+    postcss: {
+      plugins: [tailwind(), autoprefixer()]
+    }
+  },
   plugins: [vue()],
   resolve: {
     alias: {
@@ -12,6 +20,10 @@ export default defineConfig({
     }
   },
   compilerOptions: {
-    isCustomElement: (tag) => tag.startsWith('passage-')
+    isCustomElement: (tag) => tag.startsWith('passage-'),
+    baseUrl: '.',
+    paths: {
+      '@/*': ['./src/*']
+    }
   }
 })

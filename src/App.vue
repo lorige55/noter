@@ -4,8 +4,47 @@ import '@passageidentity/passage-elements/passage-auth'
 import { PassageUser } from '@passageidentity/passage-auth/passage-user'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore'
+//shadecn Imports:
+import { Button } from '@/components/ui/button'
+import {
+  Menubar,
+  MenubarCheckboxItem,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarRadioGroup,
+  MenubarRadioItem,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger
+} from '@/components/ui/menubar'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import { Input } from '@/components/ui/input'
 
 export default {
+  components: {
+    Button,
+    Menubar,
+    MenubarCheckboxItem,
+    MenubarContent,
+    MenubarItem,
+    MenubarMenu,
+    MenubarRadioGroup,
+    MenubarRadioItem,
+    MenubarSeparator,
+    MenubarShortcut,
+    MenubarSub,
+    MenubarSubContent,
+    MenubarSubTrigger,
+    MenubarTrigger,
+    ScrollArea,
+    Separator,
+    Input
+  },
   data() {
     return {
       isLoggedIn: false,
@@ -375,327 +414,89 @@ export default {
 </script>
 
 <template>
-  <div v-if="!isLoggedIn" class="position-absolute top-50 start-50 translate-middle">
-    <div class="authContainer">
-      <passage-auth :app-id="appId"></passage-auth>
-    </div>
-  </div>
-
-  <div v-else>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary text-light">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Noter</a>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <div class="dropdown">
-            <button class="btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-person-circle"></i>
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" @click="profileModal.show()">My Profile</a></li>
-              <li><a class="dropdown-item" @click="logout()">Logout</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container-fluid mt-3">
-      <div class="row">
-        <!-- Left Side: List of Cards -->
-        <div class="col-md-3">
-          <ul class="list-group">
-            <li v-for="item in shortenedNoteIndex" :key="item" class="list-group-item w-100">
-              <div v-if="documentToRename !== noteIndex[shortenedNoteIndex.indexOf(item)]">
-                <div class="row">
-                  <div class="col-9">
-                    <button
-                      class="btn"
-                      :class="{
-                        bold: noteIndex[shortenedNoteIndex.indexOf(item)] === activeDocument
-                      }"
-                      @click="getDocument(item)"
-                    >
-                      {{ item }}
-                    </button>
-                  </div>
-                  <div class="col-3 text-right">
-                    <div class="btn-group ms-auto">
-                      <button
-                        type="button"
-                        class="btn"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        <i class="bi bi-three-dots"></i>
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li @click="renameDocument(item, 1)" class="dropdown-item">
-                          <a>Rename Note</a>
-                        </li>
-                        <li @click="deleteDocument(item, 1)" class="dropdown-item">
-                          <a>Delete Note</a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-else>
-                <div class="row">
-                  <div class="col-9 w-100">
-                    <div class="input-group w-100">
-                      <input
-                        type="text"
-                        class="form-control w-80"
-                        :placeholder="noteIndex[shortenedNoteIndex.indexOf(item)]"
-                        aria-label="Change the name of your note"
-                        aria-describedby="renameButton"
-                        id="changeNoteNameInput"
-                      />
-                      <button
-                        @click="renameDocument(item, 2)"
-                        class="btn btn-outline-success"
-                        type="button w-20"
-                        id="renameButton"
-                      >
-                        Rename
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li class="list-group-item w-100">
-              <div
-                v-if="!creatingNewDocument"
-                @click="createNewDocument(1)"
-                style="cursor: pointer"
-              >
-                <div class="row">
-                  <div class="col-9 d-flex align-items-center justify-content-center text-center">
-                    <p class="mb-0">Create New Document</p>
-                  </div>
-                  <div class="col-3 text-right">
-                    <div class="btn-group ms-auto">
-                      <button type="button" class="btn">
-                        <i class="bi bi-plus"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-else class="col-9 w-100">
-                <div class="input-group w-100">
-                  <button
-                    @click="creatingNewDocument = false"
-                    class="btn btn-outline-danger"
-                    type="button w-20"
-                    id="createButton"
-                  >
-                    <i class="bi bi-arrow-left"></i>
-                  </button>
-                  <input
-                    type="text"
-                    class="form-control w-80"
-                    placeholder="Enter a name"
-                    aria-label="Enter a name for your new note"
-                    id="noteNameInput"
-                  />
-                  <button
-                    @click="createNewDocument(2)"
-                    class="btn btn-outline-success"
-                    type="button w-20"
-                    id="createButton"
-                  >
-                    <i class="bi bi-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Right Side: TextArea -->
-        <div class="col-md-9">
-          <div class="form-group">
-            <div
-              id="editor"
-              class="form-control"
-              contenteditable="true"
-              @input="autoSave()"
-              ref="editor"
-              style="height: 90vh"
-            ></div>
-          </div>
-        </div>
+  <div class="flex flex-col h-screen">
+    <div v-if="!isLoggedIn" class="position-absolute top-50 start-50 translate-middle">
+      <div class="authContainer">
+        <passage-auth :app-id="appId"></passage-auth>
       </div>
     </div>
 
-    <!--Error Modal-->
-    <div ref="errorModal" class="modal" id="errorModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Error</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <p>{{ errorMessage }}</p>
-          </div>
-          <div class="modal-footer">
-            <button data-bs-dismiss="modal" type="button" class="btn btn-danger">Dismiss</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!--Conformation Modal-->
-    <div id="conformationModal" ref="conformationModal" class="modal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Are you sure?</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <p>
-              {{ conformationMessage }}
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              data-bs-dismiss="modal"
-              @click="deleteDocument('thisStringDoesntMatter', 2)"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!--My Profile Modal-->
-    <div class="modal" tabindex="-1" ref="profileModal">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">My Profile</h4>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <h5>Account</h5>
-            <form>
-              <label for="emailInput" class="form-label">Email address:</label>
-              <div class="mb-3 w-50">
-                <input
-                  type="text"
-                  class="form-control"
-                  :value="user.email"
-                  aria-label="Your Email Adress"
-                  id="emailInput"
-                  disabled
-                />
+    <div v-else>
+      <Menubar class="h-11 mx-2.5 my-2.5">
+        <MenubarMenu>
+          <MenubarTrigger>General</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem> My Profile </MenubarItem>
+            <MenubarItem> Settings </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem @click="logOut()"> Signout </MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem> New File <MenubarShortcut>⌘N</MenubarShortcut> </MenubarItem>
+            <MenubarItem> New Folder <MenubarShortcut>⌘N</MenubarShortcut> </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem> Delete <MenubarShortcut>⌘D</MenubarShortcut> </MenubarItem>
+            <MenubarSeparator />
+            <MenubarSub>
+              <MenubarSubTrigger>Share</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem>Link</MenubarItem>
+                <MenubarItem>Email</MenubarItem>
+                <MenubarItem>SMS</MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+            <MenubarSeparator />
+            <MenubarItem>Cut</MenubarItem>
+            <MenubarItem>Copy</MenubarItem>
+            <MenubarItem>Paste</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger>View</MenubarTrigger>
+          <MenubarContent>
+            <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
+            <MenubarCheckboxItem checked> Always Show Full URLs </MenubarCheckboxItem>
+            <MenubarSeparator />
+            <MenubarItem inset> Reload <MenubarShortcut>⌘R</MenubarShortcut> </MenubarItem>
+            <MenubarItem disabled inset>
+              Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
+            </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem inset> Toggle Fullscreen </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem inset> Hide Sidebar </MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger>Profiles</MenubarTrigger>
+          <MenubarContent>
+            <MenubarRadioGroup value="benoit">
+              <MenubarRadioItem value="andy"> Andy </MenubarRadioItem>
+              <MenubarRadioItem value="benoit"> Benoit </MenubarRadioItem>
+              <MenubarRadioItem value="Luis"> Luis </MenubarRadioItem>
+            </MenubarRadioGroup>
+            <MenubarSeparator />
+            <MenubarItem inset> Edit... </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem inset> Add Profile... </MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+      <div class="flex flex-1 h-screen">
+        <ScrollArea class="customScrollArea h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
+          <div class="p-4">
+            <div v-for="item in shortenedNoteIndex" :key="item">
+              <div class="text-sm">
+                {{ item }}
               </div>
-              <label for="userId" class="form-label">User ID:</label>
-              <div class="mb-3 w-50">
-                <input
-                  type="text"
-                  class="form-control"
-                  :value="userId"
-                  aria-label="Your User ID"
-                  id="userId"
-                  disabled
-                />
-              </div>
-            </form>
-            <h5>Privacy & Security</h5>
-            <p>
-              To ensure privacy, Notes are encrypted using
-              <a
-                href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard"
-                class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                >AES-256</a
-              >
-              before saving to the cloud. The encryption key is crucial for data security and is
-              stored by default in the cloud. For full privacy, store the key yourself, but remember
-              you'll need to enter it every time you switch devices or browsers. Losing the key
-              means losing all your data permanently.
-            </p>
-            <div v-if="trust">
-              <p>This is your Secret Key:</p>
-              <input
-                class="form-control"
-                type="text"
-                v-model="secretKey"
-                aria-label="Secret Key"
-                disabled
-                readonly
-              />
-            </div>
-            <div v-else>
-              <p>Please enter your Secret Key:</p>
-              <div class="input-group mb-3">
-                <button
-                  @click="changeSecretKey()"
-                  class="btn btn-outline-dark"
-                  type="button"
-                  id="lockButton"
-                >
-                  <div v-if="secretKeyStatus == 'locked'"><i class="bi bi-lock-fill"></i></div>
-                  <div v-else><i class="bi bi-unlock-fill"></i></div>
-                </button>
-                <input
-                  class="form-control"
-                  type="text"
-                  :value="secretKey"
-                  aria-label="Secret Key"
-                  :disabled="secretKeyStatus === 'locked'"
-                  :readonly="secretKeyStatus === 'locked'"
-                />
-                <button class="btn btn-outline-danger" @click="generateNewSecretKey()">
-                  Generate
-                </button>
-              </div>
-              <p>
-                Note: We strongly recommend to use a randomly generated Secret Key from us. However,
-                if you want, you could edit the generated key or even set your completly own one.
-              </p>
-              <p class="text-danger">If you loose your Secret Key, all your data is lost!</p>
-            </div>
-            <br />
-            <div class="form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                role="switch"
-                id="flexSwitchCheckChecked"
-                v-model="trust"
-                @change="trustChanged()"
-              />
-              <label class="form-check-label" for="flexSwitchCheckChecked"
-                >Store Secret Key in Cloud</label
-              >
+              <Separator class="my-2" />
             </div>
           </div>
-        </div>
+        </ScrollArea>
+        <Input class="h-11 mr-2.5 flex justify-between w-3/4" type="text" placeholder="Title" />
       </div>
     </div>
   </div>
