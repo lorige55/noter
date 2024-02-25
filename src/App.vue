@@ -386,9 +386,6 @@ export default {
       <div class="container-fluid">
         <a class="navbar-brand" href="#">Noter</a>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <button class="btn btn-outline-success" @click="createNewDocument(1)">
-            <i class="bi bi-plus-circle"></i>
-          </button>
           <div class="dropdown">
             <button class="btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-person-circle"></i>
@@ -468,13 +465,31 @@ export default {
                 </div>
               </div>
             </li>
-            <li class="list-group-item w-100" v-if="creatingNewDocument">
-              <div class="col-9 w-100">
+            <li class="list-group-item w-100">
+              <div
+                v-if="!creatingNewDocument"
+                @click="createNewDocument(1)"
+                style="cursor: pointer"
+              >
+                <div class="row">
+                  <div class="col-9 d-flex align-items-center justify-content-center text-center">
+                    <p class="mb-0">Create New Document</p>
+                  </div>
+                  <div class="col-3 text-right">
+                    <div class="btn-group ms-auto">
+                      <button type="button" class="btn">
+                        <i class="bi bi-plus-square"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="col-9 w-100">
                 <div class="input-group w-100">
                   <input
                     type="text"
                     class="form-control w-80"
-                    placeholder="Enter a name for your new note"
+                    placeholder="Enter a name"
                     aria-label="Enter a name for your new note"
                     aria-describedby="createButton"
                     id="noteNameInput"
