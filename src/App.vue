@@ -478,7 +478,7 @@ export default {
                   <div class="col-3 text-right">
                     <div class="btn-group ms-auto">
                       <button type="button" class="btn">
-                        <i class="bi bi-plus-square"></i>
+                        <i class="bi bi-plus"></i>
                       </button>
                     </div>
                   </div>
@@ -486,12 +486,19 @@ export default {
               </div>
               <div v-else class="col-9 w-100">
                 <div class="input-group w-100">
+                  <button
+                    @click="creatingNewDocument = false"
+                    class="btn btn-outline-danger"
+                    type="button w-20"
+                    id="createButton"
+                  >
+                    <i class="bi bi-arrow-left"></i>
+                  </button>
                   <input
                     type="text"
                     class="form-control w-80"
                     placeholder="Enter a name"
                     aria-label="Enter a name for your new note"
-                    aria-describedby="createButton"
                     id="noteNameInput"
                   />
                   <button
@@ -500,7 +507,7 @@ export default {
                     type="button w-20"
                     id="createButton"
                   >
-                    Create
+                    <i class="bi bi-plus"></i>
                   </button>
                 </div>
               </div>
