@@ -185,37 +185,31 @@ export default {
         location.reload()
       }
     },
-    createNewDocument(attempt) {
-      //show input for new note name
-      if (attempt == 1) {
-        this.creatingNewDocument = true
-      } else if (attempt == 2) {
-        //initialize firebase
-        const app = initializeApp(this.firebaseConfig)
-        const db = getFirestore(app)
-        //get new note name and push it to noteIndex, then shorten it
-        const newNoteName = document.getElementById('noteNameInput').value
-        this.noteIndex.push(newNoteName)
-        this.shortenNoteIndex()
-        //generate new key and push it to keyIndex
-        let key = this.generateKey(128)
-        this.keyIndex.push(key)
-        //push new keyIndex to firebase
-        let docRef = doc(db, this.userId, 'keyIndex')
-        setDoc(docRef, { index: this.keyIndex })
-        //push new note to firebase
-        docRef = doc(db, this.userId, key)
-        setDoc(docRef, {
-          note: this.encryptString('This is a note.'),
-          title: this.encryptString(newNoteName)
-        })
-        //set activeDocument and lastNote to new note
-        this.activeDocumentContent = 'This is a note.'
-        this.activeDocument = newNoteName
-        this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(newNoteName)
-        localStorage.setItem('lastNote', this.activeDocument)
-        this.creatingNewDocument = false
-      }
+    createNewDocument() {
+      //initialize firebase
+      const app = initializeApp(this.firebaseConfig)
+      const db = getFirestore(app)
+      //push new Note to Index
+      this.noteIndex.push('New Note')
+      this.shortenNoteIndex()
+      //generate new key and push it to keyIndex
+      let key = this.generateKey(128)
+      this.keyIndex.push(key)
+      //push new keyIndex to firebase
+      let docRef = doc(db, this.userId, 'keyIndex')
+      setDoc(docRef, { index: this.keyIndex })
+      //push new note to firebase
+      docRef = doc(db, this.userId, key)
+      setDoc(docRef, {
+        note: this.encryptString('This is a new note. Feel free to edit it!'),
+        title: this.encryptString('New Note')
+      })
+      //set activeDocument and lastNote to new note
+      this.activeDocumentContent = 'This is a new note. Feel free to edit it!'
+      this.activeDocument = 'New Note'
+      this.activeDocumentIndex = this.shortenedNoteIndex.indexOf('New Note')
+      localStorage.setItem('lastNote', this.activeDocument)
+      this.creatingNewDocument = false
     },
     async renameDocument(item, attempt) {
       if (attempt == 1) {
@@ -453,22 +447,22 @@ export default {
         <MenubarMenu>
           <MenubarTrigger>General</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem> My Profile </MenubarItem>
-            <MenubarItem> Settings </MenubarItem>
+            <MenubarItem disabled> My Profile </MenubarItem>
+            <MenubarItem disabled> Settings </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem @click="signOut()"> Signout </MenubarItem>
+            <MenubarItem @click="logout()"> Logout </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
           <MenubarTrigger>File</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem> New File </MenubarItem>
-            <MenubarItem> New Folder </MenubarItem>
+            <MenubarItem @click="createNewDocument()"> New File </MenubarItem>
+            <MenubarItem disabled> New Folder </MenubarItem>
             <MenubarSeparator />
             <MenubarItem> Delete </MenubarItem>
             <MenubarSeparator />
             <MenubarSub>
-              <MenubarSubTrigger>Share</MenubarSubTrigger>
+              <MenubarSubTrigger disabled>Share</MenubarSubTrigger>
               <MenubarSubContent>
                 <MenubarItem>Link</MenubarItem>
                 <MenubarItem>Email</MenubarItem>
@@ -522,7 +516,7 @@ export default {
         <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
           <div class="p-4">
             <div v-for="item in shortenedNoteIndex" :key="item">
-              <a class="text-sm" style="cursor: pointer">
+              <a @click="getDocument(item)" class="text-sm" style="cursor: pointer">
                 {{ item }}
               </a>
               <Separator class="my-2" />
