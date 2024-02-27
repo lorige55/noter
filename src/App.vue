@@ -24,6 +24,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 export default {
   components: {
@@ -43,7 +44,8 @@ export default {
     MenubarTrigger,
     ScrollArea,
     Separator,
-    Input
+    Input,
+    Textarea
   },
   data() {
     return {
@@ -56,6 +58,7 @@ export default {
       keyIndex: [],
       activeDocumentContent: 'Loading...',
       activeDocument: '',
+      activeDocumentIndex: null,
       firebaseConfig: {
         apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
         authDomain: 'noter-6e08f.firebaseapp.com',
@@ -87,27 +90,49 @@ export default {
       const db = getFirestore(app)
       //set active document and lastNote
       this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
+      this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(item)
       localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
       let docRef = doc(db, this.userId, this.keyIndex[this.shortenedNoteIndex.indexOf(item)])
       let docSnap = await getDoc(docRef)
       this.activeDocumentContent = this.decryptString(docSnap.data().note)
-      this.$refs.editor.textContent = this.activeDocumentContent
     },
-    saveActiveDocument() {
+    async saveActiveDocument() {
       //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      let docRef = doc(db, this.userId, this.keyIndex[this.noteIndex.indexOf(this.activeDocument)])
+      let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
       //save document to firebase
       setDoc(docRef, {
         note: this.encryptString(this.activeDocumentContent),
         title: this.encryptString(this.activeDocument)
       })
+      //rename document in firebase if document has been renamed
+      const indexOfItem = this.shortenedNoteIndex.indexOf(this.activeDocument)
+      if (this.activeDocument !== this.noteIndex[indexOfItem]) {
+        //remove item from lastNote in localStorage if it is the lastNote
+        if (localStorage.getItem('lastNote') === this.noteIndex[this.activeDocumentIndex]) {
+          localStorage.removeItem('lastNote')
+        }
+        //if indexOfItem is valid
+        if (indexOfItem !== -1) {
+          //rename item in noteIndex and shortenNoteIndex
+          this.noteIndex[indexOfItem] = this.activeDocument
+          this.shortenNoteIndex()
+          //backup content of note
+          let docRef = doc(db, this.userId, this.keyIndex[indexOfItem])
+          let docSnap = await getDoc(docRef)
+          let backupContent = docSnap.data().note
+          //rename document in firebase
+          docRef = doc(db, this.userId, this.keyIndex[indexOfItem])
+          setDoc(docRef, {
+            note: backupContent,
+            title: this.encryptString(this.activeDocument)
+          })
+        }
+      }
     },
     autoSave() {
-      //bind input to activeDocumentContent
-      this.activeDocumentContent = this.$refs.editor.textContent
       //save active document after 3 seconds of inactivity
       this.activeSavingProcesses++
       setTimeout(() => {
@@ -186,8 +211,8 @@ export default {
         })
         //set activeDocument and lastNote to new note
         this.activeDocumentContent = 'This is a note.'
-        this.$refs.editor.textContent = this.activeDocumentContent
         this.activeDocument = newNoteName
+        this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(newNoteName)
         localStorage.setItem('lastNote', this.activeDocument)
         this.creatingNewDocument = false
       }
@@ -340,7 +365,7 @@ export default {
       console.log(error)
       this.errorMessage =
         'An Error has occured: ' + error + '. Please try again or create an Issue on GitHub.'
-      this.errorModal.show()
+      //this.errorModal.show()
     }
     //get secret Key from firebase
     const app = initializeApp(this.firebaseConfig)
@@ -382,8 +407,9 @@ export default {
         //shortenNoteIndex, obvi
         this.shortenNoteIndex()
         //recover last note or select first in array if equal to null
-        if (localStorage.getItem('lastNote') == null) {
+        if (localStorage.getItem('lastNote') == undefined) {
           localStorage.setItem('lastNote', this.noteIndex[0])
+          console.log('changed last note')
         }
         this.getDocument(localStorage.getItem('lastNote'))
       } else {
@@ -402,13 +428,9 @@ export default {
         //set default note to active Note
         this.activeDocument = 'Welcome!'
         this.activeDocumentContent = 'This is your first note! Have fun!'
-        this.$refs.editor.textContent = this.activeDocumentContent
+        this.activeDocumentIndex = 0
       }
     }
-    //initialize modals
-    this.errorModal = new bootstrap.Modal(this.$refs.errorModal)
-    this.conformationModal = new bootstrap.Modal(this.$refs.conformationModal)
-    this.profileModal = new bootstrap.Modal(this.$refs.profileModal)
   }
 }
 </script>
@@ -437,10 +459,10 @@ export default {
         <MenubarMenu>
           <MenubarTrigger>File</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem> New File <MenubarShortcut>⌘N</MenubarShortcut> </MenubarItem>
-            <MenubarItem> New Folder <MenubarShortcut>⌘N</MenubarShortcut> </MenubarItem>
+            <MenubarItem> New File </MenubarItem>
+            <MenubarItem> New Folder </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem> Delete <MenubarShortcut>⌘D</MenubarShortcut> </MenubarItem>
+            <MenubarItem> Delete </MenubarItem>
             <MenubarSeparator />
             <MenubarSub>
               <MenubarSubTrigger>Share</MenubarSubTrigger>
@@ -448,6 +470,24 @@ export default {
                 <MenubarItem>Link</MenubarItem>
                 <MenubarItem>Email</MenubarItem>
                 <MenubarItem>SMS</MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+          </MenubarContent>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger>Edit</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
+            <MenubarItem> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
+            <MenubarSeparator />
+            <MenubarSub>
+              <MenubarSubTrigger>Find</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem>Search the web</MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem>Find...</MenubarItem>
+                <MenubarItem>Find Next</MenubarItem>
+                <MenubarItem>Find Previous</MenubarItem>
               </MenubarSubContent>
             </MenubarSub>
             <MenubarSeparator />
@@ -472,40 +512,39 @@ export default {
             <MenubarItem inset> Hide Sidebar </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
-        <MenubarMenu>
-          <MenubarTrigger>Profiles</MenubarTrigger>
-          <MenubarContent>
-            <MenubarRadioGroup value="benoit">
-              <MenubarRadioItem value="andy"> Andy </MenubarRadioItem>
-              <MenubarRadioItem value="benoit"> Benoit </MenubarRadioItem>
-              <MenubarRadioItem value="Luis"> Luis </MenubarRadioItem>
-            </MenubarRadioGroup>
-            <MenubarSeparator />
-            <MenubarItem inset> Edit... </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem inset> Add Profile... </MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
       </Menubar>
 
-      <!--Note List-->
-      <div class="flex flex-1 h-screen">
-        <ScrollArea class="customScrollArea h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
+      <div class="flex flex-1 h-full mb-2.5">
+        <!--Note List-->
+        <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
           <div class="p-4">
             <div v-for="item in shortenedNoteIndex" :key="item">
-              <div class="text-sm">
+              <a class="text-sm" style="cursor: pointer">
                 {{ item }}
-              </div>
+              </a>
               <Separator class="my-2" />
             </div>
           </div>
         </ScrollArea>
 
         <!--Editor-->
-        <!--Title Editor-->
-        <Input class="h-11 mr-2.5 flex justify-between w-3/4" type="text" placeholder="Title" />
+        <div class="flex flex-col w-3/4 mr-2.5">
+          <!--Title Editor-->
+          <Input
+            class="h-11 justify-between"
+            type="text"
+            v-model="activeDocument"
+            @click="autoSave()"
+          />
 
-        <!--Content Editor-->
+          <!--Content Editor-->
+          <Textarea
+            class="h-11 mt-2.5 justify-between flex-1 h-screen"
+            type="text"
+            v-model="activeDocumentContent"
+            @input="autoSave()"
+          ></Textarea>
+        </div>
       </div>
     </div>
   </div>
