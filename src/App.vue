@@ -414,14 +414,16 @@ export default {
 </script>
 
 <template>
-  <div class="flex flex-col h-screen">
-    <div v-if="!isLoggedIn" class="position-absolute top-50 start-50 translate-middle">
+  <div v-if="!isLoggedIn">
+    <div class="flex justify-center items-center h-screen">
       <div class="authContainer">
         <passage-auth :app-id="appId"></passage-auth>
       </div>
     </div>
-
-    <div v-else>
+  </div>
+  <div v-else>
+    <div class="flex flex-col h-screen">
+      <!--Menubar-->
       <Menubar class="h-11 mx-2.5 my-2.5">
         <MenubarMenu>
           <MenubarTrigger>General</MenubarTrigger>
@@ -485,6 +487,8 @@ export default {
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
+
+      <!--Note List-->
       <div class="flex flex-1 h-screen">
         <ScrollArea class="customScrollArea h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
           <div class="p-4">
@@ -496,7 +500,12 @@ export default {
             </div>
           </div>
         </ScrollArea>
+
+        <!--Editor-->
+        <!--Title Editor-->
         <Input class="h-11 mr-2.5 flex justify-between w-3/4" type="text" placeholder="Title" />
+
+        <!--Content Editor-->
       </div>
     </div>
   </div>
