@@ -89,11 +89,11 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       //set active document and lastNote
-      this.activeDocument = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
-      this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(item)
+      this.activeDocumentIndex = this.noteIndex.indexOf(item)
+      this.activeDocument = this.noteIndex[this.activeDocumentIndex]
       localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
-      let docRef = doc(db, this.userId, this.keyIndex[this.shortenedNoteIndex.indexOf(item)])
+      let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
       let docSnap = await getDoc(docRef)
       this.activeDocumentContent = this.decryptString(docSnap.data().note)
     },
@@ -407,7 +407,10 @@ export default {
         //shortenNoteIndex, obvi
         this.shortenNoteIndex()
         //recover last note or select first in array if equal to null
-        if (localStorage.getItem('lastNote') == undefined) {
+        if (
+          localStorage.getItem('lastNote') == undefined ||
+          localStorage.getItem('lastNote') === 'undefined'
+        ) {
           localStorage.setItem('lastNote', this.noteIndex[0])
           console.log('changed last note')
         }
@@ -453,7 +456,7 @@ export default {
             <MenubarItem> My Profile </MenubarItem>
             <MenubarItem> Settings </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem @click="logOut()"> Signout </MenubarItem>
+            <MenubarItem @click="signOut()"> Signout </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
