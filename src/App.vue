@@ -100,7 +100,8 @@ export default {
       secretKeyStatus: 'locked',
       creatingNewDocument: false,
       documentToRename: '',
-      displayError: false
+      displayError: false,
+      errorMessage: 'An Error has occured. Please try again or submit an Issue.'
     }
   },
   methods: {
@@ -121,6 +122,16 @@ export default {
       this.activeDocumentContent = this.decryptString(docSnap.data().note)
     },
     async saveActiveDocument() {
+      //input validation
+      if (
+        this.noteIndex.includes(this.activeDocument) &&
+        this.noteIndex[this.activeDocumentIndex] !== this.activeDocument
+      ) {
+        this.errorMessage =
+          'You cannot name a note the same as another note. Please rename the note. It will not be saved under this title.'
+        this.displayError = true
+        return
+      }
       //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
@@ -167,12 +178,12 @@ export default {
         this.keyIndex.splice(indexToRemove, 1)
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
-        locationReload()
+        location.reload()
       } else {
         console.log('An Error has occured. Please try again or create an Issue on GitHub.')
+        this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'
         this.displayError = true
       }
-      //reload page for the user to see the changes
     },
     async createNewDocument() {
       await this.saveActiveDocument()
@@ -183,7 +194,7 @@ export default {
       let nameFound = false
       for (let i = 0; i < this.noteIndex.length && nameFound == false; i++) {
         if (this.noteIndex.includes(newNoteName)) {
-          newNoteName = 'New Note ' + i
+          newNoteName = 'New Note ' + (i + 1)
         } else {
           nameFound = true
         }
@@ -364,6 +375,7 @@ export default {
       this.userId = userInfo.id
     } catch (error) {
       console.log(error)
+      this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'
       this.displayError = true
     }
     //get secret Key from firebase
@@ -583,9 +595,7 @@ export default {
         >
           <AlertCircle class="w-4 h-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription
-            >An unexpected error has occured. Please try again or report an Issue.</AlertDescription
-          >
+          <AlertDescription>{{ this.errorMessage }}</AlertDescription>
         </Alert>
       </div>
     </div>
