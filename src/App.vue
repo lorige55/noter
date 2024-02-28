@@ -25,6 +25,16 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+//icon imports
+import { MoreHorizontal } from 'lucide-vue-next'
 
 export default {
   components: {
@@ -45,7 +55,14 @@ export default {
     ScrollArea,
     Separator,
     Input,
-    Textarea
+    Textarea,
+    MoreHorizontal,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
   },
   data() {
     return {
@@ -145,8 +162,6 @@ export default {
       }, 3000)
     },
     async deleteDocument(item) {
-      //recover item from first attempt
-      item = this.itemToDelete
       //initialize firebase and the index of the item to remove
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
@@ -168,12 +183,11 @@ export default {
         this.keyIndex.splice(indexToRemove, 1)
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
+        location.reload()
       } else {
-        this.errorMessage = 'An Error has occured. Please try again or create an Issue on GitHub.'
-        this.errorModal.show()
+        console.log('An Error has occured. Please try again or create an Issue on GitHub.')
       }
       //reload page for the user to see the changes
-      location.reload()
     },
     createNewDocument() {
       //initialize firebase
@@ -524,14 +538,27 @@ export default {
           <div class="p-4">
             <div v-for="item in shortenedNoteIndex" :key="item">
               <a
-                v-if="shortenedNoteIndex.indexOf(item) == activeDocumentIndex"
-                class="text-sm"
+                class="text-sm flex justify-between items-center"
                 style="cursor: pointer"
+                @click="getDocument(item)"
               >
-                {{ this.shorten(activeDocument) }}
-              </a>
-              <a v-else @click="getDocument(item)" class="text-sm" style="cursor: pointer">
-                {{ item }}
+                <div v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex">
+                  {{ this.shorten(activeDocument) }}
+                </div>
+                <div v-else>
+                  {{ item }}
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <div class="flex items-center">
+                      <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem disabled> Rename </DropdownMenuItem>
+                    <DropdownMenuItem @click="deleteDocument(item)"> Delete </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </a>
               <Separator class="my-2" />
             </div>
