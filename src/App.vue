@@ -117,9 +117,9 @@ export default {
         }
         //if indexOfItem is valid
         if (indexOfItem !== -1) {
-          //rename item in noteIndex and shortenNoteIndex
+          //rename item in noteIndex and shorten
           this.noteIndex[indexOfItem] = this.activeDocument
-          this.shortenNoteIndex()
+          this.shorten('1')
           //backup content of note
           let docRef = doc(db, this.userId, this.keyIndex[indexOfItem])
           let docSnap = await getDoc(docRef)
@@ -136,6 +136,7 @@ export default {
     autoSave() {
       //save active document after 3 seconds of inactivity
       this.activeSavingProcesses++
+      this.shorten('1')
       setTimeout(() => {
         if (this.activeSavingProcesses == 1) {
           this.saveActiveDocument()
@@ -143,56 +144,53 @@ export default {
         this.activeSavingProcesses--
       }, 3000)
     },
-    async deleteDocument(item, attempt) {
-      //if first attempt, show conformation modal
-      if (attempt == 1) {
-        this.conformationMessage =
-          'Are you sure you want to delete "' +
-          this.noteIndex[this.shortenedNoteIndex.indexOf(item)] +
-          '"? This action cannot be undone.'
-
-        this.conformationModal.show()
-
-        this.itemToDelete = item
-      } else if (attempt == 2) {
-        //recover item from first attempt
-        item = this.itemToDelete
-        //initialize firebase and the index of the item to remove
-        const app = initializeApp(this.firebaseConfig)
-        const db = getFirestore(app)
-        const indexToRemove = this.shortenedNoteIndex.indexOf(item)
-        //remove item from lastNote in localStorage if it is the lastNote
-        if (
-          localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
-        ) {
-          localStorage.removeItem('lastNote')
-        }
-        //if indexToRemove is valid
-        if (indexToRemove !== -1) {
-          //remove item from noteIndex and shortenNoteIndex
-          this.noteIndex.splice(indexToRemove, 1)
-          this.shortenNoteIndex()
-          //delete document from firebase
-          await deleteDoc(doc(db, this.userId, this.keyIndex[indexToRemove]))
-          //remove key from keyIndex and push new keyIndex to firebase
-          this.keyIndex.splice(indexToRemove, 1)
-          let docRef = doc(db, this.userId, 'keyIndex')
-          setDoc(docRef, { index: this.keyIndex })
-        } else {
-          this.errorMessage = 'An Error has occured. Please try again or create an Issue on GitHub.'
-          this.errorModal.show()
-        }
-        //reload page for the user to see the changes
-        location.reload()
+    async deleteDocument(item) {
+      //recover item from first attempt
+      item = this.itemToDelete
+      //initialize firebase and the index of the item to remove
+      const app = initializeApp(this.firebaseConfig)
+      const db = getFirestore(app)
+      const indexToRemove = this.shortenedNoteIndex.indexOf(item)
+      //remove item from lastNote in localStorage if it is the lastNote
+      if (
+        localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
+      ) {
+        localStorage.removeItem('lastNote')
       }
+      //if indexToRemove is valid
+      if (indexToRemove !== -1) {
+        //remove item from noteIndex and shorten
+        this.noteIndex.splice(indexToRemove, 1)
+        this.shorten('1')
+        //delete document from firebase
+        await deleteDoc(doc(db, this.userId, this.keyIndex[indexToRemove]))
+        //remove key from keyIndex and push new keyIndex to firebase
+        this.keyIndex.splice(indexToRemove, 1)
+        let docRef = doc(db, this.userId, 'keyIndex')
+        setDoc(docRef, { index: this.keyIndex })
+      } else {
+        this.errorMessage = 'An Error has occured. Please try again or create an Issue on GitHub.'
+        this.errorModal.show()
+      }
+      //reload page for the user to see the changes
+      location.reload()
     },
     createNewDocument() {
       //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
+      let newNoteName = 'New Note'
+      let nameFound = false
+      for (let i = 0; i < this.noteIndex.length && nameFound == false; i++) {
+        if (this.noteIndex.includes(newNoteName)) {
+          newNoteName = 'New Note ' + i
+        } else {
+          nameFound = true
+        }
+      }
       //push new Note to Index
-      this.noteIndex.push('New Note')
-      this.shortenNoteIndex()
+      this.noteIndex.push(newNoteName)
+      this.shorten('1')
       //generate new key and push it to keyIndex
       let key = this.generateKey(128)
       this.keyIndex.push(key)
@@ -203,12 +201,12 @@ export default {
       docRef = doc(db, this.userId, key)
       setDoc(docRef, {
         note: this.encryptString('This is a new note. Feel free to edit it!'),
-        title: this.encryptString('New Note')
+        title: this.encryptString(newNoteName)
       })
       //set activeDocument and lastNote to new note
       this.activeDocumentContent = 'This is a new note. Feel free to edit it!'
-      this.activeDocument = 'New Note'
-      this.activeDocumentIndex = this.shortenedNoteIndex.indexOf('New Note')
+      this.activeDocument = newNoteName
+      this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(newNoteName)
       localStorage.setItem('lastNote', this.activeDocument)
       this.creatingNewDocument = false
     },
@@ -232,9 +230,9 @@ export default {
         }
         //if indexToRename is valid
         if (indexToRename !== -1) {
-          //rename item in noteIndex and shortenNoteIndex
+          //rename item in noteIndex and shorten
           this.noteIndex[indexToRename] = newName
-          this.shortenNoteIndex()
+          this.shorten('1')
           //backup content of note
           let docRef = doc(db, this.userId, this.keyIndex[indexToRename])
           let docSnap = await getDoc(docRef)
@@ -253,19 +251,27 @@ export default {
         location.reload()
       }
     },
-    shortenNoteIndex() {
-      //set char limit
+    shorten(par) {
       let charLimit = 30
-      //loop through noteIndex and shorten each item and set it to its position in shrotenedNoteIndex
-      for (let i = 0; i < this.noteIndex.length; ) {
-        if (this.noteIndex[i].length > charLimit) {
-          let shortenedString = this.noteIndex[i].split('')
-          shortenedString.splice(charLimit, this.noteIndex[i].length - charLimit, '...')
-          this.shortenedNoteIndex[i] = shortenedString.join('')
-        } else {
-          this.shortenedNoteIndex[i] = this.noteIndex[i]
+      if (par === '1') {
+        for (let i = 0; i < this.noteIndex.length; ) {
+          if (this.noteIndex[i].length > charLimit) {
+            let shortenedString = this.noteIndex[i].split('')
+            shortenedString.splice(charLimit, this.noteIndex[i].length - charLimit, '...')
+            this.shortenedNoteIndex[i] = shortenedString.join('')
+          } else {
+            this.shortenedNoteIndex[i] = this.noteIndex[i]
+          }
+          i++
         }
-        i++
+      } else {
+        if (par.length > charLimit) {
+          let shortenedString = par.split('')
+          shortenedString.splice(charLimit, par.length - charLimit, '...')
+          return shortenedString.join('')
+        } else {
+          return par
+        }
       }
     },
     encryptString(string) {
@@ -399,8 +405,8 @@ export default {
           let docSnap = await getDoc(docRef)
           this.noteIndex[i] = this.decryptString(docSnap.data().title)
         }
-        //shortenNoteIndex, obvi
-        this.shortenNoteIndex()
+        //shorten, obvi
+        this.shorten('1')
         //recover last note or select first in array if equal to null
         if (
           localStorage.getItem('lastNote') == undefined ||
@@ -417,7 +423,7 @@ export default {
         setDoc(docRef, { index: this.keyIndex })
         //create default note
         this.noteIndex = ['Welcome!']
-        this.shortenNoteIndex()
+        this.shorten('1')
         docRef = doc(db, this.userId, key)
         setDoc(docRef, {
           note: this.encryptString('This is your first note! Have fun!'),
@@ -517,7 +523,14 @@ export default {
         <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
           <div class="p-4">
             <div v-for="item in shortenedNoteIndex" :key="item">
-              <a @click="getDocument(item)" class="text-sm" style="cursor: pointer">
+              <a
+                v-if="shortenedNoteIndex.indexOf(item) == activeDocumentIndex"
+                class="text-sm"
+                style="cursor: pointer"
+              >
+                {{ this.shorten(activeDocument) }}
+              </a>
+              <a v-else @click="getDocument(item)" class="text-sm" style="cursor: pointer">
                 {{ item }}
               </a>
               <Separator class="my-2" />
