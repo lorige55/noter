@@ -89,7 +89,7 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       //set active document and lastNote
-      this.activeDocumentIndex = this.noteIndex.indexOf(item)
+      this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(item)
       this.activeDocument = this.noteIndex[this.activeDocumentIndex]
       localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
@@ -102,6 +102,7 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
+      console.log(this.activeDocument)
       //save document to firebase
       setDoc(docRef, {
         note: this.encryptString(this.activeDocumentContent),
