@@ -583,7 +583,7 @@ export default {
           <div class="flex flex-col w-3/4 mr-2.5">
             <!--Title Editor-->
             <Input
-              class="h-11 justify-between"
+              class="h-11 justify-between text-base font-semibold"
               type="text"
               v-model="activeDocument"
               @click="autoSave()"
