@@ -33,8 +33,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+
 //icon imports
-import { MoreHorizontal } from 'lucide-vue-next'
+import { MoreHorizontal, AlertCircle, User, Settings, Github, LifeBuoy } from 'lucide-vue-next'
 
 export default {
   components: {
@@ -62,7 +64,15 @@ export default {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuTrigger
+    DropdownMenuTrigger,
+    AlertCircle,
+    Alert,
+    AlertDescription,
+    AlertTitle,
+    User,
+    Settings,
+    Github,
+    LifeBuoy
   },
   data() {
     return {
@@ -84,23 +94,19 @@ export default {
         messagingSenderId: '967538971502',
         appId: '1:967538971502:web:6d31288c8ade545465277f'
       },
-      errorMessage: 'An Error has occured. Please try again or create an Issue on GitHub.',
-      conformationMessage: '',
-      itemToDelete: '',
       activeSavingProcesses: 0,
       secretKey: '',
       trust: true,
       secretKeyStatus: 'locked',
       creatingNewDocument: false,
-      documentToRename: ''
+      documentToRename: '',
+      displayError: false
     }
   },
   methods: {
     async getDocument(item) {
-      //save active document before switching
-      if (this.activeDocument) {
-        this.saveActiveDocument()
-        this.activeSavingProcesses = 0
+      if (this.activeDocument !== '') {
+        await this.saveActiveDocument()
       }
       //initialize firebase
       const app = initializeApp(this.firebaseConfig)
@@ -119,36 +125,14 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
-      console.log(this.activeDocument)
+      console.log('Saved: ' + this.activeDocument)
       //save document to firebase
       setDoc(docRef, {
         note: this.encryptString(this.activeDocumentContent),
         title: this.encryptString(this.activeDocument)
       })
-      //rename document in firebase if document has been renamed
-      const indexOfItem = this.shortenedNoteIndex.indexOf(this.activeDocument)
-      if (this.activeDocument !== this.noteIndex[indexOfItem]) {
-        //remove item from lastNote in localStorage if it is the lastNote
-        if (localStorage.getItem('lastNote') === this.noteIndex[this.activeDocumentIndex]) {
-          localStorage.removeItem('lastNote')
-        }
-        //if indexOfItem is valid
-        if (indexOfItem !== -1) {
-          //rename item in noteIndex and shorten
-          this.noteIndex[indexOfItem] = this.activeDocument
-          this.shorten('1')
-          //backup content of note
-          let docRef = doc(db, this.userId, this.keyIndex[indexOfItem])
-          let docSnap = await getDoc(docRef)
-          let backupContent = docSnap.data().note
-          //rename document in firebase
-          docRef = doc(db, this.userId, this.keyIndex[indexOfItem])
-          setDoc(docRef, {
-            note: backupContent,
-            title: this.encryptString(this.activeDocument)
-          })
-        }
-      }
+      this.noteIndex[this.activeDocumentIndex] = this.activeDocument
+      this.shorten('1')
     },
     autoSave() {
       //save active document after 3 seconds of inactivity
@@ -183,13 +167,15 @@ export default {
         this.keyIndex.splice(indexToRemove, 1)
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
-        location.reload()
+        locationReload()
       } else {
         console.log('An Error has occured. Please try again or create an Issue on GitHub.')
+        this.displayError = true
       }
       //reload page for the user to see the changes
     },
-    createNewDocument() {
+    async createNewDocument() {
+      await this.saveActiveDocument()
       //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
@@ -259,7 +245,7 @@ export default {
           })
         } else {
           this.errorMessage = 'An Error has occured. Please try again or create an Issue on GitHub.'
-          this.errorModal.show()
+          this.displayError = true
         }
         this.documentToRename = ''
         location.reload()
@@ -378,9 +364,7 @@ export default {
       this.userId = userInfo.id
     } catch (error) {
       console.log(error)
-      this.errorMessage =
-        'An Error has occured: ' + error + '. Please try again or create an Issue on GitHub.'
-      //this.errorModal.show()
+      this.displayError = true
     }
     //get secret Key from firebase
     const app = initializeApp(this.firebaseConfig)
@@ -462,14 +446,19 @@ export default {
     </div>
   </div>
   <div v-else>
-    <div class="flex flex-col h-screen">
+    <div class="relative flex flex-col h-screen w-100">
       <!--Menubar-->
       <Menubar class="h-11 mx-2.5 my-2.5">
         <MenubarMenu>
-          <MenubarTrigger>General</MenubarTrigger>
+          <MenubarTrigger>Home</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem disabled> My Profile </MenubarItem>
-            <MenubarItem disabled> Settings </MenubarItem>
+            <MenubarItem disabled> <User class="mr-2 h-4 w-4" /> Profile </MenubarItem>
+            <MenubarItem disabled> <Settings class="mr-2 h-4 w-4" /> Settings </MenubarItem>
+            <MenubarSeparator />
+            <a href="https://github.com/lorige55/noter" target="_blank">
+              <MenubarItem> <Github class="mr-2 h-4 w-4" /> GitHub </MenubarItem>
+            </a>
+            <MenubarItem disabled> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
             <MenubarSeparator />
             <MenubarItem @click="logout()"> Logout </MenubarItem>
           </MenubarContent>
@@ -483,7 +472,7 @@ export default {
             <MenubarItem> Delete </MenubarItem>
             <MenubarSeparator />
             <MenubarSub>
-              <MenubarSubTrigger disabled>Share</MenubarSubTrigger>
+              <MenubarSubTrigger>Share</MenubarSubTrigger>
               <MenubarSubContent>
                 <MenubarItem>Link</MenubarItem>
                 <MenubarItem>Email</MenubarItem>
@@ -537,17 +526,17 @@ export default {
         <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
           <div class="p-4">
             <div v-for="item in shortenedNoteIndex" :key="item">
-              <a
-                class="text-sm flex justify-between items-center"
-                style="cursor: pointer"
-                @click="getDocument(item)"
-              >
-                <div v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex">
+              <a class="text-sm flex justify-between items-center" style="cursor: pointer">
+                <div
+                  v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex"
+                  class="font-semibold"
+                >
                   {{ this.shorten(activeDocument) }}
                 </div>
-                <div v-else>
+                <div v-else @click="getDocument(item)">
                   {{ item }}
                 </div>
+                <!--Dropdown Menu-->
                 <DropdownMenu>
                   <DropdownMenuTrigger>
                     <div class="flex items-center">
@@ -583,6 +572,21 @@ export default {
             @input="autoSave()"
           ></Textarea>
         </div>
+      </div>
+      <!--Error Alert-->
+      <div v-if="displayError == true">
+        <Alert
+          variant="destructive"
+          class="absolute bottom-0 right-0 z-50 fixed w-1/3 mr-5 mb-5"
+          @click="() => (displayError = false)"
+          style="cursor: pointer"
+        >
+          <AlertCircle class="w-4 h-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription
+            >An unexpected error has occured. Please try again or report an Issue.</AlertDescription
+          >
+        </Alert>
       </div>
     </div>
   </div>
