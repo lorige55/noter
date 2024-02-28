@@ -37,7 +37,15 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 //icon imports
-import { MoreHorizontal, AlertCircle, User, Settings, Github, LifeBuoy } from 'lucide-vue-next'
+import {
+  MoreHorizontal,
+  AlertCircle,
+  User,
+  Settings,
+  Github,
+  LifeBuoy,
+  LogOut
+} from 'lucide-vue-next'
 
 export default {
   components: {
@@ -74,7 +82,8 @@ export default {
     User,
     Settings,
     Github,
-    LifeBuoy
+    LifeBuoy,
+    LogOut
   },
   data() {
     return {
@@ -485,7 +494,7 @@ export default {
               </a>
               <MenubarItem disabled> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
               <MenubarSeparator />
-              <MenubarItem @click="logout()"> Logout </MenubarItem>
+              <MenubarItem @click="logout()"> <LogOut class="mr-2 h-4 w-4" /> Logout </MenubarItem>
             </MenubarContent>
           </MenubarMenu>
           <MenubarMenu>
