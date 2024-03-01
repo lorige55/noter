@@ -513,7 +513,9 @@ export default {
                 <MenubarItem @click="(tabToOpen = 'myProfile'), (showSettings = true)">
                   <User class="mr-2 h-4 w-4" /> Profile
                 </MenubarItem>
-                <MenubarItem disabled> <Settings class="mr-2 h-4 w-4" /> Settings </MenubarItem>
+                <MenubarItem @click="(tabToOpen = 'settings'), (showSettings = true)">
+                  <Settings class="mr-2 h-4 w-4" /> Settings
+                </MenubarItem>
                 <MenubarSeparator />
                 <a href="https://github.com/lorige55/noter" target="_blank">
                   <MenubarItem> <Github class="mr-2 h-4 w-4" /> GitHub </MenubarItem>
@@ -660,15 +662,15 @@ export default {
           <TabsContent value="myProfile" class="h-full">
             <Card class="relative" style="height: calc(100vh - 70px)">
               <CardHeader>
+                <CardTitle>My Profile</CardTitle>
+                <CardDescription>
+                  Make changes to your account here. Click save when you're done.
+                </CardDescription>
                 <X
                   @click="showSettings = false"
                   style="cursor: pointer"
                   class="mr-5 mt-5 absolute top-0 right-0"
                 ></X>
-                <CardTitle>My Profile</CardTitle>
-                <CardDescription>
-                  Make changes to your account here. Click save when you're done.
-                </CardDescription>
               </CardHeader>
               <CardContent class="space-y-2">
                 <div class="space-y-1">
@@ -686,12 +688,17 @@ export default {
             </Card>
           </TabsContent>
           <TabsContent value="settings">
-            <Card style="height: calc(100vh - 70px)">
+            <Card class="relative" style="height: calc(100vh - 70px)">
               <CardHeader>
                 <CardTitle>Settings</CardTitle>
                 <CardDescription>
                   Change your password here. After saving, you'll be logged out.
                 </CardDescription>
+                <X
+                  @click="showSettings = false"
+                  style="cursor: pointer"
+                  class="mr-5 mt-5 absolute top-0 right-0"
+                ></X>
               </CardHeader>
               <CardContent class="space-y-2">
                 <div class="space-y-1">
