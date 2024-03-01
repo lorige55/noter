@@ -35,6 +35,15 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
 
 //icon imports
 import {
@@ -44,7 +53,8 @@ import {
   Settings,
   Github,
   LifeBuoy,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-vue-next'
 
 export default {
@@ -83,7 +93,18 @@ export default {
     Settings,
     Github,
     LifeBuoy,
-    LogOut
+    LogOut,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+    X
   },
   data() {
     return {
@@ -114,7 +135,9 @@ export default {
       displayError: false,
       errorMessage: 'An Error has occured. Please try again or submit an Issue.',
       ready: false,
-      progress: 0
+      progress: 0,
+      showSettings: false,
+      tabToOpen: 'myProfile'
     }
   },
   methods: {
@@ -480,146 +503,212 @@ export default {
       </div>
     </div>
     <div v-else>
-      <div class="relative flex flex-col h-screen w-100">
-        <!--Menubar-->
-        <Menubar class="h-11 mx-2.5 my-2.5">
-          <MenubarMenu>
-            <MenubarTrigger>Home</MenubarTrigger>
-            <MenubarContent>
-              <MenubarItem disabled> <User class="mr-2 h-4 w-4" /> Profile </MenubarItem>
-              <MenubarItem disabled> <Settings class="mr-2 h-4 w-4" /> Settings </MenubarItem>
-              <MenubarSeparator />
-              <a href="https://github.com/lorige55/noter" target="_blank">
-                <MenubarItem> <Github class="mr-2 h-4 w-4" /> GitHub </MenubarItem>
-              </a>
-              <MenubarItem disabled> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
-              <MenubarSeparator />
-              <MenubarItem @click="logout()"> <LogOut class="mr-2 h-4 w-4" /> Logout </MenubarItem>
-            </MenubarContent>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>File</MenubarTrigger>
-            <MenubarContent>
-              <MenubarItem @click="createNewDocument()"> New File </MenubarItem>
-              <MenubarItem disabled> New Folder </MenubarItem>
-              <MenubarSeparator />
-              <MenubarItem> Delete </MenubarItem>
-              <MenubarSeparator />
-              <MenubarSub>
-                <MenubarSubTrigger>Share</MenubarSubTrigger>
-                <MenubarSubContent>
-                  <MenubarItem>Link</MenubarItem>
-                  <MenubarItem>Email</MenubarItem>
-                  <MenubarItem>SMS</MenubarItem>
-                </MenubarSubContent>
-              </MenubarSub>
-            </MenubarContent>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>Edit</MenubarTrigger>
-            <MenubarContent>
-              <MenubarItem> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
-              <MenubarItem> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
-              <MenubarSeparator />
-              <MenubarSub>
-                <MenubarSubTrigger>Find</MenubarSubTrigger>
-                <MenubarSubContent>
-                  <MenubarItem>Search the web</MenubarItem>
-                  <MenubarSeparator />
-                  <MenubarItem>Find...</MenubarItem>
-                  <MenubarItem>Find Next</MenubarItem>
-                  <MenubarItem>Find Previous</MenubarItem>
-                </MenubarSubContent>
-              </MenubarSub>
-              <MenubarSeparator />
-              <MenubarItem>Cut</MenubarItem>
-              <MenubarItem>Copy</MenubarItem>
-              <MenubarItem>Paste</MenubarItem>
-            </MenubarContent>
-          </MenubarMenu>
-          <MenubarMenu>
-            <MenubarTrigger>View</MenubarTrigger>
-            <MenubarContent>
-              <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
-              <MenubarCheckboxItem checked> Always Show Full URLs </MenubarCheckboxItem>
-              <MenubarSeparator />
-              <MenubarItem inset> Reload <MenubarShortcut>⌘R</MenubarShortcut> </MenubarItem>
-              <MenubarItem disabled inset>
-                Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
-              </MenubarItem>
-              <MenubarSeparator />
-              <MenubarItem inset> Toggle Fullscreen </MenubarItem>
-              <MenubarSeparator />
-              <MenubarItem inset> Hide Sidebar </MenubarItem>
-            </MenubarContent>
-          </MenubarMenu>
-        </Menubar>
-
-        <div class="flex flex-1 h-full mb-2.5">
-          <!--Note List-->
-          <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
-            <div class="p-4">
-              <div v-for="item in shortenedNoteIndex" :key="item">
-                <a class="text-sm flex justify-between items-center" style="cursor: pointer">
-                  <div
-                    v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex"
-                    class="font-semibold"
-                  >
-                    {{ this.shorten(activeDocument) }}
-                  </div>
-                  <div v-else @click="getDocument(item)">
-                    {{ item }}
-                  </div>
-                  <!--Dropdown Menu-->
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <div class="flex items-center">
-                        <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem disabled> Rename </DropdownMenuItem>
-                      <DropdownMenuItem @click="deleteDocument(item)"> Delete </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+      <div v-if="!showSettings">
+        <div class="relative flex flex-col h-screen w-100">
+          <!--Menubar-->
+          <Menubar class="h-11 mx-2.5 my-2.5">
+            <MenubarMenu>
+              <MenubarTrigger>Home</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem @click="(tabToOpen = 'myProfile'), (showSettings = true)">
+                  <User class="mr-2 h-4 w-4" /> Profile
+                </MenubarItem>
+                <MenubarItem disabled> <Settings class="mr-2 h-4 w-4" /> Settings </MenubarItem>
+                <MenubarSeparator />
+                <a href="https://github.com/lorige55/noter" target="_blank">
+                  <MenubarItem> <Github class="mr-2 h-4 w-4" /> GitHub </MenubarItem>
                 </a>
-                <Separator class="my-2" />
+                <MenubarItem disabled> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem @click="logout()">
+                  <LogOut class="mr-2 h-4 w-4" /> Logout
+                </MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+              <MenubarTrigger>File</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem @click="createNewDocument()"> New File </MenubarItem>
+                <MenubarItem disabled> New Folder </MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem> Delete </MenubarItem>
+                <MenubarSeparator />
+                <MenubarSub>
+                  <MenubarSubTrigger>Share</MenubarSubTrigger>
+                  <MenubarSubContent>
+                    <MenubarItem>Link</MenubarItem>
+                    <MenubarItem>Email</MenubarItem>
+                    <MenubarItem>SMS</MenubarItem>
+                  </MenubarSubContent>
+                </MenubarSub>
+              </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+              <MenubarTrigger>Edit</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
+                <MenubarItem> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
+                <MenubarSeparator />
+                <MenubarSub>
+                  <MenubarSubTrigger>Find</MenubarSubTrigger>
+                  <MenubarSubContent>
+                    <MenubarItem>Search the web</MenubarItem>
+                    <MenubarSeparator />
+                    <MenubarItem>Find...</MenubarItem>
+                    <MenubarItem>Find Next</MenubarItem>
+                    <MenubarItem>Find Previous</MenubarItem>
+                  </MenubarSubContent>
+                </MenubarSub>
+                <MenubarSeparator />
+                <MenubarItem>Cut</MenubarItem>
+                <MenubarItem>Copy</MenubarItem>
+                <MenubarItem>Paste</MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+            <MenubarMenu>
+              <MenubarTrigger>View</MenubarTrigger>
+              <MenubarContent>
+                <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
+                <MenubarCheckboxItem checked> Always Show Full URLs </MenubarCheckboxItem>
+                <MenubarSeparator />
+                <MenubarItem inset> Reload <MenubarShortcut>⌘R</MenubarShortcut> </MenubarItem>
+                <MenubarItem disabled inset>
+                  Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
+                </MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem inset> Toggle Fullscreen </MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem inset> Hide Sidebar </MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
+
+          <div class="flex flex-1 h-full mb-2.5">
+            <!--Note List-->
+            <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
+              <div class="p-4">
+                <div v-for="item in shortenedNoteIndex" :key="item">
+                  <a class="text-sm flex justify-between items-center" style="cursor: pointer">
+                    <div
+                      v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex"
+                      class="font-semibold"
+                    >
+                      {{ this.shorten(activeDocument) }}
+                    </div>
+                    <div v-else @click="getDocument(item)">
+                      {{ item }}
+                    </div>
+                    <!--Dropdown Menu-->
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <div class="flex items-center">
+                          <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
+                        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem disabled> Rename </DropdownMenuItem>
+                        <DropdownMenuItem @click="deleteDocument(item)"> Delete </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </a>
+                  <Separator class="my-2" />
+                </div>
               </div>
+            </ScrollArea>
+
+            <!--Editor-->
+            <div class="flex flex-col w-3/4 mr-2.5">
+              <!--Title Editor-->
+              <Input
+                class="h-11 justify-between text-base font-semibold"
+                type="text"
+                v-model="activeDocument"
+                @click="autoSave()"
+              />
+
+              <!--Content Editor-->
+              <Textarea
+                class="h-11 mt-2.5 justify-between flex-1 h-screen"
+                type="text"
+                v-model="activeDocumentContent"
+                @input="autoSave()"
+              ></Textarea>
             </div>
-          </ScrollArea>
-
-          <!--Editor-->
-          <div class="flex flex-col w-3/4 mr-2.5">
-            <!--Title Editor-->
-            <Input
-              class="h-11 justify-between text-base font-semibold"
-              type="text"
-              v-model="activeDocument"
-              @click="autoSave()"
-            />
-
-            <!--Content Editor-->
-            <Textarea
-              class="h-11 mt-2.5 justify-between flex-1 h-screen"
-              type="text"
-              v-model="activeDocumentContent"
-              @input="autoSave()"
-            ></Textarea>
+          </div>
+          <!--Error Alert-->
+          <div v-if="displayError == true">
+            <Alert
+              variant="destructive"
+              class="absolute bottom-0 right-0 z-50 fixed w-1/3 mr-5 mb-5"
+              @click="() => (displayError = false)"
+              style="cursor: pointer"
+            >
+              <AlertCircle class="w-4 h-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{{ this.errorMessage }}</AlertDescription>
+            </Alert>
           </div>
         </div>
-        <!--Error Alert-->
-        <div v-if="displayError == true">
-          <Alert
-            variant="destructive"
-            class="absolute bottom-0 right-0 z-50 fixed w-1/3 mr-5 mb-5"
-            @click="() => (displayError = false)"
-            style="cursor: pointer"
-          >
-            <AlertCircle class="w-4 h-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{{ this.errorMessage }}</AlertDescription>
-          </Alert>
-        </div>
+      </div>
+      <div v-else>
+        <!--My Profile, Settings-->
+        <Tabs :default-value="tabToOpen" class="mx-2.5 my-2.5 h-screen">
+          <TabsList class="grid w-full grid-cols-2">
+            <TabsTrigger value="myProfile"> My Profile </TabsTrigger>
+            <TabsTrigger value="settings"> Settings </TabsTrigger>
+          </TabsList>
+          <TabsContent value="myProfile" class="h-full">
+            <Card class="relative" style="height: calc(100vh - 70px)">
+              <CardHeader>
+                <X
+                  @click="showSettings = false"
+                  style="cursor: pointer"
+                  class="mr-5 mt-5 absolute top-0 right-0"
+                ></X>
+                <CardTitle>My Profile</CardTitle>
+                <CardDescription>
+                  Make changes to your account here. Click save when you're done.
+                </CardDescription>
+              </CardHeader>
+              <CardContent class="space-y-2">
+                <div class="space-y-1">
+                  <Label for="name">Name</Label>
+                  <Input id="name" default-value="Pedro Duarte" />
+                </div>
+                <div class="space-y-1">
+                  <Label for="username">Username</Label>
+                  <Input id="username" default-value="@peduarte" />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button>Save changes</Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+          <TabsContent value="settings">
+            <Card style="height: calc(100vh - 70px)">
+              <CardHeader>
+                <CardTitle>Settings</CardTitle>
+                <CardDescription>
+                  Change your password here. After saving, you'll be logged out.
+                </CardDescription>
+              </CardHeader>
+              <CardContent class="space-y-2">
+                <div class="space-y-1">
+                  <Label for="current">Current password</Label>
+                  <Input id="current" type="password" />
+                </div>
+                <div class="space-y-1">
+                  <Label for="new">New password</Label>
+                  <Input id="new" type="password" />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button>Save password</Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   </div>
