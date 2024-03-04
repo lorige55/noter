@@ -50,7 +50,7 @@ import {
   MoreHorizontal,
   AlertCircle,
   User,
-  Settings,
+  Lock,
   Github,
   LifeBuoy,
   LogOut,
@@ -90,7 +90,7 @@ export default {
     AlertDescription,
     AlertTitle,
     User,
-    Settings,
+    Lock,
     Github,
     LifeBuoy,
     LogOut,
@@ -137,7 +137,7 @@ export default {
       ready: false,
       progress: 0,
       showSettings: false,
-      tabToOpen: 'myProfile'
+      tabToOpen: 'account'
     }
   },
   methods: {
@@ -510,11 +510,11 @@ export default {
             <MenubarMenu>
               <MenubarTrigger>Home</MenubarTrigger>
               <MenubarContent>
-                <MenubarItem @click="(tabToOpen = 'myProfile'), (showSettings = true)">
-                  <User class="mr-2 h-4 w-4" /> Profile
+                <MenubarItem @click="(tabToOpen = 'account'), (showSettings = true)">
+                  <User class="mr-2 h-4 w-4" /> Account
                 </MenubarItem>
-                <MenubarItem @click="(tabToOpen = 'settings'), (showSettings = true)">
-                  <Settings class="mr-2 h-4 w-4" /> Settings
+                <MenubarItem @click="(tabToOpen = 'privacyAndSecurity'), (showSettings = true)">
+                  <Lock class="mr-2 h-4 w-4" /> Privacy & Security
                 </MenubarItem>
                 <MenubarSeparator />
                 <a href="https://github.com/lorige55/noter" target="_blank">
@@ -653,19 +653,16 @@ export default {
         </div>
       </div>
       <div v-else>
-        <!--My Profile, Settings-->
+        <!--Account, Privacy and Security-->
         <Tabs :default-value="tabToOpen" class="mx-2.5 my-2.5 h-screen">
           <TabsList class="grid w-full grid-cols-2">
-            <TabsTrigger value="myProfile"> My Profile </TabsTrigger>
-            <TabsTrigger value="settings"> Settings </TabsTrigger>
+            <TabsTrigger value="account"> Account </TabsTrigger>
+            <TabsTrigger value="privacyAndSecurity"> Privacy & Security </TabsTrigger>
           </TabsList>
-          <TabsContent value="myProfile" class="h-full">
+          <TabsContent value="account" class="h-full">
             <Card class="relative" style="height: calc(100vh - 70px)">
               <CardHeader>
-                <CardTitle>My Profile</CardTitle>
-                <CardDescription>
-                  Make changes to your account here. Click save when you're done.
-                </CardDescription>
+                <CardTitle>My Account</CardTitle>
                 <X
                   @click="showSettings = false"
                   style="cursor: pointer"
@@ -674,25 +671,26 @@ export default {
               </CardHeader>
               <CardContent class="space-y-2">
                 <div class="space-y-1">
-                  <Label for="name">Name</Label>
-                  <Input id="name" default-value="Pedro Duarte" />
+                  <Label for="email">E-Mail</Label>
+                  <Input id="email" v-model="user.email" disabled />
                 </div>
                 <div class="space-y-1">
-                  <Label for="username">Username</Label>
-                  <Input id="username" default-value="@peduarte" />
+                  <Label for="userid">UserID</Label>
+                  <Input id="userid" v-model="userId" disabled />
                 </div>
               </CardContent>
               <CardFooter>
-                <Button>Save changes</Button>
+                <Button class="mr-3" @click="logout()">Log Out</Button>
+                <Button class="mr-3" variant="destructive" disabled>Delete My Account</Button>
               </CardFooter>
             </Card>
           </TabsContent>
-          <TabsContent value="settings">
+          <TabsContent value="privacyAndSecurity">
             <Card class="relative" style="height: calc(100vh - 70px)">
               <CardHeader>
-                <CardTitle>Settings</CardTitle>
+                <CardTitle>Privacy & Security</CardTitle>
                 <CardDescription>
-                  Change your password here. After saving, you'll be logged out.
+                  Have full control and transparency over your data and how it is encrypted.
                 </CardDescription>
                 <X
                   @click="showSettings = false"
