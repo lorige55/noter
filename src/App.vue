@@ -44,6 +44,17 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
+import { Switch } from '@/components/ui/switch'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 
 //icon imports
 import {
@@ -104,7 +115,16 @@ export default {
     CardFooter,
     CardHeader,
     CardTitle,
-    X
+    X,
+    Switch,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
   },
   data() {
     return {
@@ -137,7 +157,8 @@ export default {
       ready: false,
       progress: 0,
       showSettings: false,
-      tabToOpen: 'account'
+      tabToOpen: 'account',
+      showNewSecretKeyConformation: false
     }
   },
   methods: {
@@ -378,18 +399,20 @@ export default {
     },
     async trustChanged() {
       if (!this.trust) {
+        this.trust = true
+        //if trust changed to true, push secretKey to firebase
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        let docRef = doc(db, this.userId, 'secretKey')
+        setDoc(docRef, { key: this.secretKey })
+      } else if (this.trust) {
+        this.trust = false
         //if trust changed to false remove secretKey from firebase
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
         let docRef = doc(db, this.userId, 'secretKey')
         setDoc(docRef, { key: 'nah' })
         localStorage.setItem('secretKey', this.secretKey)
-      } else if (this.trust) {
-        //if trust changed to true, push secretKey to firebase
-        const app = initializeApp(this.firebaseConfig)
-        const db = getFirestore(app)
-        let docRef = doc(db, this.userId, 'secretKey')
-        setDoc(docRef, { key: this.secretKey })
       }
     },
     async logout() {
@@ -690,7 +713,19 @@ export default {
               <CardHeader>
                 <CardTitle>Privacy & Security</CardTitle>
                 <CardDescription>
-                  Have full control and transparency over your data and how it is encrypted.
+                  To ensure privacy, Notes are encrypted using
+                  <Button
+                    class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                    variant="link"
+                    style="padding: 0"
+                    ><a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard"
+                      >AES-256</a
+                    ></Button
+                  >
+                  before saving to the cloud. The encryption key is crucial for data security and is
+                  stored by default in the cloud. For full privacy, store the key yourself, but
+                  remember you'll need to enter it every time you switch devices or browsers. Losing
+                  the key means losing all your data permanently.
                 </CardDescription>
                 <X
                   @click="showSettings = false"
@@ -699,18 +734,60 @@ export default {
                 ></X>
               </CardHeader>
               <CardContent class="space-y-2">
-                <div class="space-y-1">
-                  <Label for="current">Current password</Label>
-                  <Input id="current" type="password" />
+                <div v-if="trust">
+                  <p>This is your Secret Key:</p>
+                  <Input
+                    type="text"
+                    v-model="secretKey"
+                    aria-label="Secret Key"
+                    disabled
+                    readonly
+                  />
                 </div>
-                <div class="space-y-1">
-                  <Label for="new">New password</Label>
-                  <Input id="new" type="password" />
+                <div v-else>
+                  <p>Please enter your Secret Key:</p>
+                  <div class="flex w-full gap-1.5">
+                    <Button variant="outline" @click="changeSecretKey()" id="lockButton">
+                      <div v-if="secretKeyStatus == 'locked'"><i class="bi bi-lock-fill"></i></div>
+                      <div v-else><i class="bi bi-unlock-fill"></i></div>
+                    </Button>
+                    <Input
+                      type="text"
+                      v-model="secretKey"
+                      aria-label="Secret Key"
+                      :disabled="secretKeyStatus === 'locked'"
+                      :readonly="secretKeyStatus === 'locked'"
+                    />
+                    <Button variant="destructive" @click="showNewSecretKeyConformation = true">
+                      Generate
+                    </Button>
+                  </div>
                 </div>
+                <div class="flex items-center space-x-2">
+                  <Switch id="secretKeyInCloudSwitch" :checked="trust" @click="trustChanged" />
+                  <Label for="secretKeyInCloudSwitch">Store Secret Key in Cloud</Label>
+                </div>
+                <!--Conformation Dialog-->
+                <AlertDialog v-model:open="showNewSecretKeyConformation">
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently make all the data you
+                        have stored in noter useless. If you do not want to loose your data, export
+                        it before completing this action.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <Button variant="destructive" @click="generateNewSecretKey()"
+                        >Generate New</Button
+                      >
+                      <Button @click="showNewSecretKeyConformation = false">Cancel</Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardContent>
-              <CardFooter>
-                <Button>Save password</Button>
-              </CardFooter>
+              <CardFooter> </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
