@@ -159,7 +159,6 @@ export default {
       showSettings: false,
       tabToOpen: 'account',
       showNewSecretKeyConformation: false,
-      showAccountDeletionConformation: false,
       showAccountDataDeletionConformation: false
     }
   },
@@ -433,13 +432,7 @@ export default {
       await deleteDoc(doc(db, this.userId, 'keyIndex'))
       //delete secretKey from firebase
       await deleteDoc(doc(db, this.userId, 'secretKey'))
-
       location.reload()
-    },
-    async deleteAccount() {
-      await this.deleteAccountData()
-
-      this.user().deleteUser()
     }
   },
   async mounted() {
@@ -730,35 +723,10 @@ export default {
                 <Button
                   class="mr-3"
                   variant="destructive"
-                  @click="showAccountDeletionConformation = true"
-                  disabled
-                  >Delete My Account</Button
-                >
-                <Button
-                  class="mr-3"
-                  variant="destructive"
                   @click="showAccountDataDeletionConformation = true"
                   >Delete My Data</Button
                 >
               </CardFooter>
-              <!--Delete Account Conformation Dialog-->
-              <AlertDialog v-model:open="showAccountDeletionConformation">
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete all your data. If
-                      you do not want to loose your data, but delete your account, export it before
-                      completing this action. If you only want to delete your data and not the
-                      account, go back and press "Delete My Data" instead.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <Button variant="destructive" @click="deleteAccount()">Delete Account</Button>
-                    <Button @click="showAccountDeletionConformation = false">Cancel</Button>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
               <!--Delete Account Data Conformation Dialog-->
               <AlertDialog v-model:open="showAccountDataDeletionConformation">
                 <AlertDialogContent>
@@ -767,8 +735,6 @@ export default {
                     <AlertDialogDescription>
                       This action cannot be undone. This will permanently all your accounts data. If
                       you do not want to loose your data, export it before completing this action.
-                      If you want to delete your data and delete the account, go back and press
-                      "Delete My Account" instead.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
