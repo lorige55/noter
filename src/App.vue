@@ -434,7 +434,7 @@ export default {
       //delete secretKey from firebase
       await deleteDoc(doc(db, this.userId, 'secretKey'))
 
-      this.showAccountDataDeletionConformation = false
+      location.reload()
     },
     async deleteAccount() {
       await this.deleteAccountData()
