@@ -159,7 +159,8 @@ export default {
       showSettings: false,
       tabToOpen: 'account',
       showNewSecretKeyConformation: false,
-      showAccountDataDeletionConformation: false
+      showAccountDataDeletionConformation: false,
+      showImportConformation: false
     }
   },
   methods: {
@@ -433,6 +434,86 @@ export default {
       //delete secretKey from firebase
       await deleteDoc(doc(db, this.userId, 'secretKey'))
       location.reload()
+    },
+    async exportData() {
+      // Initialize Firebase
+      const app = initializeApp(this.firebaseConfig)
+      const db = getFirestore(app)
+
+      //create base dataToExport
+      let dataToExport = {
+        keyIndex: this.keyIndex
+      }
+      //create rest of the dataToExport json
+      for (let i = 0; i < this.keyIndex.length; i++) {
+        let docRef = doc(db, this.userId, this.keyIndex[i])
+        let docSnap = await getDoc(docRef)
+        dataToExport[this.keyIndex[i]] = { note: docSnap.data().note, title: docSnap.data().title }
+      }
+
+      //download data as json
+      // Convert the data to a JSON string
+      const jsonString = JSON.stringify(dataToExport, null, 2)
+      // Create a Blob object
+      const blob = new Blob([jsonString], { type: 'application/json' })
+      // Create a link element
+      const a = document.createElement('a')
+      a.href = window.URL.createObjectURL(blob)
+      a.download = 'noter_data.json'
+      // Append the link to the body
+      document.body.appendChild(a)
+      // Trigger the click event of the link
+      a.click()
+      // Remove the link from the body
+      document.body.removeChild(a)
+    },
+    async importData() {
+      const fileInput = document.getElementById('fileUpload')
+      const file = fileInput.files[0]
+
+      if (!file) {
+        alert('Please select a file.')
+        return
+      }
+
+      const reader = new FileReader()
+      reader.onload = async (event) => {
+        const jsonContent = event.target.result
+        try {
+          const parsedData = JSON.parse(jsonContent)
+
+          // Initialize Firebase
+          const app = initializeApp(this.firebaseConfig)
+          const db = getFirestore(app)
+
+          //delete all documents from firebase
+          for (let i = 0; i < this.keyIndex.length; i++) {
+            await deleteDoc(doc(db, this.userId, this.keyIndex[i]))
+          }
+          //delete keyIndex from firebase
+          await deleteDoc(doc(db, this.userId, 'keyIndex'))
+
+          //keyIndex
+          let docRef = doc(db, this.userId, 'keyIndex')
+          setDoc(docRef, {
+            index: parsedData.keyIndex
+          })
+          //notes
+          for (let i = 0; i < parsedData.keyIndex.length; i++) {
+            docRef = doc(db, this.userId, parsedData.keyIndex[i])
+            let key = parsedData.keyIndex[i]
+            setDoc(docRef, {
+              note: parsedData[key].note,
+              title: parsedData[key].title
+            })
+          }
+          location.reload()
+        } catch (error) {
+          console.error('Error parsing JSON:', error)
+        }
+      }
+      reader.readAsText(file)
+      this.showImportConformation = false
     }
   },
   async mounted() {
@@ -536,8 +617,9 @@ export default {
   </div>
   <div v-else>
     <div v-if="!ready">
-      <div class="flex justify-center items-center h-screen">
-        <Progress class="w-1/3" :model-value="progress"></Progress>
+      <div class="flex flex-col justify-center items-center h-screen">
+        <Progress class="w-1/3 mb-3" :model-value="progress"></Progress>
+        <Button variant="destructive" @click="deleteAccountData()">Delete My Data</Button>
       </div>
     </div>
     <div v-else>
@@ -719,7 +801,10 @@ export default {
               </CardContent>
               <CardFooter>
                 <Button class="mr-3" @click="logout()">Log Out</Button>
-                <Button class="mr-3" variant="outline" disabled>Export Data</Button>
+                <Button class="mr-3" variant="outline" @click="exportData()">Export Data</Button>
+                <Button class="mr-3" variant="outline" @click="showImportConformation = true"
+                  >Import Data</Button
+                >
                 <Button
                   class="mr-3"
                   variant="destructive"
@@ -727,6 +812,26 @@ export default {
                   >Delete My Data</Button
                 >
               </CardFooter>
+              <!--Import Conformation Dialog-->
+              <AlertDialog v-model:open="showImportConformation">
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>One more thing.</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently replace all the data you
+                      have stored in noter. Please select a file below to import.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div class="grid w-full max-w-sm items-center gap-1.5">
+                    <Label for="fileUpload">Picture</Label>
+                    <Input id="fileUpload" type="file" />
+                  </div>
+                  <AlertDialogFooter>
+                    <Button variant="destructive" @click="importData()">Import</Button>
+                    <Button @click="showImportConformation = false">Cancel</Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <!--Delete Account Data Conformation Dialog-->
               <AlertDialog v-model:open="showAccountDataDeletionConformation">
                 <AlertDialogContent>
