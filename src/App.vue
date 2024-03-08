@@ -619,6 +619,11 @@ export default {
     <div v-if="!ready">
       <div class="flex flex-col justify-center items-center h-screen">
         <Progress class="w-1/3 mb-3" :model-value="progress"></Progress>
+        <p class="font-thin text-xs w-1/3 mb-3">
+          This should only take a few seconds. If it takes to long, a slow internet connection or
+          corrupt data could be the cause. If you think your data is corrupt, consider resetting it.
+          But it will delete all of your data.
+        </p>
         <Button variant="destructive" @click="deleteAccountData()">Delete My Data</Button>
       </div>
     </div>
