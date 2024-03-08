@@ -160,7 +160,9 @@ export default {
       tabToOpen: 'account',
       showNewSecretKeyConformation: false,
       showAccountDataDeletionConformation: false,
-      showImportConformation: false
+      showImportConformation: false,
+      showNoteDeleteConformation: false,
+      noteToDelete: ''
     }
   },
   methods: {
@@ -241,7 +243,7 @@ export default {
         this.keyIndex.splice(indexToRemove, 1)
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
-        location.reload()
+        this.showNoteDeleteConformation = false
       } else {
         console.log('An Error has occured. Please try again or create an Issue on GitHub.')
         this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'
@@ -738,7 +740,11 @@ export default {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <DropdownMenuItem disabled> Rename </DropdownMenuItem>
-                        <DropdownMenuItem @click="deleteDocument(item)"> Delete </DropdownMenuItem>
+                        <DropdownMenuItem
+                          @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                        >
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </a>
@@ -746,6 +752,26 @@ export default {
                 </div>
               </div>
             </ScrollArea>
+
+            <!--Note Deletion conformation-->
+            <AlertDialog v-model:open="showNoteDeleteConformation">
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your note, called "{{
+                      noteToDelete
+                    }}". Think about it twice.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <Button @click="showNoteDeleteConformation = false">Cancel</Button>
+                  <Button variant="destructive" @click="deleteDocument(noteToDelete)"
+                    >Continue</Button
+                  >
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
             <!--Editor-->
             <div class="flex flex-col w-3/4 mr-2.5">
