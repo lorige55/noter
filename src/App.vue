@@ -216,6 +216,10 @@ export default {
       }, 3000)
     },
     async deleteDocument(item) {
+      //safe active document before proceeding
+      if (this.activeDocument !== '') {
+        await this.saveActiveDocument()
+      }
       //initialize firebase and the index of the item to remove
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
@@ -619,7 +623,7 @@ export default {
     <div v-if="!ready">
       <div class="flex flex-col justify-center items-center h-screen">
         <Progress class="w-1/3 mb-3" :model-value="progress"></Progress>
-        <p class="font-thin text-xs w-1/3 mb-3">
+        <p class="font-thin text-xs w-1/3 mb-3 text-center">
           This should only take a few seconds. If it takes to long, a slow internet connection or
           corrupt data could be the cause. If you think your data is corrupt, consider resetting it.
           But it will delete all of your data.
@@ -710,9 +714,9 @@ export default {
             </MenubarMenu>
           </Menubar>
 
-          <div class="flex flex-1 h-full mb-2.5">
+          <div class="flex flex-1 max-h-screen mb-2.5 overflow-y-auto">
             <!--Note List-->
-            <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4 overflow-y-auto">
+            <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4">
               <div class="p-4">
                 <div v-for="item in shortenedNoteIndex" :key="item">
                   <a class="text-sm flex justify-between items-center" style="cursor: pointer">
