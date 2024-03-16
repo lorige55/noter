@@ -131,7 +131,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2',
+      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       shortenedNoteIndex: ['Loading...'],
       keyIndex: [],
@@ -352,20 +352,22 @@ export default {
     },
     encryptString(string) {
       //verify that input is a string
-      string = string.toString()
+      string.toString()
       //encrypt with AES-256
       let encrypted = CryptoJS.Rabbit.encrypt(string, this.secretKey)
-      //encode to base64
-      return btoa(encrypted)
+      //encode to custom charset base64
+      let encoded = btoa(encrypted)
+      return encoded.replace(/\//g, '_').replace(/=/g, '-')
     },
     decryptString(string) {
       //verify that input is a string
-      string = string.toString()
+      string.toString()
       //decode from base64
+      string = string.replace(/_/g, '/').replace(/-/g, '=')
       string = atob(string)
       //decrypt with AES-256
-      const bytes = CryptoJS.Rabbit.decrypt(string, this.secretKey)
-      return bytes.toString(CryptoJS.enc.Utf8)
+      let decrypted = CryptoJS.Rabbit.decrypt(string, this.secretKey)
+      return decrypted.toString(CryptoJS.enc.Utf8)
     },
     generateKey(length) {
       //generate a random key
@@ -506,9 +508,10 @@ export default {
           })
           //notes
           for (let i = 0; i < parsedData.keyIndex.length; i++) {
-            docRef = doc(db, this.userId, parsedData.keyIndex[i])
             let key = parsedData.keyIndex[i]
-            setDoc(docRef, {
+            console.log(key)
+            docRef = doc(db, this.userId, key)
+            await setDoc(docRef, {
               note: parsedData[key].note,
               title: parsedData[key].title
             })
