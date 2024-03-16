@@ -1,5 +1,6 @@
 <!-- eslint-disable no-undef -->
 <script>
+import CryptoJS from 'crypto-js'
 import '@passageidentity/passage-elements/passage-auth'
 import { PassageUser } from '@passageidentity/passage-auth/passage-user'
 import { initializeApp } from 'firebase/app'
