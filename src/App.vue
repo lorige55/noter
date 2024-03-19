@@ -132,7 +132,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       shortenedNoteIndex: ['Loading...'],
       keyIndex: [],
@@ -150,7 +150,6 @@ export default {
       activeSavingProcesses: 0,
       secretKey: '',
       trust: true,
-      secretKeyStatus: 'locked',
       creatingNewDocument: false,
       documentToRename: '',
       displayError: false,
@@ -376,24 +375,6 @@ export default {
       key.toString(CryptoJS.enc.Base64)
       //encode to base64 and return
       return btoa(key)
-    },
-    changeSecretKey() {
-      if (this.secretKeyStatus == 'locked') {
-        //changed status
-        this.secretKeyStatus = 'unlocked'
-      } else {
-        //changed status
-        this.secretKeyStatus = 'locked'
-        //if trust is true, push new key to firebase
-        if (this.trust) {
-          const app = initializeApp(this.firebaseConfig)
-          const db = getFirestore(app)
-          let docRef = doc(db, this.userId, 'secretKey')
-          setDoc(docRef, { key: this.secretKey })
-        }
-        //save new key to localStorage
-        localStorage.setItem('secretKey', this.secretKey)
-      }
     },
     generateNewSecretKey() {
       //generate new key and set it to secretKey
@@ -928,17 +909,7 @@ export default {
                 <div v-else>
                   <p>Please enter your Secret Key:</p>
                   <div class="flex w-full gap-1.5">
-                    <Button variant="outline" @click="changeSecretKey()" id="lockButton">
-                      <div v-if="secretKeyStatus == 'locked'"><i class="bi bi-lock-fill"></i></div>
-                      <div v-else><i class="bi bi-unlock-fill"></i></div>
-                    </Button>
-                    <Input
-                      type="text"
-                      v-model="secretKey"
-                      aria-label="Secret Key"
-                      :disabled="secretKeyStatus === 'locked'"
-                      :readonly="secretKeyStatus === 'locked'"
-                    />
+                    <Input type="text" v-model="secretKey" aria-label="Secret Key" disabled />
                     <Button variant="destructive" @click="showNewSecretKeyConformation = true">
                       Generate
                     </Button>
