@@ -176,6 +176,7 @@ export default {
       //set active document and lastNote
       this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(item)
       this.activeDocument = this.noteIndex[this.activeDocumentIndex]
+      document.title = 'Noter - ' + this.activeDocument
       localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
       let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
@@ -290,6 +291,7 @@ export default {
       //set activeDocument and lastNote to new note
       this.activeDocumentContent = 'This is a new note. Feel free to edit it!'
       this.activeDocument = newNoteName
+      document.title = 'Noter - ' + this.activeDocument
       this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(newNoteName)
       localStorage.setItem('lastNote', this.activeDocument)
       this.creatingNewDocument = false
@@ -632,6 +634,7 @@ export default {
         })
         //set default note to active Note
         this.activeDocument = 'Welcome!'
+        document.title = 'Noter - ' + this.activeDocument
         this.activeDocumentContent = 'This is your first note! Have fun!'
         this.activeDocumentIndex = 0
       }
