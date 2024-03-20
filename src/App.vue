@@ -751,6 +751,15 @@ export default {
               </MenubarContent>
             </MenubarMenu>
           </Menubar>
+          <!--Saving Status-->
+          <div class="absolute top-0 right-0 pt-6 pr-6">
+            <div v-if="activeSavingProcesses > 0">
+              <p class="text-sm text-muted-foreground m-0 p-0 leading-none">Saving</p>
+            </div>
+            <div v-else>
+              <p class="text-sm text-muted-foreground m-0 p-0 leading-none">Saved</p>
+            </div>
+          </div>
 
           <div class="flex flex-1 max-h-screen mb-2.5 overflow-y-auto">
             <!--Note List-->
@@ -758,11 +767,8 @@ export default {
               <div class="p-4">
                 <div v-for="item in shortenedNoteIndex" :key="item">
                   <a class="text-sm flex justify-between items-center" style="cursor: pointer">
-                    <div
-                      v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex"
-                      class="font-semibold"
-                    >
-                      {{ this.shorten(activeDocument) }}
+                    <div v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex">
+                      <b>{{ this.shorten(activeDocument) }}</b>
                     </div>
                     <div v-else @click="getDocument(item)">
                       {{ item }}
@@ -815,7 +821,7 @@ export default {
                 class="h-11 justify-between text-base font-semibold"
                 type="text"
                 v-model="activeDocument"
-                @click="autoSave()"
+                @input="autoSave()"
               />
 
               <!--Content Editor-->
