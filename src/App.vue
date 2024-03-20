@@ -513,6 +513,41 @@ export default {
       }
       reader.readAsText(file)
       this.showImportConformation = false
+    },
+    fullscreen() {
+      //check if fullscreen is active, if so exit, else enter
+      if (
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      ) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen()
+        } else if (document.mozCancelFullScreen) {
+          // Firefox
+          document.mozCancelFullScreen()
+        } else if (document.webkitExitFullscreen) {
+          // Chrome, Safari and Opera
+          document.webkitExitFullscreen()
+        } else if (document.msExitFullscreen) {
+          // IE/Edge
+          document.msExitFullscreen()
+        }
+      } else {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen()
+        } else if (document.documentElement.mozRequestFullScreen) {
+          // Firefox
+          document.documentElement.mozRequestFullScreen()
+        } else if (document.documentElement.webkitRequestFullscreen) {
+          // Chrome, Safari and Opera
+          document.documentElement.webkitRequestFullscreen()
+        } else if (document.documentElement.msRequestFullscreen) {
+          // IE/Edge
+          document.documentElement.msRequestFullscreen()
+        }
+      }
     }
   },
   async mounted() {
@@ -666,9 +701,9 @@ export default {
                 <MenubarSub>
                   <MenubarSubTrigger>Share</MenubarSubTrigger>
                   <MenubarSubContent>
-                    <MenubarItem>Link</MenubarItem>
-                    <MenubarItem>Email</MenubarItem>
-                    <MenubarItem>SMS</MenubarItem>
+                    <MenubarItem disabled>Link</MenubarItem>
+                    <MenubarItem disabled>Email</MenubarItem>
+                    <MenubarItem disabled>SMS</MenubarItem>
                   </MenubarSubContent>
                 </MenubarSub>
               </MenubarContent>
@@ -676,23 +711,23 @@ export default {
             <MenubarMenu>
               <MenubarTrigger>Edit</MenubarTrigger>
               <MenubarContent>
-                <MenubarItem> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
-                <MenubarItem> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
+                <MenubarItem disabled> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
+                <MenubarItem disabled> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
                 <MenubarSeparator />
                 <MenubarSub>
                   <MenubarSubTrigger>Find</MenubarSubTrigger>
                   <MenubarSubContent>
-                    <MenubarItem>Search the web</MenubarItem>
+                    <MenubarItem disabled>Search the web</MenubarItem>
                     <MenubarSeparator />
-                    <MenubarItem>Find...</MenubarItem>
-                    <MenubarItem>Find Next</MenubarItem>
-                    <MenubarItem>Find Previous</MenubarItem>
+                    <MenubarItem disabled>Find...</MenubarItem>
+                    <MenubarItem disabled>Find Next</MenubarItem>
+                    <MenubarItem disabled>Find Previous</MenubarItem>
                   </MenubarSubContent>
                 </MenubarSub>
                 <MenubarSeparator />
-                <MenubarItem>Cut</MenubarItem>
-                <MenubarItem>Copy</MenubarItem>
-                <MenubarItem>Paste</MenubarItem>
+                <MenubarItem disabled>Cut</MenubarItem>
+                <MenubarItem disabled>Copy</MenubarItem>
+                <MenubarItem disabled>Paste</MenubarItem>
               </MenubarContent>
             </MenubarMenu>
             <MenubarMenu>
@@ -706,7 +741,7 @@ export default {
                   Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
                 </MenubarItem>
                 <MenubarSeparator />
-                <MenubarItem inset> Toggle Fullscreen </MenubarItem>
+                <MenubarItem inset @click="fullscreen()"> Toggle Fullscreen </MenubarItem>
                 <MenubarSeparator />
                 <MenubarItem inset> Hide Sidebar </MenubarItem>
               </MenubarContent>
