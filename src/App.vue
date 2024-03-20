@@ -711,6 +711,11 @@ export default {
                     <MenubarItem disabled>SMS</MenubarItem>
                   </MenubarSubContent>
                 </MenubarSub>
+                <MenubarSeparator />
+                <MenubarItem @click="(tabToOpen = 'account'), (showSettings = true)"
+                  >Import Data</MenubarItem
+                >
+                <MenubarItem @click="exportData()">Export Data</MenubarItem>
               </MenubarContent>
             </MenubarMenu>
             <MenubarMenu>
