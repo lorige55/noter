@@ -234,15 +234,23 @@ export default {
       }
       //if indexToRemove is valid
       if (indexToRemove !== -1) {
-        //remove item from noteIndex and shorten
-        this.noteIndex.splice(indexToRemove, 1)
-        this.shorten('1')
+        //change active document if it is the one to be removed
+        if (this.activeDocument === item && this.shortenedNoteIndex.length > 0) {
+          if (indexToRemove === 0) {
+            this.getDocument(this.shortenedNoteIndex[0])
+          } else {
+            this.getDocument(this.shortenedNoteIndex[indexToRemove - 1])
+          }
+        }
         //delete document from firebase
         await deleteDoc(doc(db, this.userId, this.keyIndex[indexToRemove]))
         //remove key from keyIndex and push new keyIndex to firebase
         this.keyIndex.splice(indexToRemove, 1)
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
+        //remove item from noteIndex and shortened
+        this.shortenedNoteIndex.splice(indexToRemove, 1)
+        this.noteIndex.splice(indexToRemove, 1)
         this.showNoteDeleteConformation = false
       } else {
         console.log('An Error has occured. Please try again or create an Issue on GitHub.')
@@ -649,7 +657,11 @@ export default {
                 <MenubarItem @click="createNewDocument()"> New File </MenubarItem>
                 <MenubarItem disabled> New Folder </MenubarItem>
                 <MenubarSeparator />
-                <MenubarItem> Delete </MenubarItem>
+                <MenubarItem
+                  @click="(showNoteDeleteConformation = true), (noteToDelete = activeDocument)"
+                >
+                  Delete
+                </MenubarItem>
                 <MenubarSeparator />
                 <MenubarSub>
                   <MenubarSubTrigger>Share</MenubarSubTrigger>
@@ -744,9 +756,8 @@ export default {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your note, called "{{
-                      noteToDelete
-                    }}". Think about it twice.
+                    This action cannot be undone. This will permanently delete your note, called
+                    <b>"{{ noteToDelete }}"</b>. Think about it twice.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
