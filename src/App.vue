@@ -204,12 +204,12 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
-      console.log('Saved: ' + this.activeDocument)
       //save document to firebase
       setDoc(docRef, {
         note: this.encryptString(this.activeDocumentContent),
         title: this.encryptString(this.activeDocument)
       })
+      localStorage.setItem('lastNote', this.activeDocument)
       this.noteIndex[this.activeDocumentIndex] = this.activeDocument
       this.shorten('1')
     },
@@ -506,7 +506,6 @@ export default {
           //notes
           for (let i = 0; i < parsedData.keyIndex.length; i++) {
             let key = parsedData.keyIndex[i]
-            console.log(key)
             docRef = doc(db, this.userId, key)
             await setDoc(docRef, {
               note: parsedData[key].note,
@@ -621,7 +620,6 @@ export default {
           localStorage.getItem('lastNote') === 'undefined'
         ) {
           localStorage.setItem('lastNote', this.noteIndex[0])
-          console.log('changed last note')
         }
         this.getDocument(localStorage.getItem('lastNote'))
       } else {
