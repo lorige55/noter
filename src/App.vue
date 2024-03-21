@@ -301,47 +301,6 @@ export default {
       localStorage.setItem('lastNote', this.activeDocument)
       this.creatingNewDocument = false
     },
-    async renameDocument(item, attempt) {
-      if (attempt == 1) {
-        //show input for new note name
-        this.documentToRename = this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
-      } else if (attempt == 2) {
-        //get a new name for the note
-        let newName = document.getElementById('changeNoteNameInput').value
-        //delete old document
-        //initialize firebase and the index of the item to remove
-        const app = initializeApp(this.firebaseConfig)
-        const db = getFirestore(app)
-        const indexToRename = this.noteIndex.indexOf(this.documentToRename)
-        //remove item from lastNote in localStorage if it is the lastNote
-        if (
-          localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
-        ) {
-          localStorage.removeItem('lastNote')
-        }
-        //if indexToRename is valid
-        if (indexToRename !== -1) {
-          //rename item in noteIndex and shorten
-          this.noteIndex[indexToRename] = newName
-          this.shorten('1')
-          //backup content of note
-          let docRef = doc(db, this.userId, this.keyIndex[indexToRename])
-          let docSnap = await getDoc(docRef)
-          let backupContent = docSnap.data().note
-          //rename document in firebase
-          docRef = doc(db, this.userId, this.keyIndex[indexToRename])
-          setDoc(docRef, {
-            note: backupContent,
-            title: this.encryptString(newName)
-          })
-        } else {
-          this.errorMessage = 'An Error has occured. Please try again or create an Issue on GitHub.'
-          this.displayError = true
-        }
-        this.documentToRename = ''
-        location.reload()
-      }
-    },
     shorten(par) {
       let charLimit = 30
       if (par === '1') {
