@@ -56,6 +56,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
 
 //icon imports
 import {
@@ -125,7 +126,8 @@ export default {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
-    AlertDialogTitle
+    AlertDialogTitle,
+    Badge
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -137,7 +139,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       shortenedNoteIndex: ['Loading...'],
       keyIndex: [],
@@ -752,12 +754,12 @@ export default {
             </MenubarMenu>
           </Menubar>
           <!--Saving Status-->
-          <div class="absolute top-0 right-0 pt-6 pr-6">
+          <div class="absolute top-0 right-0">
             <div v-if="activeSavingProcesses > 0">
-              <p class="text-sm text-muted-foreground m-0 p-0 leading-none">Saving</p>
+              <Badge class="py-0 mt-6 mr-6">Saving</Badge>
             </div>
             <div v-else>
-              <p class="text-sm text-muted-foreground m-0 p-0 leading-none">Saved</p>
+              <Badge class="py-0 mt-6 mr-6">Saved</Badge>
             </div>
           </div>
 
