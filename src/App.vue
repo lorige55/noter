@@ -139,7 +139,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       shortenedNoteIndex: ['Loading...'],
       keyIndex: [],
@@ -720,39 +720,59 @@ export default {
             </div>
           </div>
 
-          <div class="flex flex-1 max-h-screen mb-2.5 overflow-y-auto">
+          <div class="flex flex-1 mb-2.5 overflow-y-auto">
             <!--Note List-->
-            <ScrollArea class="h-full rounded-md border mx-2.5 w-1/4">
-              <div class="p-4">
-                <div v-for="item in shortenedNoteIndex" :key="item">
-                  <a class="text-sm flex justify-between items-center" style="cursor: pointer">
-                    <div v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex">
-                      <b>{{ this.shorten(activeDocument) }}</b>
-                    </div>
-                    <div v-else @click="getDocument(item)">
-                      {{ item }}
-                    </div>
-                    <!--Dropdown Menu-->
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <div class="flex items-center">
-                          <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
-                        </div>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem disabled> Rename </DropdownMenuItem>
-                        <DropdownMenuItem
-                          @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </a>
-                  <Separator class="my-2" />
+            <div class="h-full rounded-md border mx-2.5 w-1/4">
+              <div v-for="item in shortenedNoteIndex" :key="item" style="cursor: pointer">
+                <div
+                  v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex"
+                  class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
+                >
+                  {{ this.shorten(activeDocument) }}
+
+                  <!--Dropdown Menu-->
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <div class="flex items-center">
+                        <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem disabled> Rename </DropdownMenuItem>
+                      <DropdownMenuItem
+                        @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <div
+                  v-else
+                  @click="getDocument(item)"
+                  class="noteListItem rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
+                >
+                  {{ item }}
+
+                  <!--Dropdown Menu-->
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <div class="flex items-center">
+                        <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem disabled> Rename </DropdownMenuItem>
+                      <DropdownMenuItem
+                        @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
-            </ScrollArea>
+            </div>
 
             <!--Note Deletion conformation-->
             <AlertDialog v-model:open="showNoteDeleteConformation">
