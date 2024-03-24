@@ -65,10 +65,38 @@
   }
 }
 
-.customScrollArea {
-  height: calc(100% - 30px - 44px);
-}
-
 .noteListItem:hover {
   background-color: rgb(243 244 246);
+}
+
+.customInput:active {
+  border: none;
+}
+
+.noteListText {
+  position: relative;
+  width: calc(100% - 50px);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.noteListText::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20%;
+  height: 100%;
+}
+
+.activeNoteListText::after {
+  background: linear-gradient(to right, transparent, rgb(229 231 235));
+}
+
+.passiveNoteListText::after {
+  background: linear-gradient(to right, transparent, white);
+}
+
+.passiveNoteListText::after:hover {
+  background: linear-gradient(to right, transparent, rgb(243, 244, 246));
 }

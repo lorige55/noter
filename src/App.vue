@@ -139,9 +139,8 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
-      shortenedNoteIndex: ['Loading...'],
       keyIndex: [],
       activeDocumentContent: 'Loading...',
       activeDocument: '',
@@ -181,7 +180,7 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       //set active document and lastNote
-      this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(item)
+      this.activeDocumentIndex = this.noteIndex.indexOf(item)
       this.activeDocument = this.noteIndex[this.activeDocumentIndex]
       localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
@@ -211,12 +210,10 @@ export default {
       })
       localStorage.setItem('lastNote', this.activeDocument)
       this.noteIndex[this.activeDocumentIndex] = this.activeDocument
-      this.shorten('1')
     },
     autoSave() {
       //save active document after 3 seconds of inactivity
       this.activeSavingProcesses++
-      this.shorten('1')
       setTimeout(() => {
         if (this.activeSavingProcesses == 1) {
           this.saveActiveDocument()
@@ -232,21 +229,19 @@ export default {
       //initialize firebase and the index of the item to remove
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      const indexToRemove = this.shortenedNoteIndex.indexOf(item)
+      const indexToRemove = this.noteIndex.indexOf(item)
       //remove item from lastNote in localStorage if it is the lastNote
-      if (
-        localStorage.getItem('lastNote') === this.noteIndex[this.shortenedNoteIndex.indexOf(item)]
-      ) {
+      if (localStorage.getItem('lastNote') === this.noteIndex[item]) {
         localStorage.removeItem('lastNote')
       }
       //if indexToRemove is valid
       if (indexToRemove !== -1) {
         //change active document if it is the one to be removed
-        if (this.activeDocument === item && this.shortenedNoteIndex.length > 0) {
+        if (this.activeDocument === item && this.noteIndex.length > 0) {
           if (indexToRemove === 0) {
-            this.getDocument(this.shortenedNoteIndex[0])
+            this.getDocument(this.noteIndex[0])
           } else {
-            this.getDocument(this.shortenedNoteIndex[indexToRemove - 1])
+            this.getDocument(this.noteIndex[indexToRemove - 1])
           }
         }
         //delete document from firebase
@@ -256,7 +251,6 @@ export default {
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
         //remove item from noteIndex and shortened
-        this.shortenedNoteIndex.splice(indexToRemove, 1)
         this.noteIndex.splice(indexToRemove, 1)
         this.showNoteDeleteConformation = false
       } else {
@@ -281,7 +275,6 @@ export default {
       }
       //push new Note to Index
       this.noteIndex.push(newNoteName)
-      this.shorten('1')
       //generate new key and push it to keyIndex
       let key = this.generateKey(128)
       this.keyIndex.push(key)
@@ -297,32 +290,9 @@ export default {
       //set activeDocument and lastNote to new note
       this.activeDocumentContent = 'This is a new note. Feel free to edit it!'
       this.activeDocument = newNoteName
-      this.activeDocumentIndex = this.shortenedNoteIndex.indexOf(newNoteName)
+      this.activeDocumentIndex = this.noteIndex.indexOf(newNoteName)
       localStorage.setItem('lastNote', this.activeDocument)
       this.creatingNewDocument = false
-    },
-    shorten(par) {
-      let charLimit = 30
-      if (par === '1') {
-        for (let i = 0; i < this.noteIndex.length; ) {
-          if (this.noteIndex[i].length > charLimit) {
-            let shortenedString = this.noteIndex[i].split('')
-            shortenedString.splice(charLimit, this.noteIndex[i].length - charLimit, '...')
-            this.shortenedNoteIndex[i] = shortenedString.join('')
-          } else {
-            this.shortenedNoteIndex[i] = this.noteIndex[i]
-          }
-          i++
-        }
-      } else {
-        if (par.length > charLimit) {
-          let shortenedString = par.split('')
-          shortenedString.splice(charLimit, par.length - charLimit, '...')
-          return shortenedString.join('')
-        } else {
-          return par
-        }
-      }
     },
     encryptString(string) {
       //verify that input is a string
@@ -571,8 +541,6 @@ export default {
           let docSnap = await getDoc(docRef)
           this.noteIndex[i] = this.decryptString(docSnap.data().title)
         }
-        //shorten, obvi
-        this.shorten('1')
         //recover last note or select first in array if equal to null
         if (
           localStorage.getItem('lastNote') == undefined ||
@@ -588,7 +556,6 @@ export default {
         setDoc(docRef, { index: this.keyIndex })
         //create default note
         this.noteIndex = ['Welcome!']
-        this.shorten('1')
         docRef = doc(db, this.userId, key)
         setDoc(docRef, {
           note: this.encryptString('This is your first note! Have fun!'),
@@ -720,15 +687,17 @@ export default {
             </div>
           </div>
 
-          <div class="flex flex-1 mb-2.5 overflow-y-auto">
+          <div class="w-screen flex flex-1 mb-2.5 overflow-y-auto">
             <!--Note List-->
-            <div class="h-full rounded-md border mx-2.5 w-1/4">
-              <div v-for="item in shortenedNoteIndex" :key="item" style="cursor: pointer">
+            <div class="h-full rounded-md border mx-2.5 w-1/4" style="width: 25% !important">
+              <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
                 <div
-                  v-if="shortenedNoteIndex.indexOf(item) === activeDocumentIndex"
+                  v-if="noteIndex.indexOf(item) === activeDocumentIndex"
                   class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
                 >
-                  {{ this.shorten(activeDocument) }}
+                  <div class="noteListText activeNoteListText">
+                    {{ activeDocument }}
+                  </div>
 
                   <!--Dropdown Menu-->
                   <DropdownMenu>
@@ -752,7 +721,9 @@ export default {
                   @click="getDocument(item)"
                   class="noteListItem rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
                 >
-                  {{ item }}
+                  <div class="noteListText passiveNoteListText">
+                    {{ item }}
+                  </div>
 
                   <!--Dropdown Menu-->
                   <DropdownMenu>
@@ -797,7 +768,7 @@ export default {
             <div class="flex flex-col w-3/4 mr-2.5">
               <!--Title Editor-->
               <Input
-                class="h-11 justify-between text-base font-semibold"
+                class="customInput h-11 justify-between text-base font-semibold"
                 type="text"
                 v-model="activeDocument"
                 @input="autoSave()"
@@ -805,7 +776,7 @@ export default {
 
               <!--Content Editor-->
               <Textarea
-                class="h-11 mt-2.5 justify-between flex-1 h-screen"
+                class="customInput h-11 mt-2.5 justify-between flex-1 h-screen"
                 type="text"
                 v-model="activeDocumentContent"
                 @input="autoSave()"
