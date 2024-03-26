@@ -75,7 +75,7 @@
 
 .noteListText {
   position: relative;
-  width: calc(100% - 50px);
+  width: calc(100% - 30px);
   overflow: hidden;
   white-space: nowrap;
 }
@@ -97,6 +97,6 @@
   background: linear-gradient(to right, transparent, white);
 }
 
-.passiveNoteListText::after:hover {
-  background: linear-gradient(to right, transparent, rgb(243, 244, 246));
+.passiveNoteListItem:hover ~ .passiveNoteListText::after {
+  background: linear-gradient(to right, transparent, rgb(243 244 246));
 }

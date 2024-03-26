@@ -719,7 +719,7 @@ export default {
                 <div
                   v-else
                   @click="getDocument(item)"
-                  class="noteListItem rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
+                  class="noteListItem passiveNoteListItem rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
                 >
                   <div class="noteListText passiveNoteListText">
                     {{ item }}
