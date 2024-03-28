@@ -97,6 +97,6 @@
   background: linear-gradient(to right, transparent, white);
 }
 
-.passiveNoteListItem:hover ~ .passiveNoteListText::after {
+.passiveNoteListItem:hover .passiveNoteListText::after {
   background: linear-gradient(to right, transparent, rgb(243 244 246));
 }
