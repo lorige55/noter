@@ -171,7 +171,7 @@ export default {
       displayError: false,
       errorMessage: 'An Error has occured. Please try again or submit an Issue.',
       ready: false,
-      progress: 0,
+      progress: 'Ready, set go!',
       showSettings: false,
       tabToOpen: 'account',
       showNewSecretKeyConformation: false,
@@ -512,7 +512,7 @@ export default {
       this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'
       this.displayError = true
     }
-    this.progress = 20
+    this.progress = 'Initializing secret key...'
     //get secret Key from firebase
     const app = initializeApp(this.firebaseConfig)
     const db = getFirestore(app)
@@ -537,7 +537,7 @@ export default {
       setDoc(docRef, { key: key })
       this.secretKey = key
     }
-    this.progress = 100
+    this.progress = 'Syncing your notes...'
     //get keyIndex from firebase
     if (this.secretKey !== '') {
       docRef = doc(db, this.userId, 'keyIndex')
@@ -551,6 +551,7 @@ export default {
           let docSnap = await getDoc(docRef)
           this.noteIndex[i] = this.decryptString(docSnap.data().title)
         }
+        this.progress = 'Loading your last note...'
         //recover last note or select first in array if equal to null
         if (
           localStorage.getItem('lastNote') == undefined ||
@@ -577,6 +578,7 @@ export default {
         this.activeDocumentIndex = 0
       }
     }
+    this.progress = 'Done!'
     this.ready = true
   }
 }
@@ -597,7 +599,7 @@ export default {
           class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] mb-3 dark:text-white"
           role="status"
         ></div>
-        <p class="text-xl w-1/3 text-center">Getting your notes ready...</p>
+        <p class="text-xl w-1/3 text-center">{{ progress }}</p>
         <HoverCard class="w-96">
           <HoverCardTrigger>
             <Button variant="outline" class="mt-3"><Info></Info></Button
