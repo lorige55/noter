@@ -57,6 +57,7 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 
 //icon imports
 import {
@@ -127,7 +128,10 @@ export default {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    Badge
+    Badge,
+    ResizableHandle,
+    ResizablePanel,
+    ResizablePanelGroup
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -139,7 +143,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       keyIndex: [],
       activeDocumentContent: 'Loading...',
@@ -687,102 +691,113 @@ export default {
             </div>
           </div>
 
-          <div class="w-screen flex flex-1 mb-2.5 overflow-scroll">
+          <ResizablePanelGroup
+            class="w-screen flex flex-1 mb-2.5 overflow-scroll"
+            direction="horizontal"
+          >
             <!--Note List-->
-            <div class="h-full rounded-md border mx-2.5 w-1/4 overflow-auto">
-              <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
-                <div
-                  v-if="noteIndex.indexOf(item) === activeDocumentIndex"
-                  class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
-                >
-                  <div class="noteListText activeNoteListText">
-                    {{ activeDocument }}
-                  </div>
+            <ResizablePanel :default-size="25">
+              <div class="h-full rounded-md border ml-2.5 overflow-auto">
+                <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
+                  <div
+                    v-if="noteIndex.indexOf(item) === activeDocumentIndex"
+                    class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
+                  >
+                    <div class="noteListText activeNoteListText">
+                      {{ activeDocument }}
+                    </div>
 
-                  <!--Dropdown Menu-->
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <div class="flex items-center">
-                        <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem disabled> Rename </DropdownMenuItem>
-                      <DropdownMenuItem
-                        @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                <div
-                  v-else
-                  @click="getDocument(item)"
-                  class="noteListItem passiveNoteListItem rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
-                >
-                  <div class="noteListText passiveNoteListText">
-                    {{ item }}
+                    <!--Dropdown Menu-->
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <div class="flex items-center">
+                          <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
+                        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem disabled> Rename </DropdownMenuItem>
+                        <DropdownMenuItem
+                          @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
+                  <div
+                    v-else
+                    @click="getDocument(item)"
+                    class="noteListItem passiveNoteListItem rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
+                  >
+                    <div class="noteListText passiveNoteListText">
+                      {{ item }}
+                    </div>
 
-                  <!--Dropdown Menu-->
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <div class="flex items-center">
-                        <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem disabled> Rename </DropdownMenuItem>
-                      <DropdownMenuItem
-                        @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    <!--Dropdown Menu-->
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <div class="flex items-center">
+                          <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
+                        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem disabled> Rename </DropdownMenuItem>
+                        <DropdownMenuItem
+                          @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!--Note Deletion conformation-->
-            <AlertDialog v-model:open="showNoteDeleteConformation">
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your note, called
-                    <b>"{{ noteToDelete }}"</b>. Think about it twice.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <Button @click="showNoteDeleteConformation = false">Cancel</Button>
-                  <Button variant="destructive" @click="deleteDocument(noteToDelete)"
-                    >Continue</Button
-                  >
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+              <!--Note Deletion conformation-->
+              <AlertDialog v-model:open="showNoteDeleteConformation">
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your note, called
+                      <b>"{{ noteToDelete }}"</b>. Think about it twice.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <Button @click="showNoteDeleteConformation = false">Cancel</Button>
+                    <Button variant="destructive" @click="deleteDocument(noteToDelete)"
+                      >Continue</Button
+                    >
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </ResizablePanel>
 
-            <!--Editor-->
-            <div class="flex flex-col w-3/4 mr-2.5">
-              <!--Title Editor-->
-              <Input
-                class="customInput h-11 justify-between text-base font-semibold"
-                type="text"
-                v-model="activeDocument"
-                @input="autoSave()"
-              />
+            <ResizableHandle
+              style="cursor: col-resize !important; width: 10px; background-color: white"
+            />
 
-              <!--Content Editor-->
-              <Textarea
-                class="customInput h-11 mt-2.5 justify-between flex-1 h-screen"
-                type="text"
-                v-model="activeDocumentContent"
-                @input="autoSave()"
-              ></Textarea>
-            </div>
-          </div>
+            <ResizablePanel class="flex flex-col w-3/4 mr-2.5">
+              <!--Editor-->
+              <div>
+                <!--Title Editor-->
+                <Input
+                  class="customInput h-11 justify-between text-base font-semibold"
+                  type="text"
+                  v-model="activeDocument"
+                  @input="autoSave()"
+                />
+
+                <!--Content Editor-->
+                <Textarea
+                  class="customInput h-11 mt-2.5 justify-between flex-1 h-screen"
+                  type="text"
+                  v-model="activeDocumentContent"
+                  @input="autoSave()"
+                ></Textarea>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
           <!--Error Alert-->
           <div v-if="displayError == true">
             <Alert
