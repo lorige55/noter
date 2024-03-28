@@ -58,6 +58,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 
 //icon imports
 import {
@@ -68,7 +69,8 @@ import {
   Github,
   LifeBuoy,
   LogOut,
-  X
+  X,
+  Info
 } from 'lucide-vue-next'
 
 export default {
@@ -131,7 +133,11 @@ export default {
     Badge,
     ResizableHandle,
     ResizablePanel,
-    ResizablePanelGroup
+    ResizablePanelGroup,
+    Info,
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -587,13 +593,26 @@ export default {
   <div v-else>
     <div v-if="!ready">
       <div class="flex flex-col justify-center items-center h-screen">
-        <Progress class="w-1/3 mb-3" :model-value="progress"></Progress>
-        <p class="font-thin text-xs w-1/3 mb-3 text-center">
-          This should only take a few seconds. If it takes to long, a slow internet connection or
-          corrupt data could be the cause. If you think your data is corrupt, consider resetting it.
-          But it will delete all of your data.
-        </p>
-        <Button variant="destructive" @click="deleteAccountData()">Delete My Data</Button>
+        <div
+          class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] mb-3 dark:text-white"
+          role="status"
+        ></div>
+        <p class="text-xl w-1/3 text-center">Getting your notes ready...</p>
+        <HoverCard class="w-96">
+          <HoverCardTrigger>
+            <Button variant="outline" class="mt-3"><Info></Info></Button
+          ></HoverCardTrigger>
+          <HoverCardContent>
+            <p class="text-sm text-center">
+              This should only take a few seconds. If it takes to long, a slow internet connection
+              or corrupt data could be the cause. If you think your data is corrupt, consider
+              resetting it. But it will delete all of your data.
+            </p>
+            <Button variant="destructive" @click="deleteAccountData()" class="w-full mt-3"
+              >Delete My Data</Button
+            ></HoverCardContent
+          >
+        </HoverCard>
       </div>
     </div>
     <div v-else>
