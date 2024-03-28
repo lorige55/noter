@@ -139,7 +139,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       keyIndex: [],
       activeDocumentContent: 'Loading...',
@@ -687,9 +687,9 @@ export default {
             </div>
           </div>
 
-          <div class="w-screen flex flex-1 mb-2.5 overflow-y-auto">
+          <div class="w-screen flex flex-1 mb-2.5 overflow-scroll">
             <!--Note List-->
-            <div class="h-full rounded-md border mx-2.5 w-1/4" style="width: 25% !important">
+            <div class="h-full rounded-md border mx-2.5 w-1/4 overflow-auto">
               <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
                 <div
                   v-if="noteIndex.indexOf(item) === activeDocumentIndex"
