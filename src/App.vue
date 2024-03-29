@@ -70,7 +70,8 @@ import {
   LifeBuoy,
   LogOut,
   X,
-  Info
+  Info,
+  File
 } from 'lucide-vue-next'
 
 export default {
@@ -137,7 +138,8 @@ export default {
     Info,
     HoverCard,
     HoverCardContent,
-    HoverCardTrigger
+    HoverCardTrigger,
+    File
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -609,12 +611,13 @@ export default {
           ></HoverCardTrigger>
           <HoverCardContent>
             <p class="text-sm text-center">
-              This should only take a few seconds. If it takes to long, a slow internet connection
+              This should only take a few seconds. If it takes too long, a slow internet connection
               or corrupt data could be the cause. If you think your data is corrupt, consider
-              resetting it. But it will delete all of your data.
+              resetting it. If you have a backup of your data, you can import it after resetting.
             </p>
             <Button variant="destructive" @click="deleteAccountData()" class="w-full mt-3"
               >Delete My Data</Button
+            >
             ></HoverCardContent
           >
         </HoverCard>
@@ -624,7 +627,7 @@ export default {
       <div v-if="!showSettings">
         <div class="relative flex flex-col h-screen w-100">
           <!--Menubar-->
-          <Menubar class="h-11 mx-2.5 my-2.5">
+          <Menubar class="h-11 mx-2.5 mt-2.5">
             <MenubarMenu>
               <MenubarTrigger>Home</MenubarTrigger>
               <MenubarContent>
@@ -715,18 +718,16 @@ export default {
             </div>
           </div>
 
-          <ResizablePanelGroup
-            class="w-screen flex flex-1 mb-2.5 overflow-scroll"
-            direction="horizontal"
-          >
+          <ResizablePanelGroup class="w-screen flex flex-1 overflow-scroll" direction="horizontal">
             <!--Note List-->
-            <ResizablePanel :default-size="25">
+            <ResizablePanel :default-size="25" class="py-2.5">
               <div class="h-full rounded-md border ml-2.5 overflow-auto">
                 <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
                   <div
                     v-if="noteIndex.indexOf(item) === activeDocumentIndex"
                     class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
                   >
+                    <File class="mx-1 h-4 w-4"></File>
                     <div class="noteListText activeNoteListText">
                       {{ activeDocument }}
                     </div>
@@ -753,6 +754,7 @@ export default {
                     @click="getDocument(item)"
                     class="noteListItem passiveNoteListItem rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
                   >
+                    <File class="mx-1 h-4 w-4"></File>
                     <div class="noteListText passiveNoteListText">
                       {{ item }}
                     </div>
@@ -798,12 +800,12 @@ export default {
             </ResizablePanel>
 
             <ResizableHandle
-              style="cursor: col-resize !important; width: 10px; background-color: white"
+              style="cursor: col-resize !important; width: 6px; background-color: white"
             />
 
-            <ResizablePanel class="flex flex-col w-3/4 mr-2.5 min-w-1/4">
+            <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5">
               <!--Editor-->
-              <div>
+              <div class="h-full pl-1 flex flex-col">
                 <!--Title Editor-->
                 <Input
                   class="customInput h-11 justify-between text-base font-semibold"
@@ -814,7 +816,7 @@ export default {
 
                 <!--Content Editor-->
                 <Textarea
-                  class="customInput h-11 mt-2.5 justify-between flex-1 h-screen"
+                  class="customInput mt-2.5 justify-between flex-grow mb-2.5"
                   type="text"
                   v-model="activeDocumentContent"
                   @input="autoSave()"
