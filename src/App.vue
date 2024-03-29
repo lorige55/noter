@@ -641,7 +641,9 @@ export default {
                 <a href="https://github.com/lorige55/noter" target="_blank">
                   <MenubarItem> <Github class="mr-2 h-4 w-4" /> GitHub </MenubarItem>
                 </a>
-                <MenubarItem disabled> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
+                <a href="https://github.com/lorige55/noter/issues" target="_blank">
+                  <MenubarItem> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
+                </a>
                 <MenubarSeparator />
                 <MenubarItem @click="logout()">
                   <LogOut class="mr-2 h-4 w-4" /> Logout
