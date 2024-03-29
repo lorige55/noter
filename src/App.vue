@@ -363,7 +363,7 @@ export default {
     },
     async logout() {
       localStorage.removeItem('psg_auth_token')
-      location.reload()
+      reload()
     },
     async deleteAccountData() {
       //initialize firebase
@@ -377,7 +377,7 @@ export default {
       await deleteDoc(doc(db, this.userId, 'keyIndex'))
       //delete secretKey from firebase
       await deleteDoc(doc(db, this.userId, 'secretKey'))
-      location.reload()
+      reload()
     },
     async exportData() {
       // Initialize Firebase
@@ -451,7 +451,7 @@ export default {
               title: parsedData[key].title
             })
           }
-          location.reload()
+          reload()
         } catch (error) {
           console.error('Error parsing JSON:', error)
         }
@@ -493,6 +493,9 @@ export default {
           document.documentElement.msRequestFullscreen()
         }
       }
+    },
+    reload() {
+      location.reload()
     }
   },
   async mounted() {
@@ -694,7 +697,7 @@ export default {
             <MenubarMenu>
               <MenubarTrigger>View</MenubarTrigger>
               <MenubarContent>
-                <MenubarItem inset @click="location.reload()">
+                <MenubarItem inset @click="reload()">
                   Reload <MenubarShortcut>⌘R</MenubarShortcut>
                 </MenubarItem>
                 <MenubarSeparator />
@@ -798,7 +801,7 @@ export default {
               style="cursor: col-resize !important; width: 10px; background-color: white"
             />
 
-            <ResizablePanel class="flex flex-col w-3/4 mr-2.5">
+            <ResizablePanel class="flex flex-col w-3/4 mr-2.5 min-w-1/4">
               <!--Editor-->
               <div>
                 <!--Title Editor-->
