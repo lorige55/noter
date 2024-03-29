@@ -207,7 +207,7 @@ export default {
         this.noteIndex[this.activeDocumentIndex] !== this.activeDocument
       ) {
         this.errorMessage =
-          'You cannot name a note the same as another note. Please rename the note. It will not be saved under this title.'
+          'You cannot name a note the same as another note. Please rename the note. It will not be saved under this title. Click this message to make it disappear.'
         this.displayError = true
         return
       }
@@ -365,7 +365,7 @@ export default {
     },
     async logout() {
       localStorage.removeItem('psg_auth_token')
-      reload()
+      this.reload()
     },
     async deleteAccountData() {
       //initialize firebase
@@ -379,7 +379,7 @@ export default {
       await deleteDoc(doc(db, this.userId, 'keyIndex'))
       //delete secretKey from firebase
       await deleteDoc(doc(db, this.userId, 'secretKey'))
-      reload()
+      this.reload()
     },
     async exportData() {
       // Initialize Firebase
@@ -453,7 +453,7 @@ export default {
               title: parsedData[key].title
             })
           }
-          reload()
+          this.reload()
         } catch (error) {
           console.error('Error parsing JSON:', error)
         }
@@ -700,11 +700,11 @@ export default {
             <MenubarMenu>
               <MenubarTrigger>View</MenubarTrigger>
               <MenubarContent>
-                <MenubarItem inset @click="reload()">
+                <MenubarItem @click="reload()">
                   Reload <MenubarShortcut>⌘R</MenubarShortcut>
                 </MenubarItem>
                 <MenubarSeparator />
-                <MenubarItem inset @click="fullscreen()"> Toggle Fullscreen </MenubarItem>
+                <MenubarItem @click="fullscreen()"> Toggle Fullscreen </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
           </Menubar>
