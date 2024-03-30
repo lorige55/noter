@@ -71,7 +71,8 @@ import {
   LogOut,
   X,
   Info,
-  File
+  File,
+  Trash2
 } from 'lucide-vue-next'
 
 export default {
@@ -139,7 +140,8 @@ export default {
     HoverCard,
     HoverCardContent,
     HoverCardTrigger,
-    File
+    File,
+    Trash2
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -618,8 +620,7 @@ export default {
             <Button variant="destructive" @click="deleteAccountData()" class="w-full mt-3"
               >Delete My Data</Button
             >
-            ></HoverCardContent
-          >
+          </HoverCardContent>
         </HoverCard>
       </div>
     </div>
@@ -727,56 +728,44 @@ export default {
                 <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
                   <div
                     v-if="noteIndex.indexOf(item) === activeDocumentIndex"
-                    class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
+                    class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 text-sm flex justify-between items-center"
                   >
-                    <File class="mx-1 h-4 w-4"></File>
+                    <!--File Icon-->
+                    <div class="flex items-center p-2">
+                      <File class="ml-1 h-4 w-4"></File>
+                    </div>
+                    <!--Note Title-->
                     <div class="noteListText activeNoteListText">
                       {{ activeDocument }}
                     </div>
-
-                    <!--Dropdown Menu-->
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <div class="flex items-center">
-                          <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
-                        </div>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem disabled> Rename </DropdownMenuItem>
-                        <DropdownMenuItem
-                          @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <!--Delete Button-->
+                    <div class="flex items-center p-2">
+                      <Trash2
+                        class="ml-1 h-4 w-4"
+                        @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                      ></Trash2>
+                    </div>
                   </div>
                   <div
                     v-else
                     @click="getDocument(item)"
-                    class="noteListItem passiveNoteListItem rounded-sm border mx-1.5 my-1.5 px-4 py-3 text-sm flex justify-between items-center"
+                    class="noteListItem passiveNoteListItem rounded-sm border mx-1.5 my-1.5 text-sm flex justify-between items-center"
                   >
-                    <File class="mx-1 h-4 w-4"></File>
+                    <!--File Icon-->
+                    <div class="flex items-center p-2">
+                      <File class="ml-1 h-4 w-4"></File>
+                    </div>
+                    <!--Note Title-->
                     <div class="noteListText passiveNoteListText">
                       {{ item }}
                     </div>
-
-                    <!--Dropdown Menu-->
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <div class="flex items-center">
-                          <MoreHorizontal class="ml-1 h-4 w-4"></MoreHorizontal>
-                        </div>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem disabled> Rename </DropdownMenuItem>
-                        <DropdownMenuItem
-                          @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <!--Delete Button-->
+                    <div class="flex items-center p-2">
+                      <Trash2
+                        class="ml-1 h-4 w-4"
+                        @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                      ></Trash2>
+                    </div>
                   </div>
                 </div>
               </div>
