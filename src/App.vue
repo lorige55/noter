@@ -5,8 +5,8 @@ import '@passageidentity/passage-elements/passage-auth'
 import { PassageUser } from '@passageidentity/passage-auth/passage-user'
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore'
+
 //shadecn Imports:
-import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import {
   Menubar,
@@ -23,18 +23,7 @@ import {
   MenubarSubTrigger,
   MenubarTrigger
 } from '@/components/ui/menubar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -63,7 +52,6 @@ import Tiptap from './components/Tiptap.vue'
 
 //icon imports
 import {
-  MoreHorizontal,
   AlertCircle,
   User,
   Lock,
@@ -80,7 +68,6 @@ export default {
   name: 'Noter',
   components: {
     Tiptap,
-    Progress,
     Button,
     Menubar,
     MenubarCheckboxItem,
@@ -95,17 +82,7 @@ export default {
     MenubarSubContent,
     MenubarSubTrigger,
     MenubarTrigger,
-    ScrollArea,
-    Separator,
     Input,
-    Textarea,
-    MoreHorizontal,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
     AlertCircle,
     Alert,
     AlertDescription,
@@ -156,7 +133,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       keyIndex: [],
       activeDocumentContent: '<b>Loading...</b>',
