@@ -48,7 +48,6 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 //Tiptap Import
 import Tiptap from './components/Tiptap.vue'
@@ -130,9 +129,7 @@ export default {
     Trash2,
     Bold,
     Italic,
-    Underline,
-    ToggleGroup,
-    ToggleGroupItem
+    Underline
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -144,7 +141,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       keyIndex: [],
       activeDocumentContent: '<b>Loading...</b>',

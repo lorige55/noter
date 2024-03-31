@@ -15,6 +15,8 @@
     "@passageidentity/passage-elements": "^1.21.0",
     "@tiptap/extension-bold": "^2.2.4",
     "@tiptap/extension-code": "^2.2.4",
+    "@tiptap/extension-italic": "^2.2.4",
+    "@tiptap/extension-underline": "^2.2.4",
     "@tiptap/pm": "^2.2.4",
     "@tiptap/starter-kit": "^2.2.4",
     "@tiptap/vue-3": "^2.2.4",

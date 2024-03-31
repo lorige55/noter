@@ -2,14 +2,21 @@
   <div class="flex flex-col h-full mt-2.5 w-full box-border">
     <div class="h-[3.25rem] justify-start p-0 m-0 border rounded-t-md border-b-0 box-border flex">
       <div type="multiple" class="box-border p-1.5">
-        <Button variant="ghost" class="h-10" @click="editor.chain().focus().toggleBold().run()"
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleBold().run()"
+          :disabled="!editor.can().chain().focus().toggleBold().run()"
+          :class="{ activeToggle: editor.isActive('bold') }"
           ><Bold class="h-4 w-4"></Bold
         ></Button>
-        <Button variant="ghost" class="h-10" @click="editor.chain().focus().toggleItalic().run()"
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleItalic().run()"
+          :disabled="!editor.can().chain().focus().toggleItalic().run()"
+          :class="{ activeToggle: editor.isActive('italic') }"
           ><Italic class="h-4 w-4"></Italic
-        ></Button>
-        <Button variant="ghost" class="h-10" @click="editor.chain().focus().toggleUnderline()"
-          ><Underline class="h-4 w-4"></Underline
         ></Button>
       </div>
     </div>
@@ -21,15 +28,14 @@
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import { Button } from '@/components/ui/button'
-import { Bold, Italic, Underline } from 'lucide-vue-next'
+import { Bold, Italic } from 'lucide-vue-next'
 
 export default {
   components: {
     EditorContent,
     Button,
     Bold,
-    Italic,
-    Underline
+    Italic
   },
 
   props: {
@@ -80,3 +86,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.activeToggle {
+  background-color: #f4f4f5;
+}
+</style>
