@@ -75,7 +75,7 @@
 
 .noteListText {
   position: relative;
-  width: calc(100% - 30px);
+  width: 100%;
   overflow: hidden;
   white-space: nowrap;
 }

@@ -59,6 +59,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
+import Tiptap from './components/Tiptap.vue'
 
 //icon imports
 import {
@@ -76,7 +77,9 @@ import {
 } from 'lucide-vue-next'
 
 export default {
+  name: 'Noter',
   components: {
+    Tiptap,
     Progress,
     Button,
     Menubar,
@@ -153,10 +156,10 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       keyIndex: [],
-      activeDocumentContent: 'Loading...',
+      activeDocumentContent: '<b>Loading...</b>',
       activeDocument: '',
       activeDocumentIndex: null,
       firebaseConfig: {
@@ -298,11 +301,11 @@ export default {
       //push new note to firebase
       docRef = doc(db, this.userId, key)
       setDoc(docRef, {
-        note: this.encryptString('This is a new note. Feel free to edit it!'),
+        note: this.encryptString('<p>This is a new note. Feel free to edit it!<p>'),
         title: this.encryptString(newNoteName)
       })
       //set activeDocument and lastNote to new note
-      this.activeDocumentContent = 'This is a new note. Feel free to edit it!'
+      this.activeDocumentContent = '<p>This is a new note. Feel free to edit it!<p>'
       this.activeDocument = newNoteName
       this.activeDocumentIndex = this.noteIndex.indexOf(newNoteName)
       localStorage.setItem('lastNote', this.activeDocument)
@@ -794,24 +797,24 @@ export default {
               style="cursor: col-resize !important; width: 6px; background-color: white"
             />
 
-            <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5">
-              <!--Editor-->
+            <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5 overflow-visible">
               <div class="h-full pl-1 flex flex-col">
+                <!--Editor-->
                 <!--Title Editor-->
                 <Input
-                  class="customInput h-11 justify-between text-base font-semibold"
+                  class="customInput h-10 justify-between text-base font-semibold"
                   type="text"
                   v-model="activeDocument"
                   @input="autoSave()"
                 />
 
                 <!--Content Editor-->
-                <Textarea
-                  class="customInput mt-2.5 justify-between flex-grow mb-2.5"
+                <tiptap
+                  class="h-full mb-2.5"
                   type="text"
                   v-model="activeDocumentContent"
                   @input="autoSave()"
-                ></Textarea>
+                ></tiptap>
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
