@@ -1,14 +1,35 @@
 <template>
-  <editor-content :editor="editor" />
+  <div class="flex flex-col h-full mt-2.5 w-full box-border">
+    <div class="h-[3.25rem] justify-start p-0 m-0 border rounded-t-md border-b-0 box-border flex">
+      <div type="multiple" class="box-border p-1.5">
+        <Button variant="ghost" class="h-10" @click="editor.chain().focus().toggleBold().run()"
+          ><Bold class="h-4 w-4"></Bold
+        ></Button>
+        <Button variant="ghost" class="h-10" @click="editor.chain().focus().toggleItalic().run()"
+          ><Italic class="h-4 w-4"></Italic
+        ></Button>
+        <Button variant="ghost" class="h-10" @click="editor.chain().focus().toggleUnderline()"
+          ><Underline class="h-4 w-4"></Underline
+        ></Button>
+      </div>
+    </div>
+    <editor-content class="h-full" :editor="editor" />
+  </div>
 </template>
 
 <script>
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
+import { Button } from '@/components/ui/button'
+import { Bold, Italic, Underline } from 'lucide-vue-next'
 
 export default {
   components: {
-    EditorContent
+    EditorContent,
+    Button,
+    Bold,
+    Italic,
+    Underline
   },
 
   props: {
@@ -30,11 +51,9 @@ export default {
     modelValue(value) {
       // HTML
       const isSame = this.editor.getHTML() === value
-
       if (isSame) {
         return
       }
-
       this.editor.commands.setContent(value, false)
     }
   },
@@ -44,7 +63,7 @@ export default {
       editorProps: {
         attributes: {
           class:
-            'h-full mt-2.5 justify-between flex-grow mb-2.5 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+            'h-full justify-between flex-grow mb-2.5 w-full rounded-b-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
       extensions: [StarterKit],

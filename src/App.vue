@@ -48,6 +48,9 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+
+//Tiptap Import
 import Tiptap from './components/Tiptap.vue'
 
 //icon imports
@@ -61,7 +64,10 @@ import {
   X,
   Info,
   File,
-  Trash2
+  Trash2,
+  Bold,
+  Italic,
+  Underline
 } from 'lucide-vue-next'
 
 export default {
@@ -121,7 +127,12 @@ export default {
     HoverCardContent,
     HoverCardTrigger,
     File,
-    Trash2
+    Trash2,
+    Bold,
+    Italic,
+    Underline,
+    ToggleGroup,
+    ToggleGroupItem
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -774,8 +785,8 @@ export default {
               style="cursor: col-resize !important; width: 6px; background-color: white"
             />
 
-            <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5 overflow-visible">
-              <div class="h-full pl-1 flex flex-col">
+            <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5">
+              <div class="h-full flex flex-col">
                 <!--Editor-->
                 <!--Title Editor-->
                 <Input
@@ -786,12 +797,7 @@ export default {
                 />
 
                 <!--Content Editor-->
-                <tiptap
-                  class="h-full mb-2.5"
-                  type="text"
-                  v-model="activeDocumentContent"
-                  @input="autoSave()"
-                ></tiptap>
+                <tiptap class="h-full" v-model="activeDocumentContent" @input="autoSave()"></tiptap>
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
