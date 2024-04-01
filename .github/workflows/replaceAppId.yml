@@ -20,7 +20,7 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          git add App.vue
+          git add src/App.vue
           git commit -m "Replace production App ID"
       
       - name: Push changes
