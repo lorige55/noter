@@ -1,4 +1,4 @@
-            - name: Find and Replace
+- name: Find and Replace
   # You may pin to the exact commit or the version.
   # uses: jacobtomlinson/gha-find-replace@a51bbcd94d000df9ca0fcb54ec8be69aad8374b0
   uses: jacobtomlinson/gha-find-replace@v3
