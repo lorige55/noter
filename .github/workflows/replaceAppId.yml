@@ -1,12 +1,11 @@
-name: Find and Replace
-  # You may pin to the exact commit or the version.
-  # uses: jacobtomlinson/gha-find-replace@a51bbcd94d000df9ca0fcb54ec8be69aad8374b0
-  uses: jacobtomlinson/gha-find-replace@v3
-  with:
-    # A glob of files to include in our find and replace
-    include: "**App.vue"
-    # The regular expression (or fixed string) we want to replace
-    find: "appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'"
-    # The new string to replace with
-    replace: "appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',"
-          
+name: Replace appID
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v2
+      - name: Find and Replace
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'"
+          replace: "appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',"
+          include: "**App.vue" 
