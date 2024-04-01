@@ -1,11 +1,29 @@
-name: Replace appID
+name: Replace App ID
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
-  build:
+  replace_app_id:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Find and Replace
-        uses: jacobtomlinson/gha-find-replace@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Replace App ID
+        run: |
+          sed -i "s/appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', \/\/Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'/appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',/g" App.vue
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add App.vue
+          git commit -m "Replace production App ID"
+      
+      - name: Push changes
+        uses: ad-m/github-push-action@master
         with:
-          find: "appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'"
-          replace: "appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',"
-          include: "**App.vue" 
+          github_token: ${{ secrets.GITHUB_TOKEN }}
