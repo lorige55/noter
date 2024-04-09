@@ -18,6 +18,14 @@
           :class="{ activeToggle: editor.isActive('italic') }"
           ><Italic class="h-4 w-4"></Italic
         ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleStrike().run()"
+          :disabled="!editor.can().chain().focus().toggleStrike().run()"
+          :class="{ activeToggle: editor.isActive('strike') }"
+          ><Strikethrough class="h-4 w-4"></Strikethrough
+        ></Button>
       </div>
     </div>
     <editor-content class="h-full" :editor="editor" />
@@ -28,14 +36,15 @@
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import { Button } from '@/components/ui/button'
-import { Bold, Italic } from 'lucide-vue-next'
+import { Bold, Italic, Strikethrough } from 'lucide-vue-next'
 
 export default {
   components: {
     EditorContent,
     Button,
     Bold,
-    Italic
+    Italic,
+    Strikethrough
   },
 
   props: {
