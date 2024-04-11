@@ -16,6 +16,10 @@ jobs:
         run: |
           sed -i "s/appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', \/\/Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'/appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',/g" src/App.vue
 
+      - name: Replace Build command
+        run: |
+          sed -i "s/"build": "vite build --watch",/g" package.json
+
       - name: Commit changes
         run: |
           git config --global user.name 'GitHub Actions'
