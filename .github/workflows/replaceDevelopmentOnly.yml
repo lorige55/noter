@@ -18,7 +18,7 @@ jobs:
 
       - name: Replace Build command
         run: |
-          sed -i "s/"build": "vite build --watch",/g" package.json
+          sed -i "s/"build": "vite build --watch"/"build": "vite build",/g" package.json
 
       - name: Commit changes
         run: |
