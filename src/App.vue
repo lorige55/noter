@@ -64,10 +64,8 @@ import {
   Info,
   File,
   Trash2,
-  Bold,
-  Italic,
-  Underline,
-  Sticker
+  Sticker,
+  Frown
 } from 'lucide-vue-next'
 
 export default {
@@ -128,7 +126,8 @@ export default {
     HoverCardTrigger,
     File,
     Trash2,
-    Sticker
+    Sticker,
+    Frown
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -549,23 +548,25 @@ export default {
       docRef = doc(db, this.userId, 'keyIndex')
       docSnap = await getDoc(docRef)
       //if keyIndex exists, get it
-      if (docSnap.exists() && docSnap.data().index[0].length > 0) {
+      if (docSnap.exists()) {
         this.keyIndex = docSnap.data().index
         //loop through keyIndex and build noteIndex
-        for (let i = 0; i < this.keyIndex.length; i++) {
-          let docRef = doc(db, this.userId, this.keyIndex[i])
-          let docSnap = await getDoc(docRef)
-          this.noteIndex[i] = this.decryptString(docSnap.data().title)
+        if (this.keyIndex.length > 0) {
+          for (let i = 0; i < this.keyIndex.length; i++) {
+            let docRef = doc(db, this.userId, this.keyIndex[i])
+            let docSnap = await getDoc(docRef)
+            this.noteIndex[i] = this.decryptString(docSnap.data().title)
+          }
+          this.progress = 'Loading your last note...'
+          //recover last note or select first in array if equal to null
+          if (
+            localStorage.getItem('lastNote') == undefined ||
+            localStorage.getItem('lastNote') === 'undefined'
+          ) {
+            localStorage.setItem('lastNote', this.noteIndex[0])
+          }
+          this.getDocument(localStorage.getItem('lastNote'))
         }
-        this.progress = 'Loading your last note...'
-        //recover last note or select first in array if equal to null
-        if (
-          localStorage.getItem('lastNote') == undefined ||
-          localStorage.getItem('lastNote') === 'undefined'
-        ) {
-          localStorage.setItem('lastNote', this.noteIndex[0])
-        }
-        this.getDocument(localStorage.getItem('lastNote'))
       } else {
         //if keyIndex does not exist, create a new one and push it to firebase
         let key = this.generateKey(128)
@@ -625,7 +626,7 @@ export default {
     </div>
     <div v-else>
       <div v-if="!showSettings">
-        <div class="relative flex flex-col h-screen w-100">
+        <div class="relative flex flex-col h-screen w-screen">
           <!--Menubar-->
           <Menubar class="h-11 mx-2.5 mt-2.5">
             <MenubarMenu>
@@ -720,7 +721,11 @@ export default {
             </div>
           </div>
 
-          <ResizablePanelGroup class="w-screen flex flex-1 overflow-scroll" direction="horizontal">
+          <ResizablePanelGroup
+            v-if="noteIndex[0] !== undefined"
+            class="w-screen flex flex-1 overflow-scroll"
+            direction="horizontal"
+          >
             <!--Note List-->
             <ResizablePanel :default-size="25" class="py-2.5">
               <div class="h-full rounded-md border ml-2.5 overflow-auto">
@@ -818,6 +823,15 @@ export default {
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
+          <!--No file message-->
+          <div
+            v-else
+            class="h-screen border rounded-md m-2.5 grid place-content-center flex flex-col"
+          >
+            <Frown class="mx-auto"></Frown>
+            <p class="text-center text-lg">Create a new note to edit.</p>
+            <p class="text-center text-sm">Select "File", "New File" in the Menubar</p>
+          </div>
           <!--Error Alert-->
           <div v-if="displayError == true">
             <Alert
