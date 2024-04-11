@@ -145,7 +145,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       keyIndex: [],
       activeDocumentContent: '<b>Loading...</b>',
@@ -236,6 +236,11 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       const indexToRemove = this.noteIndex.indexOf(item)
+      //make sure if the item to remove is the the last note to remain
+      if (this.noteIndex.length === 1) {
+        this.activeDocument = ''
+        this.activeDocumentContent = ''
+      }
       //remove item from lastNote in localStorage if it is the lastNote
       if (localStorage.getItem('lastNote') === this.noteIndex[item]) {
         localStorage.removeItem('lastNote')
@@ -243,7 +248,7 @@ export default {
       //if indexToRemove is valid
       if (indexToRemove !== -1) {
         //change active document if it is the one to be removed
-        if (this.activeDocument === item && this.noteIndex.length > 0) {
+        if (this.activeDocument === item && this.noteIndex.length !== 1) {
           if (indexToRemove === 0) {
             this.getDocument(this.noteIndex[0])
           } else {
@@ -266,7 +271,9 @@ export default {
       }
     },
     async createNewDocument() {
-      await this.saveActiveDocument()
+      if (this.noteIndex.length !== 0) {
+        await this.saveActiveDocument()
+      }
       //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
