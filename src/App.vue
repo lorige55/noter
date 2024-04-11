@@ -134,6 +134,10 @@ export default {
   watch: {
     activeDocument(newActiveDocument) {
       document.title = 'Noter - ' + newActiveDocument
+    },
+    activeDocumentContent(newActiveDocumentContent) {
+      console.log(newActiveDocumentContent)
+      this.autoSave()
     }
   },
   data() {
@@ -141,7 +145,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', //Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'
       noteIndex: [],
       keyIndex: [],
       activeDocumentContent: '<b>Loading...</b>',
@@ -783,7 +787,7 @@ export default {
             />
 
             <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5">
-              <div class="h-full flex flex-col">
+              <div class="h-full w-full flex flex-col">
                 <!--Editor-->
                 <!--Title Editor-->
                 <Input
@@ -794,7 +798,7 @@ export default {
                 />
 
                 <!--Content Editor-->
-                <tiptap class="h-full" v-model="activeDocumentContent" @input="autoSave()"></tiptap>
+                <tiptap class="h-full w-full" v-model="activeDocumentContent"></tiptap>
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>

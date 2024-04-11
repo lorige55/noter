@@ -1,6 +1,8 @@
 <template>
-  <div class="flex flex-col h-full mt-2.5 w-full box-border">
-    <div class="h-[3.25rem] justify-start p-0 m-0 border rounded-t-md border-b-0 box-border flex">
+  <div class="flex flex-col h-full w-full mt-2.5 box-border">
+    <div
+      class="h-[3.25rem] w-full justify-start p-0 m-0 border rounded-t-md border-b-0 box-border flex"
+    >
       <div type="multiple" class="box-border p-1.5">
         <Button
           variant="ghost"
@@ -26,17 +28,44 @@
           :class="{ activeToggle: editor.isActive('strike') }"
           ><Strikethrough class="h-4 w-4"></Strikethrough
         ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleCode().run()"
+          :disabled="!editor.can().chain().focus().toggleCode().run()"
+          :class="{ activeToggle: editor.isActive('code') }"
+          ><Code class="h-4 w-4"></Code
+        ></Button>
+      </div>
+      <Separator orientation="vertical" />
+      <div type="multiple" class="box-border p-1.5">
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().setParagraph().run()"
+          :class="{ activeToggle: editor.isActive('paragraph') }"
+          ><Type class="h-4 w-4"></Type
+        ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+          :class="{ activeToggle: editor.isActive('heading', { level: 1 }) }"
+          ><Heading1 class="h-4 w-4"></Heading1
+        ></Button>
       </div>
     </div>
-    <editor-content class="h-full" :editor="editor" />
+    <editor-content class="h-full w-full prose max-w-none" :editor="editor" />
   </div>
 </template>
 
 <script>
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
+import '@tailwindcss/typography'
 import { Button } from '@/components/ui/button'
-import { Bold, Italic, Strikethrough } from 'lucide-vue-next'
+import { Bold, Italic, Strikethrough, Code, Type, Heading1 } from 'lucide-vue-next'
+import { Separator } from '@/components/ui/separator'
 
 export default {
   components: {
@@ -44,7 +73,11 @@ export default {
     Button,
     Bold,
     Italic,
-    Strikethrough
+    Strikethrough,
+    Code,
+    Separator,
+    Type,
+    Heading1
   },
 
   props: {
