@@ -12,7 +12,7 @@ jobs:
 
     - name: Replace strings in src/App.vue
       run: |
-        sed -i "s/appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', \/\/Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'/appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC'/g" src/App.vue
+        sed -i "s/appId: 'JlXUGO3ZcoTO3pK2BSb38cc2', \/\/Production: 'LH8ZzpbwJuHH6xGFk6GgmtSC'; Development: 'JlXUGO3ZcoTO3pK2BSb38cc2'/appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',/g" src/App.vue
 
     - name: Replace strings in package.json
       run: |
