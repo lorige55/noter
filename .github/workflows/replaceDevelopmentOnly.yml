@@ -1,6 +1,6 @@
 name: Replace Strings
 
-on: commit
+on: [push]
 
 jobs:
   build:
