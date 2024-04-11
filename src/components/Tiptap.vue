@@ -28,14 +28,6 @@
           :class="{ activeToggle: editor.isActive('strike') }"
           ><Strikethrough class="h-4 w-4"></Strikethrough
         ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleCode().run()"
-          :disabled="!editor.can().chain().focus().toggleCode().run()"
-          :class="{ activeToggle: editor.isActive('code') }"
-          ><Code class="h-4 w-4"></Code
-        ></Button>
       </div>
       <Separator orientation="vertical" />
       <div type="multiple" class="box-border p-1.5">
@@ -53,6 +45,45 @@
           :class="{ activeToggle: editor.isActive('heading', { level: 1 }) }"
           ><Heading1 class="h-4 w-4"></Heading1
         ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+          :class="{ activeToggle: editor.isActive('heading', { level: 2 }) }"
+          ><Heading2 class="h-4 w-4"></Heading2
+        ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+          :class="{ activeToggle: editor.isActive('heading', { level: 3 }) }"
+          ><Heading3 class="h-4 w-4"></Heading3
+        ></Button>
+      </div>
+      <Separator orientation="vertical" />
+      <div type="multiple" class="box-border p-1.5">
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleBulletList().run()"
+          :class="{ activeToggle: editor.isActive('bulletList') }"
+          ><List class="h-4 w-4"></List
+        ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleOrderedList().run()"
+          :class="{ activeToggle: editor.isActive('orderedList') }"
+          ><ListOrdered class="h-4 w-4"></ListOrdered
+        ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleCode().run()"
+          :disabled="!editor.can().chain().focus().toggleCode().run()"
+          :class="{ activeToggle: editor.isActive('code') }"
+          ><Code class="h-4 w-4"></Code
+        ></Button>
       </div>
     </div>
     <editor-content class="h-full w-full prose max-w-none" :editor="editor" />
@@ -64,7 +95,18 @@ import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import '@tailwindcss/typography'
 import { Button } from '@/components/ui/button'
-import { Bold, Italic, Strikethrough, Code, Type, Heading1 } from 'lucide-vue-next'
+import {
+  Bold,
+  Italic,
+  Strikethrough,
+  Code,
+  Type,
+  Heading1,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered
+} from 'lucide-vue-next'
 import { Separator } from '@/components/ui/separator'
 
 export default {
@@ -77,7 +119,11 @@ export default {
     Code,
     Separator,
     Type,
-    Heading1
+    Heading1,
+    Heading2,
+    Heading3,
+    List,
+    ListOrdered
   },
 
   props: {
