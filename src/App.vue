@@ -66,7 +66,8 @@ import {
   Trash2,
   Bold,
   Italic,
-  Underline
+  Underline,
+  Sticker
 } from 'lucide-vue-next'
 
 export default {
@@ -127,9 +128,7 @@ export default {
     HoverCardTrigger,
     File,
     Trash2,
-    Bold,
-    Italic,
-    Underline
+    Sticker
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -240,6 +239,7 @@ export default {
       if (this.noteIndex.length === 1) {
         this.activeDocument = ''
         this.activeDocumentContent = ''
+        this.activeDocumentIndex = null
       }
       //remove item from lastNote in localStorage if it is the lastNote
       if (localStorage.getItem('lastNote') === this.noteIndex[item]) {
@@ -794,7 +794,7 @@ export default {
             />
 
             <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5">
-              <div class="h-full w-full flex flex-col">
+              <div v-if="activeDocumentIndex !== null" class="h-full w-full flex flex-col">
                 <!--Editor-->
                 <!--Title Editor-->
                 <Input
@@ -806,6 +806,15 @@ export default {
 
                 <!--Content Editor-->
                 <tiptap class="h-full w-full" v-model="activeDocumentContent"></tiptap>
+              </div>
+              <div
+                v-else
+                class="h-full w-full border rounded-md grid place-content-center flex flex-col overflow-hidden"
+              >
+                <div class="p-2.5">
+                  <Sticker class="w-full h-auto"></Sticker>
+                  <p class="text-center text-lg">Select a note to start editing.</p>
+                </div>
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
