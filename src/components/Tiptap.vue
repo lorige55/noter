@@ -192,7 +192,7 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style>
 .activeToggle {
   background-color: #f4f4f5;
 }
