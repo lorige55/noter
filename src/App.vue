@@ -143,7 +143,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',
+      appId: 'JlXUGO3ZcoTO3pK2BSb38cc2',
       noteIndex: [],
       keyIndex: [],
       activeDocumentContent: '<b>Loading...</b>',
