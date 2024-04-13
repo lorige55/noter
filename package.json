@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --watch",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "format": "prettier --write src/"
@@ -16,6 +16,7 @@
     "@tailwindcss/typography": "^0.5.12",
     "@tiptap/extension-bold": "^2.2.4",
     "@tiptap/extension-code": "^2.2.4",
+    "@tiptap/extension-highlight": "^2.3.0",
     "@tiptap/extension-italic": "^2.2.4",
     "@tiptap/extension-underline": "^2.2.4",
     "@tiptap/pm": "^2.2.4",

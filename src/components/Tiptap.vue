@@ -28,6 +28,14 @@
           :class="{ activeToggle: editor.isActive('strike') }"
           ><Strikethrough class="h-4 w-4"></Strikethrough
         ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleHighlight().run()"
+          :disabled="!editor.can().chain().focus().toggleHighlight().run()"
+          :class="{ activeToggle: editor.isActive('highlight') }"
+          ><Highlighter class="h-4 w-4"></Highlighter
+        ></Button>
       </div>
       <Separator orientation="vertical" />
       <div type="multiple" class="box-border p-1.5">
@@ -93,6 +101,7 @@
 <script>
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
+import Highlight from '@tiptap/extension-highlight'
 import '@tailwindcss/typography'
 import { Button } from '@/components/ui/button'
 import {
@@ -105,7 +114,8 @@ import {
   Heading2,
   Heading3,
   List,
-  ListOrdered
+  ListOrdered,
+  Highlighter
 } from 'lucide-vue-next'
 import { Separator } from '@/components/ui/separator'
 
@@ -123,7 +133,9 @@ export default {
     Heading2,
     Heading3,
     List,
-    ListOrdered
+    ListOrdered,
+    Highlight,
+    Highlighter
   },
 
   props: {
@@ -160,12 +172,18 @@ export default {
             'h-full justify-between flex-grow mb-2.5 w-full rounded-b-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
-      extensions: [StarterKit],
+      extensions: [StarterKit, Highlight],
       content: this.modelValue,
       onUpdate: () => {
         // HTML
         this.$emit('update:modelValue', this.editor.getHTML())
       }
+    })
+    Highlight.configure({
+      HTMLAttributes: {
+        class: 'my-custom-class'
+      },
+      multicolor: true
     })
   },
 
