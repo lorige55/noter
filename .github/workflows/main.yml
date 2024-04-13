@@ -1,0 +1,30 @@
+name: Update Files and Push to Main
+
+on:
+  push:
+    branches:
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: development
+          fetch-depth: 0
+
+      - name: Replace strings
+        run: |
+          sed -i 's/"build": "vite build --watch",/"build": "vite build",/g' package.json
+          sed -i "s/appId: 'JlXUGO3ZcoTO3pK2BSb38cc2',/appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',/g" src/App.vue
+
+      - name: Commit and push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Update strings via GitHub Actions"
+          git push https://${{ secrets.GH_USER }}:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
