@@ -143,7 +143,7 @@ export default {
       isLoggedIn: false,
       user: null,
       userId: null,
-      appId: 'LH8ZzpbwJuHH6xGFk6GgmtSC',
+      appId: null,
       noteIndex: [],
       keyIndex: [],
       activeDocumentContent: '<b>Loading...</b>',
@@ -501,6 +501,11 @@ export default {
     }
   },
   async mounted() {
+    if (window.location.href === 'https://noter.yeomid.com/') {
+      this.appId = 'LH8ZzpbwJuHH6xGFk6GgmtSC'
+    } else {
+      this.appId = 'JlXUGO3ZcoTO3pK2BSb38cc2'
+    }
     //try to authenticate
     try {
       const user = new PassageUser()
