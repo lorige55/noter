@@ -54,6 +54,7 @@ import Tiptap from './components/Tiptap.vue'
 
 //icon imports
 import {
+  HeartCrack,
   AlertCircle,
   User,
   Lock,
@@ -127,7 +128,8 @@ export default {
     File,
     Trash2,
     Sticker,
-    Frown
+    Frown,
+    HeartCrack
   },
   watch: {
     activeDocument(newActiveDocument) {
@@ -176,6 +178,22 @@ export default {
     }
   },
   methods: {
+    isMobileDevice() {
+      var userAgent = navigator.userAgent || navigator.vendor || window.opera
+      // Check against all known Mobile Device User Agent substrings
+      if (/windows phone/i.test(userAgent)) {
+        return true
+      }
+      if (/android/i.test(userAgent)) {
+        return true
+      }
+      // iOS detection from: http://stackoverflow.com/a/9039885/177710
+      if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        return true
+      }
+      // Default to 'not a Mobile Device'
+      return false
+    },
     async getDocument(item) {
       if (this.activeDocument !== '') {
         await this.saveActiveDocument()
@@ -501,6 +519,7 @@ export default {
     }
   },
   async mounted() {
+    //setting appId based on location
     if (window.location.href === 'https://noter.yeomid.com/') {
       this.appId = 'LH8ZzpbwJuHH6xGFk6GgmtSC'
     } else {
@@ -597,412 +616,426 @@ export default {
 </script>
 
 <template>
-  <div v-if="!isLoggedIn">
-    <div class="flex justify-center items-center h-screen">
-      <div class="authContainer">
-        <passage-auth :app-id="appId"></passage-auth>
-      </div>
+  <div v-if="isMobileDevice() == true">
+    <div
+      class="absolute inset-0 mx-2.5 my-2.5 border rounded-md flex items-center justify-center flex-col"
+    >
+      <HeartCrack></HeartCrack>
+      <p class="text text-sm">Noter is sadly not available on mobile (yet).</p>
     </div>
   </div>
   <div v-else>
-    <div v-if="!ready">
-      <div class="flex flex-col justify-center items-center h-screen">
-        <div
-          class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] mb-3 dark:text-white"
-          role="status"
-        ></div>
-        <p class="text-xl w-1/3 text-center">{{ progress }}</p>
-        <HoverCard class="w-96">
-          <HoverCardTrigger>
-            <Button variant="outline" class="mt-3"><Info></Info></Button
-          ></HoverCardTrigger>
-          <HoverCardContent>
-            <p class="text-sm text-center">
-              This should only take a few seconds. If it takes too long, a slow internet connection
-              or corrupt data could be the cause. If you think your data is corrupt, consider
-              resetting it. If you have a backup of your data, you can import it after resetting.
-            </p>
-            <Button variant="destructive" @click="deleteAccountData()" class="w-full mt-3"
-              >Delete My Data</Button
-            >
-          </HoverCardContent>
-        </HoverCard>
+    <div v-if="!isLoggedIn">
+      <div class="flex justify-center items-center h-screen">
+        <div class="authContainer">
+          <passage-auth :app-id="appId"></passage-auth>
+        </div>
       </div>
     </div>
     <div v-else>
-      <div v-if="!showSettings">
-        <div class="relative flex flex-col h-screen w-screen">
-          <!--Menubar-->
-          <Menubar class="h-11 mx-2.5 mt-2.5">
-            <MenubarMenu>
-              <MenubarTrigger>Home</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem @click="(tabToOpen = 'account'), (showSettings = true)">
-                  <User class="mr-2 h-4 w-4" /> Account
-                </MenubarItem>
-                <MenubarItem @click="(tabToOpen = 'privacyAndSecurity'), (showSettings = true)">
-                  <Lock class="mr-2 h-4 w-4" /> Privacy & Security
-                </MenubarItem>
-                <MenubarSeparator />
-                <a href="https://github.com/lorige55/noter" target="_blank">
-                  <MenubarItem> <Github class="mr-2 h-4 w-4" /> GitHub </MenubarItem>
-                </a>
-                <a href="https://github.com/lorige55/noter/issues" target="_blank">
-                  <MenubarItem> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
-                </a>
-                <MenubarSeparator />
-                <MenubarItem @click="logout()">
-                  <LogOut class="mr-2 h-4 w-4" /> Logout
-                </MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger>File</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem @click="createNewDocument()"> New File </MenubarItem>
-                <MenubarItem disabled> New Folder </MenubarItem>
-                <MenubarSeparator />
-                <MenubarItem
-                  @click="(showNoteDeleteConformation = true), (noteToDelete = activeDocument)"
-                >
-                  Delete
-                </MenubarItem>
-                <MenubarSeparator />
-                <MenubarSub>
-                  <MenubarSubTrigger>Share</MenubarSubTrigger>
-                  <MenubarSubContent>
-                    <MenubarItem disabled>Link</MenubarItem>
-                    <MenubarItem disabled>Email</MenubarItem>
-                    <MenubarItem disabled>SMS</MenubarItem>
-                  </MenubarSubContent>
-                </MenubarSub>
-                <MenubarSeparator />
-                <MenubarItem @click="(tabToOpen = 'account'), (showSettings = true)"
-                  >Import Data</MenubarItem
-                >
-                <MenubarItem @click="exportData()">Export Data</MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger>Edit</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem disabled> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
-                <MenubarItem disabled> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
-                <MenubarSeparator />
-                <MenubarSub>
-                  <MenubarSubTrigger>Find</MenubarSubTrigger>
-                  <MenubarSubContent>
-                    <MenubarItem disabled>Search the web</MenubarItem>
-                    <MenubarSeparator />
-                    <MenubarItem disabled>Find...</MenubarItem>
-                    <MenubarItem disabled>Find Next</MenubarItem>
-                    <MenubarItem disabled>Find Previous</MenubarItem>
-                  </MenubarSubContent>
-                </MenubarSub>
-                <MenubarSeparator />
-                <MenubarItem disabled>Cut</MenubarItem>
-                <MenubarItem disabled>Copy</MenubarItem>
-                <MenubarItem disabled>Paste</MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
-            <MenubarMenu>
-              <MenubarTrigger>View</MenubarTrigger>
-              <MenubarContent>
-                <MenubarItem @click="reload()">
-                  Reload <MenubarShortcut>⌘R</MenubarShortcut>
-                </MenubarItem>
-                <MenubarSeparator />
-                <MenubarItem @click="fullscreen()"> Toggle Fullscreen </MenubarItem>
-              </MenubarContent>
-            </MenubarMenu>
-          </Menubar>
-          <!--Saving Status-->
-          <div class="absolute top-0 right-0">
-            <div v-if="activeSavingProcesses > 0">
-              <Badge class="py-0 mt-6 mr-6">Saving</Badge>
-            </div>
-            <div v-else>
-              <Badge class="py-0 mt-6 mr-6">Saved</Badge>
-            </div>
-          </div>
-
-          <ResizablePanelGroup
-            v-if="noteIndex[0] !== undefined"
-            class="w-screen flex flex-1 overflow-scroll"
-            direction="horizontal"
-          >
-            <!--Note List-->
-            <ResizablePanel :default-size="25" class="py-2.5">
-              <div class="h-full rounded-md border ml-2.5 overflow-auto">
-                <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
-                  <div
-                    v-if="noteIndex.indexOf(item) === activeDocumentIndex"
-                    class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 text-sm flex justify-between items-center"
-                  >
-                    <!--File Icon-->
-                    <div class="flex items-center p-2">
-                      <File class="ml-1 h-4 w-4"></File>
-                    </div>
-                    <!--Note Title-->
-                    <div class="noteListText activeNoteListText">
-                      {{ activeDocument }}
-                    </div>
-                    <!--Delete Button-->
-                    <div class="flex items-center p-2">
-                      <Trash2
-                        class="ml-1 h-4 w-4"
-                        @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
-                      ></Trash2>
-                    </div>
-                  </div>
-                  <div
-                    v-else
-                    @click="getDocument(item)"
-                    class="noteListItem passiveNoteListItem rounded-sm border mx-1.5 my-1.5 text-sm flex justify-between items-center"
-                  >
-                    <!--File Icon-->
-                    <div class="flex items-center p-2">
-                      <File class="ml-1 h-4 w-4"></File>
-                    </div>
-                    <!--Note Title-->
-                    <div class="noteListText passiveNoteListText">
-                      {{ item }}
-                    </div>
-                    <!--Delete Button-->
-                    <div class="flex items-center p-2">
-                      <Trash2
-                        class="ml-1 h-4 w-4"
-                        @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
-                      ></Trash2>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!--Note Deletion conformation-->
-              <AlertDialog v-model:open="showNoteDeleteConformation">
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your note, called
-                      <b>"{{ noteToDelete }}"</b>. Think about it twice.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <Button @click="showNoteDeleteConformation = false">Cancel</Button>
-                    <Button variant="destructive" @click="deleteDocument(noteToDelete)"
-                      >Continue</Button
-                    >
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </ResizablePanel>
-
-            <ResizableHandle
-              style="cursor: col-resize !important; width: 6px; background-color: white"
-            />
-
-            <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5">
-              <div v-if="activeDocumentIndex !== null" class="h-full w-full flex flex-col">
-                <!--Editor-->
-                <!--Title Editor-->
-                <Input
-                  class="customInput h-10 justify-between text-base font-semibold"
-                  type="text"
-                  v-model="activeDocument"
-                  @input="autoSave()"
-                />
-
-                <!--Content Editor-->
-                <tiptap class="h-full w-full" v-model="activeDocumentContent"></tiptap>
-              </div>
-              <div
-                v-else
-                class="h-full w-full border rounded-md grid place-content-center flex flex-col overflow-hidden"
-              >
-                <div class="p-2.5">
-                  <Sticker class="w-full h-auto"></Sticker>
-                  <p class="text-center text-lg">Select a note to start editing.</p>
-                </div>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-          <!--No file message-->
+      <div v-if="!ready">
+        <div class="flex flex-col justify-center items-center h-screen">
           <div
-            v-else
-            class="h-screen border rounded-md m-2.5 grid place-content-center flex flex-col"
-          >
-            <Frown class="mx-auto"></Frown>
-            <p class="text-center text-lg">Create a new note to edit.</p>
-            <p class="text-center text-sm">Select "File", "New File" in the Menubar</p>
-          </div>
-          <!--Error Alert-->
-          <div v-if="displayError == true">
-            <Alert
-              variant="destructive"
-              class="absolute bottom-0 right-0 z-50 fixed w-1/3 mr-5 mb-5"
-              @click="() => (displayError = false)"
-              style="cursor: pointer"
-            >
-              <AlertCircle class="w-4 h-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{{ this.errorMessage }}</AlertDescription>
-            </Alert>
-          </div>
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] mb-3 dark:text-white"
+            role="status"
+          ></div>
+          <p class="text-xl w-1/3 text-center">{{ progress }}</p>
+          <HoverCard class="w-96">
+            <HoverCardTrigger>
+              <Button variant="outline" class="mt-3"><Info></Info></Button
+            ></HoverCardTrigger>
+            <HoverCardContent>
+              <p class="text-sm text-center">
+                This should only take a few seconds. If it takes too long, a slow internet
+                connection or corrupt data could be the cause. If you think your data is corrupt,
+                consider resetting it. If you have a backup of your data, you can import it after
+                resetting.
+              </p>
+              <Button variant="destructive" @click="deleteAccountData()" class="w-full mt-3"
+                >Delete My Data</Button
+              >
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
       <div v-else>
-        <!--Account, Privacy and Security-->
-        <Tabs :default-value="tabToOpen" class="mx-2.5 my-2.5 h-screen">
-          <TabsList class="grid w-full grid-cols-2">
-            <TabsTrigger value="account"> Account </TabsTrigger>
-            <TabsTrigger value="privacyAndSecurity"> Privacy & Security </TabsTrigger>
-          </TabsList>
-          <TabsContent value="account" class="h-full">
-            <Card class="relative" style="height: calc(100vh - 70px)">
-              <CardHeader>
-                <CardTitle>My Account</CardTitle>
-                <X
-                  @click="showSettings = false"
-                  style="cursor: pointer"
-                  class="mr-5 mt-5 absolute top-0 right-0"
-                ></X>
-              </CardHeader>
-              <CardContent class="space-y-2">
-                <div class="space-y-1">
-                  <Label for="email">E-Mail</Label>
-                  <Input id="email" v-model="user.email" disabled />
-                </div>
-                <div class="space-y-1">
-                  <Label for="userid">UserID</Label>
-                  <Input id="userid" v-model="userId" disabled />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button class="mr-3" @click="logout()">Log Out</Button>
-                <Button class="mr-3" variant="outline" @click="exportData()">Export Data</Button>
-                <Button class="mr-3" variant="outline" @click="showImportConformation = true"
-                  >Import Data</Button
-                >
-                <Button
-                  class="mr-3"
-                  variant="destructive"
-                  @click="showAccountDataDeletionConformation = true"
-                  >Delete My Data</Button
-                >
-              </CardFooter>
-              <!--Import Conformation Dialog-->
-              <AlertDialog v-model:open="showImportConformation">
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>One more thing.</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently replace all the data you
-                      have stored in noter. Please select a file below to import.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label for="fileUpload">Picture</Label>
-                    <Input id="fileUpload" type="file" />
-                  </div>
-                  <AlertDialogFooter>
-                    <Button variant="destructive" @click="importData()">Import</Button>
-                    <Button @click="showImportConformation = false">Cancel</Button>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-              <!--Delete Account Data Conformation Dialog-->
-              <AlertDialog v-model:open="showAccountDataDeletionConformation">
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently all your accounts data. If
-                      you do not want to loose your data, export it before completing this action.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <Button variant="destructive" @click="deleteAccountData()">Delete Data</Button>
-                    <Button @click="showAccountDataDeletionConformation = false">Cancel</Button>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </Card>
-          </TabsContent>
-          <TabsContent value="privacyAndSecurity">
-            <Card class="relative" style="height: calc(100vh - 70px)">
-              <CardHeader>
-                <CardTitle>Privacy & Security</CardTitle>
-                <CardDescription>
-                  To ensure privacy, Notes are encrypted using
-                  <Button
-                    class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
-                    variant="link"
-                    style="padding: 0"
-                    ><a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard"
-                      >AES-256</a
-                    ></Button
+        <div v-if="!showSettings">
+          <div class="relative flex flex-col h-screen w-screen">
+            <!--Menubar-->
+            <Menubar class="h-11 mx-2.5 mt-2.5">
+              <MenubarMenu>
+                <MenubarTrigger>Home</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem @click="(tabToOpen = 'account'), (showSettings = true)">
+                    <User class="mr-2 h-4 w-4" /> Account
+                  </MenubarItem>
+                  <MenubarItem @click="(tabToOpen = 'privacyAndSecurity'), (showSettings = true)">
+                    <Lock class="mr-2 h-4 w-4" /> Privacy & Security
+                  </MenubarItem>
+                  <MenubarSeparator />
+                  <a href="https://github.com/lorige55/noter" target="_blank">
+                    <MenubarItem> <Github class="mr-2 h-4 w-4" /> GitHub </MenubarItem>
+                  </a>
+                  <a href="https://github.com/lorige55/noter/issues" target="_blank">
+                    <MenubarItem> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
+                  </a>
+                  <MenubarSeparator />
+                  <MenubarItem @click="logout()">
+                    <LogOut class="mr-2 h-4 w-4" /> Logout
+                  </MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+              <MenubarMenu>
+                <MenubarTrigger>File</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem @click="createNewDocument()"> New File </MenubarItem>
+                  <MenubarItem disabled> New Folder </MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarItem
+                    @click="(showNoteDeleteConformation = true), (noteToDelete = activeDocument)"
                   >
-                  before saving to the cloud. The encryption key is crucial for data security and is
-                  stored by default in the cloud. For full privacy, store the key yourself, but
-                  remember you'll need to enter it every time you switch devices or browsers. Losing
-                  the key means losing all your data permanently.
-                </CardDescription>
-                <X
-                  @click="showSettings = false"
-                  style="cursor: pointer"
-                  class="mr-5 mt-5 absolute top-0 right-0"
-                ></X>
-              </CardHeader>
-              <CardContent class="space-y-2">
-                <div v-if="trust">
-                  <p>This is your Secret Key:</p>
-                  <Input
-                    type="text"
-                    v-model="secretKey"
-                    aria-label="Secret Key"
-                    disabled
-                    readonly
-                  />
-                </div>
-                <div v-else>
-                  <p>Please enter your Secret Key:</p>
-                  <div class="flex w-full gap-1.5">
-                    <Input type="text" v-model="secretKey" aria-label="Secret Key" disabled />
-                    <Button variant="destructive" @click="showNewSecretKeyConformation = true">
-                      Generate
-                    </Button>
+                    Delete
+                  </MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarSub>
+                    <MenubarSubTrigger>Share</MenubarSubTrigger>
+                    <MenubarSubContent>
+                      <MenubarItem disabled>Link</MenubarItem>
+                      <MenubarItem disabled>Email</MenubarItem>
+                      <MenubarItem disabled>SMS</MenubarItem>
+                    </MenubarSubContent>
+                  </MenubarSub>
+                  <MenubarSeparator />
+                  <MenubarItem @click="(tabToOpen = 'account'), (showSettings = true)"
+                    >Import Data</MenubarItem
+                  >
+                  <MenubarItem @click="exportData()">Export Data</MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+              <MenubarMenu>
+                <MenubarTrigger>Edit</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem disabled> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
+                  <MenubarItem disabled> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarSub>
+                    <MenubarSubTrigger>Find</MenubarSubTrigger>
+                    <MenubarSubContent>
+                      <MenubarItem disabled>Search the web</MenubarItem>
+                      <MenubarSeparator />
+                      <MenubarItem disabled>Find...</MenubarItem>
+                      <MenubarItem disabled>Find Next</MenubarItem>
+                      <MenubarItem disabled>Find Previous</MenubarItem>
+                    </MenubarSubContent>
+                  </MenubarSub>
+                  <MenubarSeparator />
+                  <MenubarItem disabled>Cut</MenubarItem>
+                  <MenubarItem disabled>Copy</MenubarItem>
+                  <MenubarItem disabled>Paste</MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+              <MenubarMenu>
+                <MenubarTrigger>View</MenubarTrigger>
+                <MenubarContent>
+                  <MenubarItem @click="reload()">
+                    Reload <MenubarShortcut>⌘R</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarSeparator />
+                  <MenubarItem @click="fullscreen()"> Toggle Fullscreen </MenubarItem>
+                </MenubarContent>
+              </MenubarMenu>
+            </Menubar>
+            <!--Saving Status-->
+            <div class="absolute top-0 right-0">
+              <div v-if="activeSavingProcesses > 0">
+                <Badge class="py-0 mt-6 mr-6">Saving</Badge>
+              </div>
+              <div v-else>
+                <Badge class="py-0 mt-6 mr-6">Saved</Badge>
+              </div>
+            </div>
+
+            <ResizablePanelGroup
+              v-if="noteIndex[0] !== undefined"
+              class="w-screen flex flex-1 overflow-scroll"
+              direction="horizontal"
+            >
+              <!--Note List-->
+              <ResizablePanel :default-size="25" class="py-2.5">
+                <div class="h-full rounded-md border ml-2.5 overflow-auto">
+                  <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
+                    <div
+                      v-if="noteIndex.indexOf(item) === activeDocumentIndex"
+                      class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 text-sm flex justify-between items-center"
+                    >
+                      <!--File Icon-->
+                      <div class="flex items-center p-2">
+                        <File class="ml-1 h-4 w-4"></File>
+                      </div>
+                      <!--Note Title-->
+                      <div class="noteListText activeNoteListText">
+                        {{ activeDocument }}
+                      </div>
+                      <!--Delete Button-->
+                      <div class="flex items-center p-2">
+                        <Trash2
+                          class="ml-1 h-4 w-4"
+                          @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                        ></Trash2>
+                      </div>
+                    </div>
+                    <div
+                      v-else
+                      @click="getDocument(item)"
+                      class="noteListItem passiveNoteListItem rounded-sm border mx-1.5 my-1.5 text-sm flex justify-between items-center"
+                    >
+                      <!--File Icon-->
+                      <div class="flex items-center p-2">
+                        <File class="ml-1 h-4 w-4"></File>
+                      </div>
+                      <!--Note Title-->
+                      <div class="noteListText passiveNoteListText">
+                        {{ item }}
+                      </div>
+                      <!--Delete Button-->
+                      <div class="flex items-center p-2">
+                        <Trash2
+                          class="ml-1 h-4 w-4"
+                          @click="(showNoteDeleteConformation = true), (noteToDelete = item)"
+                        ></Trash2>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="flex items-center space-x-2">
-                  <Switch id="secretKeyInCloudSwitch" :checked="trust" @click="trustChanged" />
-                  <Label for="secretKeyInCloudSwitch">Store Secret Key in Cloud</Label>
-                </div>
-                <!--Secret Key Conformation Dialog-->
-                <AlertDialog v-model:open="showNewSecretKeyConformation">
+
+                <!--Note Deletion conformation-->
+                <AlertDialog v-model:open="showNoteDeleteConformation">
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This action cannot be undone. This will permanently make all the data you
-                        have stored in noter useless. If you do not want to loose your data, export
-                        it before completing this action.
+                        This action cannot be undone. This will permanently delete your note, called
+                        <b>"{{ noteToDelete }}"</b>. Think about it twice.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <Button variant="destructive" @click="generateNewSecretKey()"
-                        >Generate New</Button
+                      <Button @click="showNoteDeleteConformation = false">Cancel</Button>
+                      <Button variant="destructive" @click="deleteDocument(noteToDelete)"
+                        >Continue</Button
                       >
-                      <Button @click="showNewSecretKeyConformation = false">Cancel</Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </CardContent>
-              <CardFooter> </CardFooter>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </ResizablePanel>
+
+              <ResizableHandle
+                style="cursor: col-resize !important; width: 6px; background-color: white"
+              />
+
+              <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5">
+                <div v-if="activeDocumentIndex !== null" class="h-full w-full flex flex-col">
+                  <!--Editor-->
+                  <!--Title Editor-->
+                  <Input
+                    class="customInput h-10 justify-between text-base font-semibold"
+                    type="text"
+                    v-model="activeDocument"
+                    @input="autoSave()"
+                  />
+
+                  <!--Content Editor-->
+                  <tiptap class="h-full w-full" v-model="activeDocumentContent"></tiptap>
+                </div>
+                <div
+                  v-else
+                  class="h-full w-full border rounded-md grid place-content-center flex flex-col overflow-hidden"
+                >
+                  <div class="p-2.5">
+                    <Sticker class="w-full h-auto"></Sticker>
+                    <p class="text-center text-lg">Select a note to start editing.</p>
+                  </div>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+            <!--No file message-->
+            <div
+              v-else
+              class="h-screen border rounded-md m-2.5 grid place-content-center flex flex-col"
+            >
+              <Frown class="mx-auto"></Frown>
+              <p class="text-center text-lg">Create a new note to edit.</p>
+              <p class="text-center text-sm">Select "File", "New File" in the Menubar</p>
+            </div>
+            <!--Error Alert-->
+            <div v-if="displayError == true">
+              <Alert
+                variant="destructive"
+                class="absolute bottom-0 right-0 z-50 fixed w-1/3 mr-5 mb-5"
+                @click="() => (displayError = false)"
+                style="cursor: pointer"
+              >
+                <AlertCircle class="w-4 h-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{{ this.errorMessage }}</AlertDescription>
+              </Alert>
+            </div>
+          </div>
+        </div>
+        <div v-else>
+          <!--Account, Privacy and Security-->
+          <Tabs :default-value="tabToOpen" class="mx-2.5 my-2.5 h-screen">
+            <TabsList class="grid w-full grid-cols-2">
+              <TabsTrigger value="account"> Account </TabsTrigger>
+              <TabsTrigger value="privacyAndSecurity"> Privacy & Security </TabsTrigger>
+            </TabsList>
+            <TabsContent value="account" class="h-full">
+              <Card class="relative" style="height: calc(100vh - 70px)">
+                <CardHeader>
+                  <CardTitle>My Account</CardTitle>
+                  <X
+                    @click="showSettings = false"
+                    style="cursor: pointer"
+                    class="mr-5 mt-5 absolute top-0 right-0"
+                  ></X>
+                </CardHeader>
+                <CardContent class="space-y-2">
+                  <div class="space-y-1">
+                    <Label for="email">E-Mail</Label>
+                    <Input id="email" v-model="user.email" disabled />
+                  </div>
+                  <div class="space-y-1">
+                    <Label for="userid">UserID</Label>
+                    <Input id="userid" v-model="userId" disabled />
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button class="mr-3" @click="logout()">Log Out</Button>
+                  <Button class="mr-3" variant="outline" @click="exportData()">Export Data</Button>
+                  <Button class="mr-3" variant="outline" @click="showImportConformation = true"
+                    >Import Data</Button
+                  >
+                  <Button
+                    class="mr-3"
+                    variant="destructive"
+                    @click="showAccountDataDeletionConformation = true"
+                    >Delete My Data</Button
+                  >
+                </CardFooter>
+                <!--Import Conformation Dialog-->
+                <AlertDialog v-model:open="showImportConformation">
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>One more thing.</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently replace all the data you
+                        have stored in noter. Please select a file below to import.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div class="grid w-full max-w-sm items-center gap-1.5">
+                      <Label for="fileUpload">Picture</Label>
+                      <Input id="fileUpload" type="file" />
+                    </div>
+                    <AlertDialogFooter>
+                      <Button variant="destructive" @click="importData()">Import</Button>
+                      <Button @click="showImportConformation = false">Cancel</Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <!--Delete Account Data Conformation Dialog-->
+                <AlertDialog v-model:open="showAccountDataDeletionConformation">
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently all your accounts data.
+                        If you do not want to loose your data, export it before completing this
+                        action.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <Button variant="destructive" @click="deleteAccountData()"
+                        >Delete Data</Button
+                      >
+                      <Button @click="showAccountDataDeletionConformation = false">Cancel</Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </Card>
+            </TabsContent>
+            <TabsContent value="privacyAndSecurity">
+              <Card class="relative" style="height: calc(100vh - 70px)">
+                <CardHeader>
+                  <CardTitle>Privacy & Security</CardTitle>
+                  <CardDescription>
+                    To ensure privacy, Notes are encrypted using
+                    <Button
+                      class="link-dark link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                      variant="link"
+                      style="padding: 0"
+                      ><a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard"
+                        >AES-256</a
+                      ></Button
+                    >
+                    before saving to the cloud. The encryption key is crucial for data security and
+                    is stored by default in the cloud. For full privacy, store the key yourself, but
+                    remember you'll need to enter it every time you switch devices or browsers.
+                    Losing the key means losing all your data permanently.
+                  </CardDescription>
+                  <X
+                    @click="showSettings = false"
+                    style="cursor: pointer"
+                    class="mr-5 mt-5 absolute top-0 right-0"
+                  ></X>
+                </CardHeader>
+                <CardContent class="space-y-2">
+                  <div v-if="trust">
+                    <p>This is your Secret Key:</p>
+                    <Input
+                      type="text"
+                      v-model="secretKey"
+                      aria-label="Secret Key"
+                      disabled
+                      readonly
+                    />
+                  </div>
+                  <div v-else>
+                    <p>Please enter your Secret Key:</p>
+                    <div class="flex w-full gap-1.5">
+                      <Input type="text" v-model="secretKey" aria-label="Secret Key" disabled />
+                      <Button variant="destructive" @click="showNewSecretKeyConformation = true">
+                        Generate
+                      </Button>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <Switch id="secretKeyInCloudSwitch" :checked="trust" @click="trustChanged" />
+                    <Label for="secretKeyInCloudSwitch">Store Secret Key in Cloud</Label>
+                  </div>
+                  <!--Secret Key Conformation Dialog-->
+                  <AlertDialog v-model:open="showNewSecretKeyConformation">
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently make all the data you
+                          have stored in noter useless. If you do not want to loose your data,
+                          export it before completing this action.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <Button variant="destructive" @click="generateNewSecretKey()"
+                          >Generate New</Button
+                        >
+                        <Button @click="showNewSecretKeyConformation = false">Cancel</Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </CardContent>
+                <CardFooter> </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   </div>
