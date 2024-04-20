@@ -146,7 +146,7 @@ export default {
       user: null,
       userId: null,
       appId: null,
-      noteIndex: [],
+      index: [],
       keyIndex: [],
       activeDocumentContent: '<b>Loading...</b>',
       activeDocument: '',
@@ -204,8 +204,8 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       //set active document and lastNote
-      this.activeDocumentIndex = this.noteIndex.indexOf(item)
-      this.activeDocument = this.noteIndex[this.activeDocumentIndex]
+      this.activeDocumentIndex = this.index.indexOf(item)
+      this.activeDocument = this.index[this.activeDocumentIndex]
       localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
       let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
@@ -215,8 +215,8 @@ export default {
     async saveActiveDocument() {
       //input validation
       if (
-        this.noteIndex.includes(this.activeDocument) &&
-        this.noteIndex[this.activeDocumentIndex] !== this.activeDocument
+        this.index.includes(this.activeDocument) &&
+        this.index[this.activeDocumentIndex] !== this.activeDocument
       ) {
         this.errorMessage =
           'You cannot name a note the same as another note. Please rename the note. It will not be saved under this title. Click this message to make it disappear.'
@@ -233,7 +233,7 @@ export default {
         title: this.encryptString(this.activeDocument)
       })
       localStorage.setItem('lastNote', this.activeDocument)
-      this.noteIndex[this.activeDocumentIndex] = this.activeDocument
+      this.index[this.activeDocumentIndex] = this.activeDocument
     },
     autoSave() {
       //save active document after 3 seconds of inactivity
@@ -253,25 +253,25 @@ export default {
       //initialize firebase and the index of the item to remove
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      const indexToRemove = this.noteIndex.indexOf(item)
+      const indexToRemove = this.index.indexOf(item)
       //make sure if the item to remove is the the last note to remain
-      if (this.noteIndex.length === 1) {
+      if (this.index.length === 1) {
         this.activeDocument = ''
         this.activeDocumentContent = ''
         this.activeDocumentIndex = null
       }
       //remove item from lastNote in localStorage if it is the lastNote
-      if (localStorage.getItem('lastNote') === this.noteIndex[item]) {
+      if (localStorage.getItem('lastNote') === this.index[item]) {
         localStorage.removeItem('lastNote')
       }
       //if indexToRemove is valid
       if (indexToRemove !== -1) {
         //change active document if it is the one to be removed
-        if (this.activeDocument === item && this.noteIndex.length !== 1) {
+        if (this.activeDocument === item && this.index.length !== 1) {
           if (indexToRemove === 0) {
-            this.getDocument(this.noteIndex[0])
+            this.getDocument(this.index[0])
           } else {
-            this.getDocument(this.noteIndex[indexToRemove - 1])
+            this.getDocument(this.index[indexToRemove - 1])
           }
         }
         //delete document from firebase
@@ -280,8 +280,8 @@ export default {
         this.keyIndex.splice(indexToRemove, 1)
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
-        //remove item from noteIndex and shortened
-        this.noteIndex.splice(indexToRemove, 1)
+        //remove item from index and shortened
+        this.index.splice(indexToRemove, 1)
         this.showNoteDeleteConformation = false
       } else {
         console.log('An Error has occured. Please try again or create an Issue on GitHub.')
@@ -290,23 +290,24 @@ export default {
       }
     },
     async createNewDocument() {
-      if (this.noteIndex.length !== 0) {
+      if (this.index.length !== 0) {
         await this.saveActiveDocument()
       }
       //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
+      //find name
       let newNoteName = 'New Note'
       let nameFound = false
-      for (let i = 0; i < this.noteIndex.length && nameFound == false; i++) {
-        if (this.noteIndex.includes(newNoteName)) {
+      for (let i = 0; i < this.index.length && nameFound == false; i++) {
+        if (this.index.includes(newNoteName)) {
           newNoteName = 'New Note ' + (i + 1)
         } else {
           nameFound = true
         }
       }
       //push new Note to Index
-      this.noteIndex.push(newNoteName)
+      this.index.push(newNoteName)
       //generate new key and push it to keyIndex
       let key = this.generateKey(128)
       this.keyIndex.push(key)
@@ -322,7 +323,7 @@ export default {
       //set activeDocument and lastNote to new note
       this.activeDocumentContent = '<p>This is a new note. Feel free to edit it!<p>'
       this.activeDocument = newNoteName
-      this.activeDocumentIndex = this.noteIndex.indexOf(newNoteName)
+      this.activeDocumentIndex = this.index.indexOf(newNoteName)
       localStorage.setItem('lastNote', this.activeDocument)
       this.creatingNewDocument = false
     },
@@ -583,12 +584,12 @@ export default {
       //if keyIndex exists, get it
       if (docSnap.exists()) {
         this.keyIndex = docSnap.data().index
-        //loop through keyIndex and build noteIndex
+        //loop through keyIndex and build index
         if (this.keyIndex.length > 0) {
           for (let i = 0; i < this.keyIndex.length; i++) {
             let docRef = doc(db, this.userId, this.keyIndex[i])
             let docSnap = await getDoc(docRef)
-            this.noteIndex[i] = this.decryptString(docSnap.data().title)
+            this.index[i] = this.decryptString(docSnap.data().title)
           }
           this.progress = 'Loading your last note...'
           //recover last note or select first in array if equal to null
@@ -596,7 +597,7 @@ export default {
             localStorage.getItem('lastNote') == undefined ||
             localStorage.getItem('lastNote') === 'undefined'
           ) {
-            localStorage.setItem('lastNote', this.noteIndex[0])
+            localStorage.setItem('lastNote', this.index[0])
           }
           this.getDocument(localStorage.getItem('lastNote'))
         }
@@ -606,7 +607,7 @@ export default {
         this.keyIndex = [key]
         setDoc(docRef, { index: this.keyIndex })
         //set to no note
-        this.noteIndex = []
+        this.index = []
         this.activeDocument = ''
         this.activeDocumentContent = ''
         this.activeDocumentIndex = null
@@ -759,16 +760,16 @@ export default {
             </div>
 
             <ResizablePanelGroup
-              v-if="noteIndex[0] !== undefined"
+              v-if="index[0] !== undefined"
               class="w-screen flex flex-1 overflow-scroll"
               direction="horizontal"
             >
               <!--Note List-->
               <ResizablePanel :default-size="25" class="py-2.5">
                 <div class="h-full rounded-md border ml-2.5 overflow-auto">
-                  <div v-for="item in noteIndex" :key="item" style="cursor: pointer">
+                  <div v-for="item in index" :key="item" style="cursor: pointer">
                     <div
-                      v-if="noteIndex.indexOf(item) === activeDocumentIndex"
+                      v-if="index.indexOf(item) === activeDocumentIndex"
                       class="bg-gray-200 rounded-sm border mx-1.5 my-1.5 text-sm flex justify-between items-center"
                     >
                       <!--File Icon-->
