@@ -596,17 +596,11 @@ export default {
         let key = this.generateKey(128)
         this.keyIndex = [key]
         setDoc(docRef, { index: this.keyIndex })
-        //create default note
-        this.noteIndex = ['Welcome!']
-        docRef = doc(db, this.userId, key)
-        setDoc(docRef, {
-          note: this.encryptString('This is your first note! Have fun!'),
-          title: this.encryptString('Welcome!')
-        })
-        //set default note to active Note
-        this.activeDocument = 'Welcome!'
-        this.activeDocumentContent = 'This is your first note! Have fun!'
-        this.activeDocumentIndex = 0
+        //set to no note
+        this.noteIndex = []
+        this.activeDocument = ''
+        this.activeDocumentContent = ''
+        this.activeDocumentIndex = null
       }
     }
     this.progress = 'Done!'
