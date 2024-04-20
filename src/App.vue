@@ -171,6 +171,8 @@ export default {
       showSettings: false,
       tabToOpen: 'account',
       showNewSecretKeyConformation: false,
+      showChangeSecretKeyConformation: false,
+      customSecretKeyInput: null,
       showAccountDataDeletionConformation: false,
       showImportConformation: false,
       showNoteDeleteConformation: false,
@@ -362,6 +364,13 @@ export default {
       }
       //save new key to localStorage
       localStorage.setItem('secretKey', this.secretKey)
+    },
+    saveNewSecretKey() {
+      //save new secret key
+      this.secretKey = this.customSecretKeyInput
+      localStorage.setItem('secretKey', this.secretKey)
+      //close dialog
+      this.showChangeSecretKeyConformation = false
     },
     async trustChanged() {
       if (!this.trust) {
@@ -556,7 +565,7 @@ export default {
         if (localStorage.getItem('secretKey') !== null) {
           this.secretKey = localStorage.getItem('secretKey')
         } else {
-          this.$refs.profileModal.show()
+          this.showChangeSecretKeyConformation = true
         }
       }
     } else {
@@ -982,22 +991,35 @@ export default {
                   ></X>
                 </CardHeader>
                 <CardContent class="space-y-2">
+                  <p>This is your Secret Key:</p>
                   <div v-if="trust">
-                    <p>This is your Secret Key:</p>
-                    <Input
-                      type="text"
-                      v-model="secretKey"
-                      aria-label="Secret Key"
-                      disabled
-                      readonly
-                    />
+                    <div class="flex w-full gap-1.5">
+                      <Input
+                        type="text"
+                        v-model="secretKey"
+                        aria-label="Secret Key"
+                        style="cursor: text"
+                        disabled
+                      />
+                      <Button variant="destructive" @click="showNewSecretKeyConformation = true">
+                        Generate New
+                      </Button>
+                    </div>
                   </div>
                   <div v-else>
-                    <p>Please enter your Secret Key:</p>
                     <div class="flex w-full gap-1.5">
-                      <Input type="text" v-model="secretKey" aria-label="Secret Key" disabled />
+                      <Input
+                        type="text"
+                        v-model="secretKey"
+                        aria-label="Secret Key"
+                        style="cursor: text"
+                        disabled
+                      />
+                      <Button variant="destructive" @click="showChangeSecretKeyConformation = true">
+                        Change
+                      </Button>
                       <Button variant="destructive" @click="showNewSecretKeyConformation = true">
-                        Generate
+                        Generate New
                       </Button>
                     </div>
                   </div>
@@ -1005,7 +1027,7 @@ export default {
                     <Switch id="secretKeyInCloudSwitch" :checked="trust" @click="trustChanged" />
                     <Label for="secretKeyInCloudSwitch">Store Secret Key in Cloud</Label>
                   </div>
-                  <!--Secret Key Conformation Dialog-->
+                  <!--Generate Secret Key Conformation Dialog-->
                   <AlertDialog v-model:open="showNewSecretKeyConformation">
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -1021,6 +1043,31 @@ export default {
                           >Generate New</Button
                         >
                         <Button @click="showNewSecretKeyConformation = false">Cancel</Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <!--Change Secret Key Conformation Dialog-->
+                  <AlertDialog v-model:open="showChangeSecretKeyConformation">
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Please enter your secret key here:</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          If you've chosen not to store your secret key in the cloud for maximum
+                          privacy and this is a new device, this is the place to import the secret
+                          key you got assigned on the device you created your account.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <Input
+                        type="text"
+                        placeholder="Enter your secret key here"
+                        v-model="customSecretKeyInput"
+                      />
+                      <AlertDialogDescription
+                        >The secret key is case sensitive.</AlertDialogDescription
+                      >
+                      <AlertDialogFooter>
+                        <Button variant="destructive" @click="saveNewSecretKey()">Save</Button>
+                        <Button @click="showChangeSecretKeyConformation = false">Cancel</Button>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
