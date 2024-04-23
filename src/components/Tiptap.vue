@@ -23,6 +23,14 @@
         <Button
           variant="ghost"
           class="h-10 mr-1.5"
+          @click="editor.chain().focus().toggleUnderline().run()"
+          :disabled="!editor.can().chain().focus().toggleUnderline().run()"
+          :class="{ activeToggle: editor.isActive('underline') }"
+          ><UnderlineIcon class="h-4 w-4"></UnderlineIcon
+        ></Button>
+        <Button
+          variant="ghost"
+          class="h-10 mr-1.5"
           @click="editor.chain().focus().toggleStrike().run()"
           :disabled="!editor.can().chain().focus().toggleStrike().run()"
           :class="{ activeToggle: editor.isActive('strike') }"
@@ -103,6 +111,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import Highlight from '@tiptap/extension-highlight'
 import CodeBlock from '@tiptap/extension-code-block'
+import Underline from '@tiptap/extension-underline'
 import '@tailwindcss/typography'
 import { Button } from '@/components/ui/button'
 import {
@@ -116,7 +125,8 @@ import {
   Heading3,
   List,
   ListOrdered,
-  Highlighter
+  Highlighter,
+  Underline as UnderlineIcon
 } from 'lucide-vue-next'
 import { Separator } from '@/components/ui/separator'
 
@@ -136,7 +146,8 @@ export default {
     List,
     ListOrdered,
     Highlight,
-    Highlighter
+    Highlighter,
+    UnderlineIcon
   },
 
   props: {
@@ -173,7 +184,7 @@ export default {
             'h-full justify-between flex-grow mb-2.5 w-full rounded-b-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
-      extensions: [StarterKit, Highlight, CodeBlock],
+      extensions: [StarterKit, Highlight, CodeBlock, Underline],
       content: this.modelValue,
       onUpdate: () => {
         // HTML
