@@ -112,6 +112,7 @@ import { Editor, EditorContent } from '@tiptap/vue-3'
 import Highlight from '@tiptap/extension-highlight'
 import CodeBlock from '@tiptap/extension-code-block'
 import Underline from '@tiptap/extension-underline'
+import Typography from '@tiptap/extension-typography'
 import '@tailwindcss/typography'
 import { Button } from '@/components/ui/button'
 import {
@@ -184,7 +185,7 @@ export default {
             'h-full justify-between flex-grow mb-2.5 w-full rounded-b-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
-      extensions: [StarterKit, Highlight, CodeBlock, Underline],
+      extensions: [StarterKit, Highlight, CodeBlock, Underline, Typography],
       content: this.modelValue,
       onUpdate: () => {
         // HTML
