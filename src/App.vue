@@ -722,20 +722,11 @@ export default {
                   <MenubarItem disabled> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
                   <MenubarItem disabled> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarSub>
-                    <MenubarSubTrigger>Find</MenubarSubTrigger>
-                    <MenubarSubContent>
-                      <MenubarItem disabled>Search the web</MenubarItem>
-                      <MenubarSeparator />
-                      <MenubarItem disabled>Find...</MenubarItem>
-                      <MenubarItem disabled>Find Next</MenubarItem>
-                      <MenubarItem disabled>Find Previous</MenubarItem>
-                    </MenubarSubContent>
-                  </MenubarSub>
+                  <MenubarItem disabled> Find <MenubarShortcut>⌘F</MenubarShortcut> </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem disabled>Cut</MenubarItem>
-                  <MenubarItem disabled>Copy</MenubarItem>
-                  <MenubarItem disabled>Paste</MenubarItem>
+                  <MenubarItem disabled>Cut <MenubarShortcut>⌘X</MenubarShortcut></MenubarItem>
+                  <MenubarItem disabled>Copy <MenubarShortcut>⌘C</MenubarShortcut></MenubarItem>
+                  <MenubarItem disabled>Paste <MenubarShortcut>⌘P</MenubarShortcut></MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
               <MenubarMenu>

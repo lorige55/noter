@@ -87,9 +87,9 @@
         <Button
           variant="ghost"
           class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleCode().run()"
-          :disabled="!editor.can().chain().focus().toggleCode().run()"
-          :class="{ activeToggle: editor.isActive('code') }"
+          @click="editor.chain().focus().toggleCodeBlock().run()"
+          :disabled="!editor.can().chain().focus().toggleCodeBlock().run()"
+          :class="{ activeToggle: editor.isActive('codeBlock') }"
           ><Code class="h-4 w-4"></Code
         ></Button>
       </div>
@@ -102,6 +102,7 @@
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import Highlight from '@tiptap/extension-highlight'
+import CodeBlock from '@tiptap/extension-code-block'
 import '@tailwindcss/typography'
 import { Button } from '@/components/ui/button'
 import {
@@ -172,7 +173,7 @@ export default {
             'h-full justify-between flex-grow mb-2.5 w-full rounded-b-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
-      extensions: [StarterKit, Highlight],
+      extensions: [StarterKit, Highlight, CodeBlock],
       content: this.modelValue,
       onUpdate: () => {
         // HTML
