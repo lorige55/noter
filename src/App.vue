@@ -136,7 +136,6 @@ export default {
       document.title = 'Noter - ' + newActiveDocument
     },
     activeDocumentContent(newActiveDocumentContent) {
-      console.log(newActiveDocumentContent)
       this.autoSave()
     }
   },
@@ -317,11 +316,14 @@ export default {
       //push new note to firebase
       docRef = doc(db, this.userId, key)
       setDoc(docRef, {
-        note: this.encryptString('<p>This is a new note. Feel free to edit it!<p>'),
+        note: this.encryptString(
+          '<p><span style="color: #000000">This is your new note! Enjoy!</span></p>'
+        ),
         title: this.encryptString(newNoteName)
       })
       //set activeDocument and lastNote to new note
-      this.activeDocumentContent = '<p>This is a new note. Feel free to edit it!<p>'
+      this.activeDocumentContent =
+        '<p><span style="color: #000000">This is your new note! Enjoy!</span></p>'
       this.activeDocument = newNoteName
       this.activeDocumentIndex = this.index.indexOf(newNoteName)
       localStorage.setItem('lastNote', this.activeDocument)

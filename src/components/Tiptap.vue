@@ -46,7 +46,125 @@
         ></Button>
       </div>
       <Separator orientation="vertical" />
-      <div type="multiple" class="box-border p-1.5">
+      <div type="multiple" class="box-border flex p-1.5">
+        <Popover>
+          <PopoverTrigger>
+            <Button variant="ghost" class="h-10 mr-1.5">
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                :value="editor.getAttributes('textStyle').color"
+                @click.prevent
+              />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <!--Black-->
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('textStyle', { color: '#000000' }) }"
+            >
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                value="#000000"
+                @click.prevent="editor.chain().focus().setColor('#000000').run()"
+              />
+            </Button>
+            <!--Red-->
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('textStyle', { color: '#fc0707' }) }"
+            >
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                value="#fc0707"
+                @click.prevent="editor.chain().focus().setColor('#fc0707').run()"
+              />
+            </Button>
+            <!--Orange-->
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('textStyle', { color: '#fc8a07' }) }"
+            >
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                value="#fc8a07"
+                @click.prevent="editor.chain().focus().setColor('#fc8a07').run()"
+              />
+            </Button>
+            <!--Yellow-->
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('textStyle', { color: '#fcf007' }) }"
+            >
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                value="#fcf007"
+                @click.prevent="editor.chain().focus().setColor('#fcf007').run()"
+              />
+            </Button>
+            <!--Green-->
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('textStyle', { color: '#13fc07' }) }"
+            >
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                value="#13fc07"
+                @click.prevent="editor.chain().focus().setColor('#13fc07').run()"
+              />
+            </Button>
+            <!--Blue-->
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('textStyle', { color: '#0e02f7' }) }"
+            >
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                value="#0e02f7"
+                @click.prevent="editor.chain().focus().setColor('#0e02f7').run()"
+              />
+            </Button>
+            <!--Purple-->
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('textStyle', { color: '#a207fc' }) }"
+            >
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                value="#a207fc"
+                @click.prevent="editor.chain().focus().setColor('#a207fc').run()"
+              />
+            </Button>
+            <!--Pink-->
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('textStyle', { color: '#f807fc' }) }"
+            >
+              <input
+                type="color"
+                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
+                value="#f807fc"
+                @click.prevent="editor.chain().focus().setColor('#f807fc').run()"
+              />
+            </Button>
+          </PopoverContent>
+        </Popover>
         <Button
           variant="ghost"
           class="h-10 mr-1.5"
@@ -107,13 +225,19 @@
 </template>
 
 <script>
+//Tiptap imports
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
+//Tiptap extensions
 import Highlight from '@tiptap/extension-highlight'
 import CodeBlock from '@tiptap/extension-code-block'
 import Underline from '@tiptap/extension-underline'
 import Typography from '@tiptap/extension-typography'
+import TextStyle from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
+//Tailwind imports
 import '@tailwindcss/typography'
+//Shadcn Imports
 import { Button } from '@/components/ui/button'
 import {
   Bold,
@@ -130,6 +254,7 @@ import {
   Underline as UnderlineIcon
 } from 'lucide-vue-next'
 import { Separator } from '@/components/ui/separator'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
 export default {
   components: {
@@ -148,7 +273,10 @@ export default {
     ListOrdered,
     Highlight,
     Highlighter,
-    UnderlineIcon
+    UnderlineIcon,
+    Popover,
+    PopoverContent,
+    PopoverTrigger
   },
 
   props: {
@@ -185,7 +313,7 @@ export default {
             'h-full justify-between flex-grow mb-2.5 w-full rounded-b-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
-      extensions: [StarterKit, Highlight, CodeBlock, Underline, Typography],
+      extensions: [StarterKit, Highlight, CodeBlock, Underline, Typography, TextStyle, Color],
       content: this.modelValue,
       onUpdate: () => {
         // HTML
@@ -198,6 +326,7 @@ export default {
       },
       multicolor: true
     })
+    console.log(this.editor.getAttributes('textStyle').color)
   },
 
   beforeUnmount() {
