@@ -231,7 +231,7 @@
               <AlignLeft v-else class="w-4 h-4"></AlignLeft>
             </Button>
           </PopoverTrigger>
-          <PopoverContent>
+          <PopoverContent class="w-full">
             <Button
               v-if="!editor.isActive({ textAlign: 'left' })"
               @click="editor.chain().focus().setTextAlign('left').run()"

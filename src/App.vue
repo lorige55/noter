@@ -242,7 +242,7 @@ export default {
           this.saveActiveDocument()
         }
         this.activeSavingProcesses--
-      }, 3000)
+      }, 2500)
     },
     async deleteDocument(item) {
       //safe active document before proceeding
