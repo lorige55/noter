@@ -4,49 +4,6 @@
       class="h-[3.25rem] w-full justify-start p-0 m-0 border rounded-t-md border-b-0 box-border flex"
     >
       <div type="multiple" class="box-border p-1.5">
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleBold().run()"
-          :disabled="!editor.can().chain().focus().toggleBold().run()"
-          :class="{ activeToggle: editor.isActive('bold') }"
-          ><Bold class="h-4 w-4"></Bold
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleItalic().run()"
-          :disabled="!editor.can().chain().focus().toggleItalic().run()"
-          :class="{ activeToggle: editor.isActive('italic') }"
-          ><Italic class="h-4 w-4"></Italic
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleUnderline().run()"
-          :disabled="!editor.can().chain().focus().toggleUnderline().run()"
-          :class="{ activeToggle: editor.isActive('underline') }"
-          ><UnderlineIcon class="h-4 w-4"></UnderlineIcon
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleStrike().run()"
-          :disabled="!editor.can().chain().focus().toggleStrike().run()"
-          :class="{ activeToggle: editor.isActive('strike') }"
-          ><Strikethrough class="h-4 w-4"></Strikethrough
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleHighlight().run()"
-          :disabled="!editor.can().chain().focus().toggleHighlight().run()"
-          :class="{ activeToggle: editor.isActive('highlight') }"
-          ><Highlighter class="h-4 w-4"></Highlighter
-        ></Button>
-      </div>
-      <Separator orientation="vertical" />
-      <div type="multiple" class="box-border flex p-1.5">
         <Popover>
           <PopoverTrigger>
             <Button variant="ghost" class="h-10 mr-1.5">
@@ -165,59 +122,170 @@
             </Button>
           </PopoverContent>
         </Popover>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().setParagraph().run()"
-          :class="{ activeToggle: editor.isActive('paragraph') }"
-          ><Type class="h-4 w-4"></Type
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-          :class="{ activeToggle: editor.isActive('heading', { level: 1 }) }"
-          ><Heading1 class="h-4 w-4"></Heading1
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-          :class="{ activeToggle: editor.isActive('heading', { level: 2 }) }"
-          ><Heading2 class="h-4 w-4"></Heading2
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
-          :class="{ activeToggle: editor.isActive('heading', { level: 3 }) }"
-          ><Heading3 class="h-4 w-4"></Heading3
-        ></Button>
-      </div>
-      <Separator orientation="vertical" />
-      <div type="multiple" class="box-border p-1.5">
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleBulletList().run()"
-          :class="{ activeToggle: editor.isActive('bulletList') }"
-          ><List class="h-4 w-4"></List
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleOrderedList().run()"
-          :class="{ activeToggle: editor.isActive('orderedList') }"
-          ><ListOrdered class="h-4 w-4"></ListOrdered
-        ></Button>
-        <Button
-          variant="ghost"
-          class="h-10 mr-1.5"
-          @click="editor.chain().focus().toggleCodeBlock().run()"
-          :disabled="!editor.can().chain().focus().toggleCodeBlock().run()"
-          :class="{ activeToggle: editor.isActive('codeBlock') }"
-          ><Code class="h-4 w-4"></Code
-        ></Button>
+        <Popover>
+          <PopoverTrigger>
+            <Button variant="ghost" class="h-10 mr-1.5"><Type class="h-4 w-4"></Type></Button>
+          </PopoverTrigger>
+          <PopoverContent class="w-50 p-2.5">
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleBold().run()"
+              :disabled="!editor.can().chain().focus().toggleBold().run()"
+              :class="{ activeToggle: editor.isActive('bold') }"
+              ><Bold class="h-4 w-4"></Bold
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleItalic().run()"
+              :disabled="!editor.can().chain().focus().toggleItalic().run()"
+              :class="{ activeToggle: editor.isActive('italic') }"
+              ><Italic class="h-4 w-4"></Italic
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleUnderline().run()"
+              :disabled="!editor.can().chain().focus().toggleUnderline().run()"
+              :class="{ activeToggle: editor.isActive('underline') }"
+              ><UnderlineIcon class="h-4 w-4"></UnderlineIcon
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleStrike().run()"
+              :disabled="!editor.can().chain().focus().toggleStrike().run()"
+              :class="{ activeToggle: editor.isActive('strike') }"
+              ><Strikethrough class="h-4 w-4"></Strikethrough
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleHighlight().run()"
+              :disabled="!editor.can().chain().focus().toggleHighlight().run()"
+              :class="{ activeToggle: editor.isActive('highlight') }"
+              ><Highlighter class="h-4 w-4"></Highlighter
+            ></Button>
+            <Separator orientation="horizontal" class="my-2.5" />
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().setParagraph().run()"
+              :class="{ activeToggle: editor.isActive('paragraph') }"
+              ><RemoveFormatting class="h-4 w-4"></RemoveFormatting
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+              :class="{ activeToggle: editor.isActive('heading', { level: 1 }) }"
+              ><Heading1 class="h-4 w-4"></Heading1
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+              :class="{ activeToggle: editor.isActive('heading', { level: 2 }) }"
+              ><Heading2 class="h-4 w-4"></Heading2
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+              :class="{ activeToggle: editor.isActive('heading', { level: 3 }) }"
+              ><Heading3 class="h-4 w-4"></Heading3
+            ></Button>
+            <Separator orientation="horizontal" class="my-2.5" />
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleBulletList().run()"
+              :class="{ activeToggle: editor.isActive('bulletList') }"
+              ><List class="h-4 w-4"></List
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleOrderedList().run()"
+              :class="{ activeToggle: editor.isActive('orderedList') }"
+              ><ListOrdered class="h-4 w-4"></ListOrdered
+            ></Button>
+          </PopoverContent>
+        </Popover>
+        <Popover>
+          <PopoverTrigger>
+            <Button variant="ghost" class="h-10 mr-1.5"
+              ><AlignCenter
+                v-if="editor.isActive({ textAlign: 'center' })"
+                class="w-4 h-4"
+              ></AlignCenter>
+              <AlignJustify
+                v-else-if="editor.isActive({ textAlign: 'justify' })"
+                class="w-4 h-4"
+              ></AlignJustify>
+              <AlignRight
+                v-else-if="editor.isActive({ textAlign: 'right' })"
+                class="w-4 h-4"
+              ></AlignRight>
+              <AlignLeft v-else class="w-4 h-4"></AlignLeft>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent>
+            <Button
+              v-if="!editor.isActive({ textAlign: 'left' })"
+              @click="editor.chain().focus().setTextAlign('left').run()"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive({ textAlign: 'left' }) }"
+              ><AlignLeft class="w-4 h-4"></AlignLeft
+            ></Button>
+            <Button
+              v-if="!editor.isActive({ textAlign: 'center' })"
+              @click="editor.chain().focus().setTextAlign('center').run()"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive({ textAlign: 'center' }) }"
+              ><AlignCenter class="w-4 h-4"></AlignCenter
+            ></Button>
+            <Button
+              v-if="!editor.isActive({ textAlign: 'justify' })"
+              @click="editor.chain().focus().setTextAlign('justify').run()"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive({ textAlign: 'justify' }) }"
+              ><AlignJustify class="w-4 h-4"></AlignJustify
+            ></Button>
+            <Button
+              v-if="!editor.isActive({ textAlign: 'right' })"
+              @click="editor.chain().focus().setTextAlign('right').run()"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive({ textAlign: 'right' }) }"
+              ><AlignRight class="w-4 h-4"></AlignRight></Button></PopoverContent
+        ></Popover>
+        <Popover>
+          <PopoverTrigger>
+            <Button variant="ghost" class="h-10 mr-1.5"><Plus class="h-4 w-4"></Plus> </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            ><Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleCodeBlock().run()"
+              :disabled="!editor.can().chain().focus().toggleCodeBlock().run()"
+              :class="{ activeToggle: editor.isActive('codeBlock') }"
+              ><Code class="h-4 w-4"></Code
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleBlockquote().run()"
+              :disabled="!editor.can().chain().focus().toggleBlockquote().run()"
+              :class="{ activeToggle: editor.isActive('blockquote') }"
+              ><TextQuote class="h-4 w-4"></TextQuote
+            ></Button> </PopoverContent
+        ></Popover>
       </div>
     </div>
     <editor-content class="h-full w-full prose max-w-none" :editor="editor" />
@@ -235,6 +303,7 @@ import Underline from '@tiptap/extension-underline'
 import Typography from '@tiptap/extension-typography'
 import TextStyle from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
+import TextAlign from '@tiptap/extension-text-align'
 //Tailwind imports
 import '@tailwindcss/typography'
 //Shadcn Imports
@@ -251,7 +320,14 @@ import {
   List,
   ListOrdered,
   Highlighter,
-  Underline as UnderlineIcon
+  Underline as UnderlineIcon,
+  RemoveFormatting,
+  Plus,
+  TextQuote,
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight
 } from 'lucide-vue-next'
 import { Separator } from '@/components/ui/separator'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -276,7 +352,14 @@ export default {
     UnderlineIcon,
     Popover,
     PopoverContent,
-    PopoverTrigger
+    PopoverTrigger,
+    RemoveFormatting,
+    Plus,
+    TextQuote,
+    AlignCenter,
+    AlignJustify,
+    AlignLeft,
+    AlignRight
   },
 
   props: {
@@ -313,7 +396,18 @@ export default {
             'h-full justify-between flex-grow mb-2.5 w-full rounded-b-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
-      extensions: [StarterKit, Highlight, CodeBlock, Underline, Typography, TextStyle, Color],
+      extensions: [
+        StarterKit,
+        Highlight,
+        CodeBlock,
+        Underline,
+        Typography,
+        TextStyle,
+        Color,
+        TextAlign.configure({
+          types: ['heading', 'paragraph']
+        })
+      ],
       content: this.modelValue,
       onUpdate: () => {
         // HTML

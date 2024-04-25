@@ -758,8 +758,14 @@ export default {
               direction="horizontal"
             >
               <!--Note List-->
-              <ResizablePanel :default-size="25" class="py-2.5">
-                <div class="h-full rounded-md border ml-2.5 overflow-auto">
+              <ResizablePanel :default-size="25" class="py-2.5 flex flex-col">
+                <Button
+                  @click="createNewDocument()"
+                  variant="outline"
+                  class="w-auto ml-2.5 mb-2.5 h-10"
+                  >New Note</Button
+                >
+                <div class="rounded-md border h-full ml-2.5 overflow-y-auto">
                   <div v-for="item in index" :key="item" style="cursor: pointer">
                     <div
                       v-if="index.indexOf(item) === activeDocumentIndex"
