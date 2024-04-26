@@ -268,8 +268,30 @@
           <PopoverTrigger>
             <Button variant="ghost" class="h-10 mr-1.5"><Plus class="h-4 w-4"></Plus> </Button>
           </PopoverTrigger>
-          <PopoverContent
-            ><Button
+          <PopoverContent>
+            <Button variant="ghost" class="h-10 mr-1.5" @click="addYoutubeVideo(1)"
+              ><Film class="h-4 w-4"></Film
+            ></Button>
+            <AlertDialog :open="showYouTubeDialog">
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Add a YouTube Video</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Enter a URL to a YouTube video to embed it.
+                  </AlertDialogDescription>
+                  <Input
+                    variant="url"
+                    placeholder="eg. 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUXbmV2ZXIgZ29ubmEgZ2l2ZSB5b3UgdXA%3D'"
+                    v-model="youtubeURL"
+                  />
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel @click="addYoutubeVideo(3)">Cancel</AlertDialogCancel>
+                  <AlertDialogAction @click="addYoutubeVideo(2)">Add</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleCodeBlock().run()"
@@ -358,10 +380,10 @@ import TextStyle from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import TextAlign from '@tiptap/extension-text-align'
 import CharacterCount from '@tiptap/extension-character-count'
+import Youtube from '@tiptap/extension-youtube'
 //Tailwind imports
 import '@tailwindcss/typography'
-//Shadcn Imports
-import { Button } from '@/components/ui/button'
+//Lucide
 import {
   Bold,
   Italic,
@@ -381,10 +403,25 @@ import {
   AlignCenter,
   AlignJustify,
   AlignLeft,
-  AlignRight
+  AlignRight,
+  Film
 } from 'lucide-vue-next'
+//Shadcn Imports
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 
 export default {
   components: {
@@ -414,7 +451,18 @@ export default {
     AlignJustify,
     AlignLeft,
     AlignRight,
-    BubbleMenu
+    BubbleMenu,
+    Film,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+    Input
   },
 
   props: {
@@ -428,7 +476,9 @@ export default {
 
   data() {
     return {
-      editor: null
+      editor: null,
+      showYouTubeDialog: false,
+      youtubeURL: ''
     }
   },
 
@@ -443,6 +493,24 @@ export default {
     }
   },
 
+  methods: {
+    addYoutubeVideo(a) {
+      if (a == 1) {
+        this.showYouTubeDialog = true
+      } else if (a == 2) {
+        this.showYouTubeDialog = false
+        this.editor.commands.setYoutubeVideo({
+          src: this.youtubeURL,
+          width: 640,
+          height: 480
+        })
+        this.youtubeURL = ''
+      } else {
+        this.showYouTubeDialog = false
+        this.youtubeURL = ''
+      }
+    }
+  },
   mounted() {
     this.editor = new Editor({
       editorProps: {
@@ -462,7 +530,13 @@ export default {
         TextAlign.configure({
           types: ['heading', 'paragraph']
         }),
-        CharacterCount
+        CharacterCount,
+        Youtube.configure({
+          nocookie: true,
+          disableKBcontrols: true,
+          modestBranding: true,
+          progressBarColor: 'black'
+        })
       ],
       content: this.modelValue,
       onUpdate: () => {
@@ -476,7 +550,6 @@ export default {
       },
       multicolor: true
     })
-    console.log(this.editor.getAttributes('textStyle').color)
   },
 
   beforeUnmount() {

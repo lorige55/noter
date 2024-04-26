@@ -29,6 +29,7 @@
     "@tiptap/extension-text-style": "^2.3.0",
     "@tiptap/extension-typography": "^2.3.0",
     "@tiptap/extension-underline": "^2.3.0",
+    "@tiptap/extension-youtube": "^2.3.0",
     "@tiptap/pm": "^2.2.4",
     "@tiptap/starter-kit": "^2.2.4",
     "@tiptap/vue-3": "^2.2.4",
