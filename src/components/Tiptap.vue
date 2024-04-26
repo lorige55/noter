@@ -288,6 +288,53 @@
         ></Popover>
       </div>
     </div>
+    <bubble-menu
+      :editor="editor"
+      :tippy-options="{ duration: 100 }"
+      v-if="editor"
+      class="border rounded-md bg-white overflow-hidden shadow-md"
+    >
+      <Button
+        variant="ghost"
+        class="h-10 rounded-none"
+        @click="editor.chain().focus().toggleBold().run()"
+        :disabled="!editor.can().chain().focus().toggleBold().run()"
+        :class="{ activeToggle: editor.isActive('bold') }"
+        ><Bold class="h-4 w-4"></Bold
+      ></Button>
+      <Button
+        variant="ghost"
+        class="h-10 rounded-none"
+        @click="editor.chain().focus().toggleItalic().run()"
+        :disabled="!editor.can().chain().focus().toggleItalic().run()"
+        :class="{ activeToggle: editor.isActive('italic') }"
+        ><Italic class="h-4 w-4"></Italic
+      ></Button>
+      <Button
+        variant="ghost"
+        class="h-10 rounded-none"
+        @click="editor.chain().focus().toggleUnderline().run()"
+        :disabled="!editor.can().chain().focus().toggleUnderline().run()"
+        :class="{ activeToggle: editor.isActive('underline') }"
+        ><UnderlineIcon class="h-4 w-4"></UnderlineIcon
+      ></Button>
+      <Button
+        variant="ghost"
+        class="h-10 rounded-none"
+        @click="editor.chain().focus().toggleStrike().run()"
+        :disabled="!editor.can().chain().focus().toggleStrike().run()"
+        :class="{ activeToggle: editor.isActive('strike') }"
+        ><Strikethrough class="h-4 w-4"></Strikethrough
+      ></Button>
+      <Button
+        variant="ghost"
+        class="h-10 rounded-none"
+        @click="editor.chain().focus().toggleHighlight().run()"
+        :disabled="!editor.can().chain().focus().toggleHighlight().run()"
+        :class="{ activeToggle: editor.isActive('highlight') }"
+        ><Highlighter class="h-4 w-4"></Highlighter
+      ></Button>
+    </bubble-menu>
     <editor-content class="h-full w-full prose max-w-none" :editor="editor" />
   </div>
 </template>
@@ -295,7 +342,7 @@
 <script>
 //Tiptap imports
 import StarterKit from '@tiptap/starter-kit'
-import { Editor, EditorContent } from '@tiptap/vue-3'
+import { Editor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 //Tiptap extensions
 import Highlight from '@tiptap/extension-highlight'
 import CodeBlock from '@tiptap/extension-code-block'
@@ -359,7 +406,8 @@ export default {
     AlignCenter,
     AlignJustify,
     AlignLeft,
-    AlignRight
+    AlignRight,
+    BubbleMenu
   },
 
   props: {
