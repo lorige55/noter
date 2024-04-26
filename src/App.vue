@@ -745,10 +745,10 @@ export default {
             <!--Saving Status-->
             <div class="absolute top-0 right-0">
               <div v-if="activeSavingProcesses > 0">
-                <Badge class="py-0 mt-6 mr-6">Saving</Badge>
+                <Badge class="py-0 mt-6 mr-6 w-16 justify-center">Saving</Badge>
               </div>
               <div v-else>
-                <Badge class="py-0 mt-6 mr-6">Saved</Badge>
+                <Badge class="py-0 mt-6 mr-6 w-16 justify-center">Saved</Badge>
               </div>
             </div>
 
