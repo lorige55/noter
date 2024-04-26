@@ -336,6 +336,12 @@
       ></Button>
     </bubble-menu>
     <editor-content class="h-full w-full prose max-w-none" :editor="editor" />
+    <div class="h-10 flex items-center border-x border-b rounded-b-md">
+      <p class="text text-sm ml-[7.5pt]" style="opacity: 0.5">
+        You've typed <b>{{ editor.storage.characterCount.characters() }} Characters </b> or
+        <b>{{ editor.storage.characterCount.words() }} Words</b>.
+      </p>
+    </div>
   </div>
 </template>
 
@@ -351,6 +357,7 @@ import Typography from '@tiptap/extension-typography'
 import TextStyle from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import TextAlign from '@tiptap/extension-text-align'
+import CharacterCount from '@tiptap/extension-character-count'
 //Tailwind imports
 import '@tailwindcss/typography'
 //Shadcn Imports
@@ -441,7 +448,7 @@ export default {
       editorProps: {
         attributes: {
           class:
-            'h-full justify-between flex-grow mb-2.5 w-full rounded-b-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+            'h-full justify-between flex-grow mb-2.5 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
       extensions: [
@@ -454,7 +461,8 @@ export default {
         Color,
         TextAlign.configure({
           types: ['heading', 'paragraph']
-        })
+        }),
+        CharacterCount
       ],
       content: this.modelValue,
       onUpdate: () => {
