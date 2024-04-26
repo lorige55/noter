@@ -488,4 +488,8 @@ export default {
 .activeToggle {
   background-color: #f4f4f5;
 }
+
+.prose {
+  color: black;
+}
 </style>

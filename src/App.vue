@@ -308,7 +308,7 @@ export default {
       //push new Note to Index
       this.index.unshift(newNoteName)
       //generate new key and push it to keyIndex
-      let key = this.generateKey(128)
+      let key = await this.generateKey(128)
       this.keyIndex.unshift(key)
       //push new keyIndex to firebase
       let docRef = doc(db, this.userId, 'keyIndex')
@@ -316,9 +316,7 @@ export default {
       //push new note to firebase
       docRef = doc(db, this.userId, key)
       setDoc(docRef, {
-        note: this.encryptString(
-          '<p><span style="color: #000000">This is your new note! Enjoy!</span></p>'
-        ),
+        note: this.encryptString('<p>This is your new note! Enjoy!</p>'),
         title: this.encryptString(newNoteName)
       })
       //set activeDocument and lastNote to new note
@@ -348,7 +346,7 @@ export default {
       let decrypted = CryptoJS.Rabbit.decrypt(string, this.secretKey)
       return decrypted.toString(CryptoJS.enc.Utf8)
     },
-    generateKey(length) {
+    async generateKey(length) {
       //generate a random key
       let key = CryptoJS.lib.WordArray.random(length / 8)
       key.toString(CryptoJS.enc.Base64)
