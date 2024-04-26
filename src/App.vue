@@ -306,10 +306,10 @@ export default {
         }
       }
       //push new Note to Index
-      this.index.push(newNoteName)
+      this.index.unshift(newNoteName)
       //generate new key and push it to keyIndex
       let key = this.generateKey(128)
-      this.keyIndex.push(key)
+      this.keyIndex.unshift(key)
       //push new keyIndex to firebase
       let docRef = doc(db, this.userId, 'keyIndex')
       setDoc(docRef, { index: this.keyIndex })
