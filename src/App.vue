@@ -3,6 +3,8 @@
 import CryptoJS from 'crypto-js'
 import '@passageidentity/passage-elements/passage-auth'
 import { PassageUser } from '@passageidentity/passage-auth/passage-user'
+
+//Firebase Imports
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore'
 
@@ -546,6 +548,7 @@ export default {
       this.isLoggedIn = true
       this.user = userInfo
       this.userId = userInfo.id
+      localStorage.setItem('userId', this.userId)
     } catch (error) {
       console.log(error)
       this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'

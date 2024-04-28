@@ -280,7 +280,7 @@
                     Enter a URL to a YouTube video to embed it.
                   </AlertDialogDescription>
                   <Input
-                    variant="url"
+                    type="url"
                     placeholder="eg. 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUXbmV2ZXIgZ29ubmEgZ2l2ZSB5b3UgdXA%3D'"
                     v-model="youtubeURL"
                   />
@@ -288,6 +288,34 @@
                 <AlertDialogFooter>
                   <AlertDialogCancel @click="addYoutubeVideo(3)">Cancel</AlertDialogCancel>
                   <AlertDialogAction @click="addYoutubeVideo(2)">Add</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button variant="ghost" class="h-10 mr-1.5" @click="addImage(1)"
+              ><ImageIcon class="h-4 w-4"></ImageIcon
+            ></Button>
+            <AlertDialog :open="showImageDialog">
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Add an Image</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Enter a URL to, or upload an image. Please note that uploaded images have to be
+                    under 5MB.
+                  </AlertDialogDescription>
+                  <div class="flex w-full items-center gap-1.5">
+                    <Input type="url" placeholder="Enter a URL to an image" v-model="imageURL" />
+                    <Button @click="addImage(2)" type="submit"> Add </Button>
+                  </div>
+                  <div class="flex w-full items-center gap-1.5">
+                    <Input id="imageUpload" type="file" accept="image/*" />
+                    <Button @click="addImage(3)" type="submit"> Upload </Button>
+                  </div>
+                  <AlertDialogDescription
+                    >Images themselves are not encrypted.</AlertDialogDescription
+                  >
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel @click="addImage(4)">Cancel</AlertDialogCancel>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -381,6 +409,9 @@ import { Color } from '@tiptap/extension-color'
 import TextAlign from '@tiptap/extension-text-align'
 import CharacterCount from '@tiptap/extension-character-count'
 import Youtube from '@tiptap/extension-youtube'
+import Image from '@tiptap/extension-image'
+//Firebase imports
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 //Tailwind imports
 import '@tailwindcss/typography'
 //Lucide
@@ -404,7 +435,8 @@ import {
   AlignJustify,
   AlignLeft,
   AlignRight,
-  Film
+  Film,
+  Image as ImageIcon
 } from 'lucide-vue-next'
 //Shadcn Imports
 import { Button } from '@/components/ui/button'
@@ -462,7 +494,8 @@ export default {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-    Input
+    Input,
+    ImageIcon
   },
 
   props: {
@@ -477,8 +510,20 @@ export default {
   data() {
     return {
       editor: null,
+      userId: '',
       showYouTubeDialog: false,
-      youtubeURL: ''
+      youtubeURL: '',
+      showImageDialog: false,
+      imageURL: '',
+      downloadURL: '',
+      firebaseConfig: {
+        apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
+        authDomain: 'noter-6e08f.firebaseapp.com',
+        projectId: 'noter-6e08f',
+        storageBucket: 'noter-6e08f.appspot.com',
+        messagingSenderId: '967538971502',
+        appId: '1:967538971502:web:6d31288c8ade545465277f'
+      }
     }
   },
 
@@ -494,6 +539,18 @@ export default {
   },
 
   methods: {
+    generateKey() {
+      //get variables
+      let charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+*#&=!$£-_.:,;'
+      let charsetLength = charset.length
+      let charCount = 5
+      //generate a random key
+      let key = ''
+      for (let i = 0; i < charCount; i++) {
+        key += charset.charAt(Math.floor(Math.random() * charsetLength))
+      }
+      return key
+    },
     addYoutubeVideo(a) {
       if (a == 1) {
         this.showYouTubeDialog = true
@@ -508,6 +565,50 @@ export default {
       } else {
         this.showYouTubeDialog = false
         this.youtubeURL = ''
+      }
+    },
+    async addImage(a) {
+      if (a == 1) {
+        this.showImageDialog = true
+      } else if (a == 2) {
+        this.editor.commands.setImage({
+          src: this.imageURL,
+          alt: 'Image'
+        })
+        this.showImageDialog = false
+      } else if (a == 3) {
+        //get image
+        const image = document.getElementById('imageUpload').files[0]
+        //check if under limit of 5MB
+        if (image.size > 5242880) {
+          alert('Image is too large. Please upload an image under 10MB.')
+          this.showImageDialog = true
+          return
+        }
+        //generate reference to storage
+        const storage = getStorage()
+        let key = this.generateKey()
+        const imageRef = ref(storage, this.userId + '/images/' + key)
+        //upload image to storage
+        await uploadBytes(imageRef, image).then(() => {
+          console.log('Uploaded a blob or file!')
+        })
+        //get download URL
+        await getDownloadURL(imageRef)
+          .then((url) => {
+            this.downloadURL = url
+          })
+          .catch((error) => {
+            alert('Error uploading document:', error)
+          })
+        //insert image
+        this.editor.commands.setImage({
+          src: this.downloadURL,
+          alt: 'Image'
+        })
+        this.showImageDialog = false
+      } else {
+        this.showImageDialog = false
       }
     }
   },
@@ -536,7 +637,8 @@ export default {
           disableKBcontrols: true,
           modestBranding: true,
           progressBarColor: 'black'
-        })
+        }),
+        Image
       ],
       content: this.modelValue,
       onUpdate: () => {
@@ -550,6 +652,7 @@ export default {
       },
       multicolor: true
     })
+    this.userId = localStorage.getItem('userId')
   },
 
   beforeUnmount() {
