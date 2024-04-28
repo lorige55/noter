@@ -847,7 +847,7 @@ export default {
                   />
 
                   <!--Content Editor-->
-                  <tiptap class="h-full w-full" v-model="activeDocumentContent"></tiptap>
+                  <tiptap v-model="activeDocumentContent"></tiptap>
                 </div>
                 <div
                   v-else

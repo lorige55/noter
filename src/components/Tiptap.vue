@@ -293,13 +293,20 @@
                 <AlertDialogHeader>
                   <AlertDialogTitle>Add a YouTube Video</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Enter a URL to a YouTube video to embed it.
+                    Enter a URL to a YouTube video and select a size to embed it.
                   </AlertDialogDescription>
                   <Input
                     type="url"
                     placeholder="eg. 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUXbmV2ZXIgZ29ubmEgZ2l2ZSB5b3UgdXA%3D'"
                     v-model="youtubeURL"
                   />
+                  <Tabs v-model="youtubeVideoSize" default-value="medium" class="w-full">
+                    <TabsList class="flex">
+                      <TabsTrigger value="small" class="w-1/3"> Small </TabsTrigger>
+                      <TabsTrigger value="medium" class="w-1/3"> Medium </TabsTrigger>
+                      <TabsTrigger value="large" class="w-1/3"> Large </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel @click="addYoutubeVideo(3)">Cancel</AlertDialogCancel>
@@ -384,7 +391,11 @@
         ><Highlighter class="h-4 w-4"></Highlighter
       ></Button>
     </bubble-menu>
-    <editor-content class="h-full w-full prose max-w-none" :editor="editor" />
+    <editor-content
+      class="w-full prose max-w-none overflow"
+      style="height: calc(100vh - 213px)"
+      :editor="editor"
+    />
     <div class="h-10 flex items-center border-x border-b rounded-b-md">
       <p class="text text-sm ml-[7.5pt]" style="opacity: 0.5">
         You've typed <b>{{ editor.storage.characterCount.characters() }} Characters </b> or
@@ -411,6 +422,7 @@ import Youtube from '@tiptap/extension-youtube'
 import Image from '@tiptap/extension-image'
 import Dropcursor from '@tiptap/extension-dropcursor'
 import Placeholder from '@tiptap/extension-placeholder'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 //Firebase imports
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 //Tailwind imports
@@ -496,7 +508,11 @@ export default {
     AlertDialogTitle,
     AlertDialogTrigger,
     Input,
-    ImageIcon
+    ImageIcon,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger
   },
 
   props: {
@@ -514,6 +530,7 @@ export default {
       userId: '',
       showYouTubeDialog: false,
       youtubeURL: '',
+      youtubeVideoSize: 'medium',
       showImageDialog: false,
       imageURL: '',
       downloadURL: '',
@@ -557,10 +574,19 @@ export default {
         this.showYouTubeDialog = true
       } else if (a == 2) {
         this.showYouTubeDialog = false
+        let width = 640,
+          height = 480
+        if (this.youtubeVideoSize == 'small') {
+          width = 320
+          height = 240
+        } else if (this.youtubeVideoSize == 'large') {
+          width = 860
+          height = 720
+        }
         this.editor.commands.setYoutubeVideo({
           src: this.youtubeURL,
-          width: 640,
-          height: 480
+          width: width,
+          height: height
         })
         this.youtubeURL = ''
       } else {
@@ -618,7 +644,7 @@ export default {
       editorProps: {
         attributes: {
           class:
-            'h-full justify-between flex-grow mb-2.5 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+            'h-full overflow-scroll justify-between mb-2.5 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
       extensions: [
