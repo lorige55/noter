@@ -299,8 +299,9 @@
                 <AlertDialogHeader>
                   <AlertDialogTitle>Add an Image</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Enter a URL to, or upload an image. Please note that uploaded images have to be
-                    under 5MB.
+                    Select the size of your image, then enter a URL to, or upload an image. Please
+                    note that uploaded images have to be under 5MB. The images themselves are not
+                    encrypted.
                   </AlertDialogDescription>
                   <div class="flex w-full items-center gap-1.5">
                     <Input type="url" placeholder="Enter a URL to an image" v-model="imageURL" />
@@ -310,9 +311,6 @@
                     <Input id="imageUpload" type="file" accept="image/*" />
                     <Button @click="addImage(3)" type="submit"> Upload </Button>
                   </div>
-                  <AlertDialogDescription
-                    >Images themselves are not encrypted.</AlertDialogDescription
-                  >
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel @click="addImage(4)">Cancel</AlertDialogCancel>
