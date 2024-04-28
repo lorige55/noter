@@ -408,6 +408,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import CharacterCount from '@tiptap/extension-character-count'
 import Youtube from '@tiptap/extension-youtube'
 import Image from '@tiptap/extension-image'
+import Dropcursor from '@tiptap/extension-dropcursor'
 //Firebase imports
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 //Tailwind imports
@@ -636,7 +637,8 @@ export default {
           modestBranding: true,
           progressBarColor: 'black'
         }),
-        Image
+        Image,
+        Dropcursor
       ],
       content: this.modelValue,
       onUpdate: () => {
