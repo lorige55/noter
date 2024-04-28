@@ -392,7 +392,7 @@
       ></Button>
     </bubble-menu>
     <editor-content
-      class="w-full prose max-w-none overflow"
+      class="w-full prose max-w-none"
       style="height: calc(100vh - 213px)"
       :editor="editor"
     />
@@ -644,7 +644,7 @@ export default {
       editorProps: {
         attributes: {
           class:
-            'h-full overflow-scroll justify-between mb-2.5 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+            'h-full overflow-y-scroll justify-between mb-2.5 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
         }
       },
       extensions: [
