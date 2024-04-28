@@ -410,6 +410,7 @@ import CharacterCount from '@tiptap/extension-character-count'
 import Youtube from '@tiptap/extension-youtube'
 import Image from '@tiptap/extension-image'
 import Dropcursor from '@tiptap/extension-dropcursor'
+import Placeholder from '@tiptap/extension-placeholder'
 //Firebase imports
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 //Tailwind imports
@@ -639,7 +640,10 @@ export default {
           progressBarColor: 'black'
         }),
         Image,
-        Dropcursor
+        Dropcursor,
+        Placeholder.configure({
+          placeholder: "C'mon, start typing!"
+        })
       ],
       content: this.modelValue,
       onUpdate: () => {
@@ -661,12 +665,20 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style>
 .activeToggle {
   background-color: #f4f4f5;
 }
 
 .prose {
   color: black;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #7f7f7f;
+  pointer-events: none;
+  height: 0;
 }
 </style>

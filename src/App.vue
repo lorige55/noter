@@ -258,7 +258,7 @@ export default {
       //make sure if the item to remove is the the last note to remain
       if (this.index.length === 1) {
         this.activeDocument = ''
-        this.activeDocumentContent = ''
+        this.activeDocumentContent = null
         this.activeDocumentIndex = null
       }
       //remove item from lastNote in localStorage if it is the lastNote
@@ -318,12 +318,11 @@ export default {
       //push new note to firebase
       docRef = doc(db, this.userId, key)
       setDoc(docRef, {
-        note: this.encryptString('<p>This is your new note! Enjoy!</p>'),
+        note: this.encryptString(''),
         title: this.encryptString(newNoteName)
       })
       //set activeDocument and lastNote to new note
-      this.activeDocumentContent =
-        '<p><span style="color: #000000">This is your new note! Enjoy!</span></p>'
+      this.activeDocumentContent = ''
       this.activeDocument = newNoteName
       this.activeDocumentIndex = this.index.indexOf(newNoteName)
       localStorage.setItem('lastNote', this.activeDocument)
