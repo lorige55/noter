@@ -211,6 +211,22 @@
               :class="{ activeToggle: editor.isActive('orderedList') }"
               ><ListOrdered class="h-4 w-4"></ListOrdered
             ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleCodeBlock().run()"
+              :disabled="!editor.can().chain().focus().toggleCodeBlock().run()"
+              :class="{ activeToggle: editor.isActive('codeBlock') }"
+              ><Code class="h-4 w-4"></Code
+            ></Button>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleBlockquote().run()"
+              :disabled="!editor.can().chain().focus().toggleBlockquote().run()"
+              :class="{ activeToggle: editor.isActive('blockquote') }"
+              ><TextQuote class="h-4 w-4"></TextQuote
+            ></Button>
           </PopoverContent>
         </Popover>
         <Popover>
@@ -268,7 +284,7 @@
           <PopoverTrigger>
             <Button variant="ghost" class="h-10 mr-1.5"><Plus class="h-4 w-4"></Plus> </Button>
           </PopoverTrigger>
-          <PopoverContent>
+          <PopoverContent class="w-full">
             <Button variant="ghost" class="h-10 mr-1.5" @click="addYoutubeVideo(1)"
               ><Film class="h-4 w-4"></Film
             ></Button>
@@ -317,23 +333,8 @@
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Button
-              variant="ghost"
-              class="h-10 mr-1.5"
-              @click="editor.chain().focus().toggleCodeBlock().run()"
-              :disabled="!editor.can().chain().focus().toggleCodeBlock().run()"
-              :class="{ activeToggle: editor.isActive('codeBlock') }"
-              ><Code class="h-4 w-4"></Code
-            ></Button>
-            <Button
-              variant="ghost"
-              class="h-10 mr-1.5"
-              @click="editor.chain().focus().toggleBlockquote().run()"
-              :disabled="!editor.can().chain().focus().toggleBlockquote().run()"
-              :class="{ activeToggle: editor.isActive('blockquote') }"
-              ><TextQuote class="h-4 w-4"></TextQuote
-            ></Button> </PopoverContent
-        ></Popover>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
     <bubble-menu
