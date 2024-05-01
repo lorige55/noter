@@ -282,7 +282,7 @@
         ></Popover>
         <Popover>
           <PopoverTrigger>
-            <Button variant="ghost" class="h-10 mr-1.5"><Plus class="h-4 w-4"></Plus> </Button>
+            <Button variant="ghost" class="h-10 mr-1.5"><File class="h-4 w-4"></File> </Button>
           </PopoverTrigger>
           <PopoverContent class="w-full">
             <Button variant="ghost" class="h-10 mr-1.5" @click="addYoutubeVideo(1)"
@@ -337,6 +337,31 @@
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel @click="addImage(4)">Cancel</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button
+              variant="ghost"
+              class="h-10 mr-1.5"
+              :class="{ activeToggle: editor.isActive('link') }"
+              @click="setLink(1)"
+              ><LinkIcon class="h-4 w-4"></LinkIcon
+            ></Button>
+            <AlertDialog :open="showLinkDialog">
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Add or edit a Link</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Enter a URL to link the text to.
+                  </AlertDialogDescription>
+                  <Input type="url" placeholder="e.g. https://apple.com" v-model="url" />
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel v-if="editor.isActive('link')" @click="setLink(4)"
+                    >Remove Link</AlertDialogCancel
+                  >
+                  <AlertDialogCancel @click="setLink(3)">Cancel</AlertDialogCancel>
+                  <AlertDialogAction @click="setLink(2)">Save</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
@@ -422,7 +447,7 @@ import Youtube from '@tiptap/extension-youtube'
 import Image from '@tiptap/extension-image'
 import Dropcursor from '@tiptap/extension-dropcursor'
 import Placeholder from '@tiptap/extension-placeholder'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import Link from '@tiptap/extension-link'
 //Firebase imports
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 //Tailwind imports
@@ -442,14 +467,16 @@ import {
   Highlighter,
   Underline as UnderlineIcon,
   RemoveFormatting,
-  Plus,
+  File,
   TextQuote,
   AlignCenter,
   AlignJustify,
   AlignLeft,
   AlignRight,
   Film,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Link2 as LinkIcon,
+  Link2Off as LinkIconOff
 } from 'lucide-vue-next'
 //Shadcn Imports
 import { Button } from '@/components/ui/button'
@@ -467,6 +494,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default {
   components: {
@@ -490,7 +518,7 @@ export default {
     PopoverContent,
     PopoverTrigger,
     RemoveFormatting,
-    Plus,
+    File,
     TextQuote,
     AlignCenter,
     AlignJustify,
@@ -512,7 +540,9 @@ export default {
     Tabs,
     TabsContent,
     TabsList,
-    TabsTrigger
+    TabsTrigger,
+    LinkIcon,
+    LinkIconOff
   },
 
   props: {
@@ -534,6 +564,8 @@ export default {
       showImageDialog: false,
       imageURL: '',
       downloadURL: '',
+      showLinkDialog: false,
+      url: '',
       firebaseConfig: {
         apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
         authDomain: 'noter-6e08f.firebaseapp.com',
@@ -637,6 +669,32 @@ export default {
       } else {
         this.showImageDialog = false
       }
+    },
+    setLink(a) {
+      if (a === 1) {
+        this.url = this.editor.getAttributes('link').href
+        this.showLinkDialog = true
+      } else if (a === 2) {
+        this.showLinkDialog = false
+        // cancelled
+        if (this.url === null) {
+          return
+        }
+        // empty
+        if (this.url === '') {
+          this.editor.chain().focus().extendMarkRange('link').unsetLink().run()
+          return
+        }
+        // update link
+        this.editor.chain().focus().extendMarkRange('link').setLink({ href: this.url }).run()
+        this.url = ''
+      } else if (a === 3) {
+        this.showLinkDialog = false
+        this.url = ''
+      } else {
+        this.editor.chain().focus().unsetLink().run()
+        this.showLinkDialog = false
+      }
     }
   },
   mounted() {
@@ -669,6 +727,11 @@ export default {
         Dropcursor,
         Placeholder.configure({
           placeholder: "C'mon, start typing!"
+        }),
+        Link.configure({
+          HTMLAttributes: {
+            class: 'tiptapLink'
+          }
         })
       ],
       content: this.modelValue,
@@ -706,5 +769,9 @@ export default {
   color: #7f7f7f;
   pointer-events: none;
   height: 0;
+}
+
+.tiptapLink {
+  cursor: pointer;
 }
 </style>
