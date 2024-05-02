@@ -367,6 +367,42 @@
             </AlertDialog>
           </PopoverContent>
         </Popover>
+        <Button variant="ghost" class="h-10 mr-1.5" @click="share(1)"
+          ><Share class="h-4 w-4"></Share
+        ></Button>
+        <AlertDialog :open="showShareDialog">
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Share "{{ activeDocument }}"</AlertDialogTitle>
+              <div v-if="shareURL == null">
+                <AlertDialogDescription>
+                  This will generate a link that you can share with others. Anyone with the link can
+                  access and copy the note, thus an unencrypted version of it will be stored on our
+                  servers. The uncencrypted version cannot be linked back to your account. Changes
+                  you make to your note will not be reflected in the shared version.
+                </AlertDialogDescription>
+              </div>
+              <div v-else>
+                <AlertDialogDescription> This is the link: </AlertDialogDescription>
+                <div class="flex w-full items-center gap-1.5">
+                  <Input type="url" v-model="shareURL" style="cursor: text" disabled />
+                  <Button variant="outline" @click="copyToClipboard(shareURL)"
+                    ><Copy class="h-4 w-4"></Copy
+                  ></Button>
+                </div>
+              </div>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <div v-if="shareURL == null">
+                <Button class="mr-2" variant="outline" @click="share(3)">Cancel</Button>
+                <Button @click="share(2)">Share</Button>
+              </div>
+              <div v-else>
+                <Button variant="outline" @click="share(3)">Close</Button>
+              </div>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
     <bubble-menu
@@ -483,7 +519,9 @@ import {
   Film,
   Image as ImageIcon,
   Link2 as LinkIcon,
-  Link2Off as LinkIconOff
+  Link2Off as LinkIconOff,
+  Share,
+  Copy
 } from 'lucide-vue-next'
 //Shadcn Imports
 import { Button } from '@/components/ui/button'
@@ -502,6 +540,9 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+//Firebase imports
+import { initializeApp } from 'firebase/app'
+import { getFirestore, doc, setDoc } from 'firebase/firestore'
 
 export default {
   components: {
@@ -549,7 +590,9 @@ export default {
     TabsList,
     TabsTrigger,
     LinkIcon,
-    LinkIconOff
+    LinkIconOff,
+    Share,
+    Copy
   },
 
   props: {
@@ -573,6 +616,8 @@ export default {
       downloadURL: '',
       showLinkDialog: false,
       url: '',
+      showShareDialog: false,
+      shareURL: null,
       firebaseConfig: {
         apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
         authDomain: 'noter-6e08f.firebaseapp.com',
@@ -583,7 +628,6 @@ export default {
       }
     }
   },
-
   watch: {
     modelValue(value) {
       // HTML
@@ -594,7 +638,11 @@ export default {
       this.editor.commands.setContent(value, false)
     }
   },
-
+  computed: {
+    activeDocument() {
+      return localStorage.getItem('activeDocument')
+    }
+  },
   methods: {
     generateKey() {
       //get variables
@@ -702,6 +750,28 @@ export default {
         this.editor.chain().focus().unsetLink().run()
         this.showLinkDialog = false
       }
+    },
+    share(a) {
+      if (a === 1) {
+        this.showShareDialog = true
+      } else if (a === 2) {
+        let key = this.generateKey()
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        let docRef = doc(db, 'shared', key)
+        //save document to firebase
+        setDoc(docRef, {
+          note: this.editor.getHTML(),
+          title: localStorage.getItem('activeDocument')
+        })
+        this.shareURL = window.location.protocol + '//' + window.location.host + '/shared/' + key
+      } else {
+        this.showShareDialog = false
+        this.shareURL = null
+      }
+    },
+    copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then
     }
   },
   mounted() {

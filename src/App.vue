@@ -1,14 +1,13 @@
 <!-- eslint-disable no-undef -->
 <script>
 import CryptoJS from 'crypto-js'
+import '@tailwindcss/typography'
 import '@passageidentity/passage-elements/passage-auth'
 import { PassageUser } from '@passageidentity/passage-auth/passage-user'
-
 //Firebase Imports
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore'
-
-//shadecn Imports:
+//shadcn Imports:
 import { Button } from '@/components/ui/button'
 import {
   Menubar,
@@ -136,6 +135,7 @@ export default {
   watch: {
     activeDocument(newActiveDocument) {
       document.title = 'Noter - ' + newActiveDocument
+      localStorage.setItem('activeDocument', newActiveDocument)
     },
     activeDocumentContent(newActiveDocumentContent) {
       this.autoSave()
@@ -143,6 +143,9 @@ export default {
   },
   data() {
     return {
+      shared: false,
+      sharedTitle: '',
+      sharedContent: '',
       isLoggedIn: false,
       user: null,
       userId: null,
@@ -530,99 +533,126 @@ export default {
     }
   },
   async mounted() {
-    //setting appId based on location
-    if (window.location.href === 'https://noter.yeomid.com/') {
-      this.appId = 'LH8ZzpbwJuHH6xGFk6GgmtSC'
-    } else {
-      this.appId = 'JlXUGO3ZcoTO3pK2BSb38cc2'
-    }
-    //try to authenticate
-    try {
-      const user = new PassageUser()
-      const userInfo = await user.userInfo()
-      if (userInfo === undefined) {
-        this.isLoggedIn = false
-        return
-      }
-      this.isLoggedIn = true
-      this.user = userInfo
-      this.userId = userInfo.id
-      localStorage.setItem('userId', this.userId)
-    } catch (error) {
-      console.log(error)
-      this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'
-      this.displayError = true
-    }
-    this.progress = 'Initializing secret key...'
-    //get secret Key from firebase
-    const app = initializeApp(this.firebaseConfig)
-    const db = getFirestore(app)
-    let docRef = doc(db, this.userId, 'secretKey')
-    let docSnap = await getDoc(docRef)
-    //if trust is true, get secretKey from firebase, else get it from localStorage or open profileModal if it is not set in localStorage
-    if (docSnap.exists()) {
-      if (docSnap.data().key !== 'nah') {
-        this.secretKey = docSnap.data().key
-      } else {
-        this.trust = false
-        if (localStorage.getItem('secretKey') !== null) {
-          this.secretKey = localStorage.getItem('secretKey')
-        } else {
-          this.showChangeSecretKeyConformation = true
-        }
-      }
-    } else {
-      //if there is no secretKey in firebase, generate a new one and push it to firebase
-      let key = this.generateKey(256)
-      docRef = doc(db, this.userId, 'secretKey')
-      setDoc(docRef, { key: key })
-      this.secretKey = key
-    }
-    this.progress = 'Syncing your notes...'
-    //get keyIndex from firebase
-    if (this.secretKey !== '') {
-      docRef = doc(db, this.userId, 'keyIndex')
-      docSnap = await getDoc(docRef)
-      //if keyIndex exists, get it
+    if (window.location.pathname.includes('shared/')) {
+      let key = window.location.pathname.split('/')[2]
+      const app = initializeApp(this.firebaseConfig)
+      const db = getFirestore(app)
+      let docRef = doc(db, 'shared', key)
+      let docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
-        this.keyIndex = docSnap.data().index
-        //loop through keyIndex and build index
-        if (this.keyIndex.length > 0) {
-          for (let i = 0; i < this.keyIndex.length; i++) {
-            let docRef = doc(db, this.userId, this.keyIndex[i])
-            let docSnap = await getDoc(docRef)
-            this.index[i] = this.decryptString(docSnap.data().title)
+        this.shared = true
+        let data = docSnap.data()
+        this.sharedTitle = data.title
+        this.sharedContent = data.note
+        document.title = 'Noter - ' + this.sharedTitle
+      } else {
+        alert('This shared note does not exist')
+      }
+    } else {
+      if (window.location.href === 'https://noter.yeomid.com/') {
+        //setting appId based on location
+        this.appId = 'LH8ZzpbwJuHH6xGFk6GgmtSC'
+      } else {
+        this.appId = 'JlXUGO3ZcoTO3pK2BSb38cc2'
+      }
+      //try to authenticate
+      try {
+        const user = new PassageUser()
+        const userInfo = await user.userInfo()
+        if (userInfo === undefined) {
+          this.isLoggedIn = false
+          return
+        }
+        this.isLoggedIn = true
+        this.user = userInfo
+        this.userId = userInfo.id
+        localStorage.setItem('userId', this.userId)
+      } catch (error) {
+        console.log(error)
+        this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'
+        this.displayError = true
+      }
+      this.progress = 'Initializing secret key...'
+      //get secret Key from firebase
+      const app = initializeApp(this.firebaseConfig)
+      const db = getFirestore(app)
+      let docRef = doc(db, this.userId, 'secretKey')
+      let docSnap = await getDoc(docRef)
+      //if trust is true, get secretKey from firebase, else get it from localStorage or open profileModal if it is not set in localStorage
+      if (docSnap.exists()) {
+        if (docSnap.data().key !== 'nah') {
+          this.secretKey = docSnap.data().key
+        } else {
+          this.trust = false
+          if (localStorage.getItem('secretKey') !== null) {
+            this.secretKey = localStorage.getItem('secretKey')
+          } else {
+            this.showChangeSecretKeyConformation = true
           }
-          this.progress = 'Loading your last note...'
-          //recover last note or select first in array if equal to null
-          if (
-            localStorage.getItem('lastNote') == undefined ||
-            localStorage.getItem('lastNote') === 'undefined'
-          ) {
-            localStorage.setItem('lastNote', this.index[0])
-          }
-          this.getDocument(localStorage.getItem('lastNote'))
         }
       } else {
-        //if keyIndex does not exist, create a new one and push it to firebase
-        let key = this.generateKey(128)
-        this.keyIndex = [key]
-        setDoc(docRef, { index: this.keyIndex })
-        //set to no note
-        this.index = []
-        this.activeDocument = ''
-        this.activeDocumentContent = ''
-        this.activeDocumentIndex = null
+        //if there is no secretKey in firebase, generate a new one and push it to firebase
+        let key = this.generateKey(256)
+        docRef = doc(db, this.userId, 'secretKey')
+        setDoc(docRef, { key: key })
+        this.secretKey = key
       }
+      this.progress = 'Syncing your notes...'
+      //get keyIndex from firebase
+      if (this.secretKey !== '') {
+        docRef = doc(db, this.userId, 'keyIndex')
+        docSnap = await getDoc(docRef)
+        //if keyIndex exists, get it
+        if (docSnap.exists()) {
+          this.keyIndex = docSnap.data().index
+          //loop through keyIndex and build index
+          if (this.keyIndex.length > 0) {
+            for (let i = 0; i < this.keyIndex.length; i++) {
+              let docRef = doc(db, this.userId, this.keyIndex[i])
+              let docSnap = await getDoc(docRef)
+              this.index[i] = this.decryptString(docSnap.data().title)
+            }
+            this.progress = 'Loading your last note...'
+            //recover last note or select first in array if equal to null
+            if (
+              localStorage.getItem('lastNote') == undefined ||
+              localStorage.getItem('lastNote') === 'undefined'
+            ) {
+              localStorage.setItem('lastNote', this.index[0])
+            }
+            this.getDocument(localStorage.getItem('lastNote'))
+          }
+        } else {
+          //if keyIndex does not exist, create a new one and push it to firebase
+          let key = this.generateKey(128)
+          this.keyIndex = [key]
+          setDoc(docRef, { index: this.keyIndex })
+          //set to no note
+          this.index = []
+          this.activeDocument = ''
+          this.activeDocumentContent = ''
+          this.activeDocumentIndex = null
+        }
+      }
+      this.progress = 'Done!'
+      this.ready = true
     }
-    this.progress = 'Done!'
-    this.ready = true
   }
 }
 </script>
 
 <template>
-  <div v-if="isMobileDevice() == true">
+  <div v-if="this.shared === true" class="flex flex-col h-screen">
+    <p
+      class="flex items-center h-10 mx-2.5 mt-2.5 justify-between text-base font-semibold border rounded-md"
+    >
+      <a class="ml-2.5">{{ this.sharedTitle }}</a>
+    </p>
+    <div class="inset-0 mx-2.5 my-2.5 border rounded-md h-full">
+      <div class="prose p-2.5 overlfow-y-scroll" v-html="this.sharedContent"></div>
+    </div>
+  </div>
+  <div v-else-if="isMobileDevice() == true">
     <div
       class="absolute inset-0 mx-2.5 my-2.5 border rounded-md flex items-center justify-center flex-col"
     >
