@@ -646,7 +646,7 @@ export default {
   methods: {
     generateKey() {
       //get variables
-      let charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+*#&=!$£-_.:,;'
+      let charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+*&=!$£-_.:,;'
       let charsetLength = charset.length
       let charCount = 5
       //generate a random key
