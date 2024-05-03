@@ -209,7 +209,6 @@ export default {
       const db = getFirestore(app)
       //set active document and lastNote
       this.activeDocumentIndex = this.index.indexOf(item)
-      alert('getDocument set activeDocumentIndex to ' + this.activeDocumentIndex)
       this.activeDocument = this.index[this.activeDocumentIndex]
       localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
@@ -782,7 +781,7 @@ export default {
               direction="horizontal"
             >
               <!--Note List-->
-              <ResizablePanel :default-size="25" class="py-2.5 flex flex-col">
+              <ResizablePanel :default-size="25" class="py-2.5 flex flex-col min-w-40">
                 <Button
                   @click="createNewDocument()"
                   variant="outline"
