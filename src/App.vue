@@ -137,7 +137,7 @@ export default {
       document.title = 'Noter - ' + newActiveDocument
       localStorage.setItem('activeDocument', newActiveDocument)
     },
-    activeDocumentContent(newActiveDocumentContent) {
+    activeDocumentContent() {
       this.autoSave()
     }
   },
@@ -166,7 +166,6 @@ export default {
       activeSavingProcesses: 0,
       secretKey: '',
       trust: true,
-      creatingNewDocument: false,
       documentToRename: '',
       displayError: false,
       errorMessage: 'An Error has occured. Please try again or submit an Issue.',
@@ -326,7 +325,6 @@ export default {
       this.activeDocument = newNoteName
       this.activeDocumentIndex = this.index.indexOf(newNoteName)
       localStorage.setItem('lastNote', this.activeDocument)
-      this.creatingNewDocument = false
     },
     encryptString(string) {
       //verify that input is a string
@@ -527,6 +525,10 @@ export default {
     },
     reload() {
       location.reload()
+    },
+    cloneAndEdit() {
+      let key = window.location.pathname.split('/')[2]
+      window.open('localhost:4173/clone/' + key + '/')
     }
   },
   async mounted() {
@@ -546,7 +548,7 @@ export default {
         alert('This shared note does not exist')
       }
     } else {
-      if (window.location.href === 'https://noter.yeomid.com/') {
+      if (window.location.hostname === 'noter.yeomid.com') {
         //setting appId based on location
         this.appId = 'LH8ZzpbwJuHH6xGFk6GgmtSC'
       } else {
@@ -589,7 +591,7 @@ export default {
         }
       } else {
         //if there is no secretKey in firebase, generate a new one and push it to firebase
-        let key = this.generateKey(256)
+        let key = await this.generateKey(256)
         docRef = doc(db, this.userId, 'secretKey')
         setDoc(docRef, { key: key })
         this.secretKey = key
@@ -617,7 +619,7 @@ export default {
           }
         } else {
           //if keyIndex does not exist, create a new one and push it to firebase
-          let key = this.generateKey(128)
+          let key = await this.generateKey(128)
           this.keyIndex = [key]
           setDoc(docRef, { index: this.keyIndex })
           //set to no note
@@ -625,6 +627,33 @@ export default {
           this.activeDocument = ''
           this.activeDocumentContent = ''
           this.activeDocumentIndex = null
+        }
+      }
+      if (window.location.pathname.includes('clone/')) {
+        this.progress = 'Cloning note...'
+        let key = window.location.pathname.split('/')[2]
+        let docRef = doc(db, 'shared', key)
+        let docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          let data = docSnap.data()
+          //push new Note to Index
+          this.index.unshift(data.title)
+          //generate new key and push it to keyIndex
+          let key = await this.generateKey(128)
+          this.keyIndex.unshift(key)
+          //push new keyIndex to firebase
+          let docRef = doc(db, this.userId, 'keyIndex')
+          setDoc(docRef, { index: this.keyIndex })
+          //push new note to firebase
+          docRef = doc(db, this.userId, key)
+          await setDoc(docRef, {
+            note: this.encryptString(data.note),
+            title: this.encryptString(data.title)
+          })
+          //getDocument
+          this.getDocument(data.title)
+        } else {
+          alert("Couldn't clone note.")
         }
       }
       this.progress = 'Done!'
@@ -636,11 +665,14 @@ export default {
 
 <template>
   <div v-if="this.shared === true" class="flex flex-col h-screen">
-    <p
-      class="flex items-center h-10 mx-2.5 mt-2.5 justify-between text-base font-semibold border rounded-md"
-    >
-      <a class="ml-2.5">{{ this.sharedTitle }}</a>
-    </p>
+    <div class="flex justify-between items-center h-10 mx-2.5 mt-2.5">
+      <div
+        class="h-10 mr-2.5 text-lg font-semibold flex-grow border rounded-md items-center text-base flex align-center"
+      >
+        <a class="pl-2.5">{{ this.sharedTitle }}</a>
+      </div>
+      <Button variant="outline" @click="cloneAndEdit()">Clone & Edit</Button>
+    </div>
     <div class="inset-0 mx-2.5 my-2.5 border rounded-md h-full">
       <div class="prose p-2.5 overlfow-y-scroll" v-html="this.sharedContent"></div>
     </div>
