@@ -152,7 +152,7 @@ export default {
       appId: null,
       index: [],
       keyIndex: [],
-      activeDocumentContent: '<b>Loading...</b>',
+      activeDocumentContent: '',
       activeDocument: '',
       activeDocumentIndex: null,
       firebaseConfig: {
@@ -209,6 +209,7 @@ export default {
       const db = getFirestore(app)
       //set active document and lastNote
       this.activeDocumentIndex = this.index.indexOf(item)
+      alert('getDocument set activeDocumentIndex to ' + this.activeDocumentIndex)
       this.activeDocument = this.index[this.activeDocumentIndex]
       localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
@@ -270,22 +271,19 @@ export default {
       }
       //if indexToRemove is valid
       if (indexToRemove !== -1) {
-        //change active document if it is the one to be removed
-        if (this.activeDocument === item && this.index.length !== 1) {
-          if (indexToRemove === 0) {
-            this.getDocument(this.index[0])
-          } else {
-            this.getDocument(this.index[indexToRemove - 1])
-          }
-        }
+        //remove item from index
+        this.index.splice(indexToRemove, 1)
         //delete document from firebase
         await deleteDoc(doc(db, this.userId, this.keyIndex[indexToRemove]))
         //remove key from keyIndex and push new keyIndex to firebase
         this.keyIndex.splice(indexToRemove, 1)
         let docRef = doc(db, this.userId, 'keyIndex')
         setDoc(docRef, { index: this.keyIndex })
-        //remove item from index and shortened
-        this.index.splice(indexToRemove, 1)
+        //set activeDocument Varialbles
+        this.activeDocument = ''
+        this.activeDocumentContent = ''
+        this.activeDocumentIndex = null
+        //hide dialog
         this.showNoteDeleteConformation = false
       } else {
         console.log('An Error has occured. Please try again or create an Issue on GitHub.')
@@ -614,13 +612,9 @@ export default {
             }
             this.progress = 'Loading your last note...'
             //recover last note or select first in array if equal to null
-            if (
-              localStorage.getItem('lastNote') == undefined ||
-              localStorage.getItem('lastNote') === 'undefined'
-            ) {
-              localStorage.setItem('lastNote', this.index[0])
+            if (localStorage.getItem('lastNote') !== 'undefined') {
+              this.getDocument(localStorage.getItem('lastNote'))
             }
-            this.getDocument(localStorage.getItem('lastNote'))
           }
         } else {
           //if keyIndex does not exist, create a new one and push it to firebase
@@ -881,12 +875,13 @@ export default {
                 </div>
                 <div
                   v-else
-                  class="h-full w-full border rounded-md grid place-content-center flex flex-col overflow-hidden"
+                  class="h-full w-full border rounded-md grid place-content-center flex flex-col"
                 >
-                  <div class="p-2.5">
-                    <Sticker class="w-full h-auto"></Sticker>
-                    <p class="text-center text-lg">Select a note to start editing.</p>
-                  </div>
+                  <Sticker class="mx-auto"></Sticker>
+                  <p class="text-center text-lg">Select a note to start editing.</p>
+                  <p class="text-center text-sm">
+                    Chose any note in the note list or create a new one.
+                  </p>
                 </div>
               </ResizablePanel>
             </ResizablePanelGroup>
