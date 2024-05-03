@@ -781,7 +781,7 @@ export default {
               direction="horizontal"
             >
               <!--Note List-->
-              <ResizablePanel :default-size="25" class="py-2.5 flex flex-col min-w-40">
+              <ResizablePanel :default-size="25" class="py-2.5 flex flex-col min-w-[150px]">
                 <Button
                   @click="createNewDocument()"
                   variant="outline"
@@ -858,7 +858,7 @@ export default {
                 style="cursor: col-resize !important; width: 6px; background-color: white"
               />
 
-              <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5">
+              <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5 min-w-[500px]">
                 <div v-if="activeDocumentIndex !== null" class="h-full w-full flex flex-col">
                   <!--Editor-->
                   <!--Title Editor-->
