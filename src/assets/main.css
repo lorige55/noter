@@ -69,10 +69,6 @@
   background-color: rgb(243 244 246);
 }
 
-.customInput:active {
-  border: none;
-}
-
 .noteListText {
   position: relative;
   width: 100%;

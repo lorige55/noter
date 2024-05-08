@@ -213,7 +213,11 @@ export default {
       //get document from firebase and set activeDocumentContent to content
       let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
       let docSnap = await getDoc(docRef)
-      this.activeDocumentContent = this.decryptString(docSnap.data().note)
+      if (docSnap.exists()) {
+        this.activeDocumentContent = this.decryptString(docSnap.data().note)
+      } else {
+        console.error('A note could not be found. Please try again or create an Issue on GitHub.')
+      }
     },
     async saveActiveDocument() {
       //input validation
@@ -890,12 +894,12 @@ export default {
                 style="cursor: col-resize !important; width: 6px; background-color: white"
               />
 
-              <ResizablePanel class="flex flex-col w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5 min-w-[500px]">
-                <div v-if="activeDocumentIndex !== null" class="h-full w-full flex flex-col">
+              <ResizablePanel class="w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5 min-w-[500px]">
+                <div v-if="activeDocumentIndex !== null" class="flex flex-col h-full w-full">
                   <!--Editor-->
                   <!--Title Editor-->
                   <Input
-                    class="customInput h-10 justify-between text-base font-semibold"
+                    class="h-20 justify-between text-base font-semibold"
                     type="text"
                     v-model="activeDocument"
                     @input="autoSave()"
