@@ -899,7 +899,7 @@ export default {
                   <!--Editor-->
                   <!--Title Editor-->
                   <Input
-                    class="h-20 justify-between text-base font-semibold"
+                    class="justify-between text-base font-semibold px-4 py-2"
                     type="text"
                     v-model="activeDocument"
                     @input="autoSave()"
