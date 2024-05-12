@@ -35,3 +35,4 @@ coverage
 .vscode/*
 firestore.*
 firebase.*
+qodana.yaml

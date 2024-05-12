@@ -378,7 +378,7 @@
                 <AlertDialogDescription>
                   This will generate a link that you can share with others. Anyone with the link can
                   access and copy the note, thus an unencrypted version of it will be stored on our
-                  servers. The uncencrypted version cannot be linked back to your account. Changes
+                  servers. The unencrypted version cannot be linked back to your account. Changes
                   you make to your note will not be reflected in the shared version.
                 </AlertDialogDescription>
                 <FormField name="password">
@@ -574,6 +574,7 @@ import CryptoJS from 'crypto-js'
 export default {
   components: {
     EditorContent,
+    // eslint-disable-next-line vue/no-reserved-component-names
     Button,
     Bold,
     Italic,
@@ -681,7 +682,7 @@ export default {
   methods: {
     generateKey() {
       //get variables
-      let charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+*&=!$£-_.:,;'
+      let charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+*&=!-_.:,;'
       let charsetLength = charset.length
       let charCount = 5
       //generate a random key
@@ -692,16 +693,16 @@ export default {
       return key
     },
     addYoutubeVideo(a) {
-      if (a == 1) {
+      if (a === 1) {
         this.showYouTubeDialog = true
-      } else if (a == 2) {
+      } else if (a === 2) {
         this.showYouTubeDialog = false
         let width = 640,
           height = 480
-        if (this.youtubeVideoSize == 'small') {
+        if (this.youtubeVideoSize === 'small') {
           width = 320
           height = 240
-        } else if (this.youtubeVideoSize == 'large') {
+        } else if (this.youtubeVideoSize === 'large') {
           width = 860
           height = 720
         }
@@ -717,15 +718,15 @@ export default {
       }
     },
     async addImage(a) {
-      if (a == 1) {
+      if (a === 1) {
         this.showImageDialog = true
-      } else if (a == 2) {
+      } else if (a === 2) {
         this.editor.commands.setImage({
           src: this.imageURL,
           alt: 'Image'
         })
         this.showImageDialog = false
-      } else if (a == 3) {
+      } else if (a === 3) {
         //get image
         const image = document.getElementById('imageUpload').files[0]
         //check if under limit of 5MB
@@ -748,7 +749,7 @@ export default {
             this.downloadURL = url
           })
           .catch((error) => {
-            alert('Error uploading document:', error)
+            alert('Error uploading document: ' + error)
           })
         //insert image
         this.editor.commands.setImage({
@@ -797,17 +798,18 @@ export default {
         //save document to firebase
         if (this.protectSharedNoteWithPassword) {
           const salt = CryptoJS.lib.WordArray.random(128 / 8) //Generate Salt
-          //Hash with salt
-          var hash = CryptoJS.PBKDF2(this.sharedNotePassword, salt, {
-            keySize: 512 / 32,
-            iterations: 1000
-          })
+          // Concatenate password and salt
+          const saltedPassword = this.sharedNotePassword + salt;
+          // Hash the salted password
+          const hash = CryptoJS.SHA256(saltedPassword);
+          // Convert the hash to a string to store it easily
+          const hashHEX = hash.toString(CryptoJS.enc.Hex);
           //set to firebase
           setDoc(docRef, {
             note: this.editor.getHTML(),
             title: localStorage.getItem('activeDocument'),
-            password: hash,
-            salt: salt
+            password: hashHEX,
+            salt: salt.toString()
           })
           this.sharedNotePassword = ''
           this.protectSharedNoteWithPassword = false

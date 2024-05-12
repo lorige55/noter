@@ -145,6 +145,7 @@ export default {
     return {
       shared: false,
       sharedPasswordProtected: false,
+      sharedKey: '',
       sharedPasswordHash: '',
       sharedPasswordSalt: '',
       sharedNoteInputPassword: '',
@@ -188,12 +189,17 @@ export default {
   },
   methods: {
     async enterSharedNoteWithPassword() {
-      var hash = await CryptoJS.PBKDF2(this.sharedNoteInputPassword, this.sharedPasswordSalt, {
-        keySize: 512 / 32,
-        iterations: 1000
-      })
-      if (hash === this.sharedPasswordHash) {
-        let docRef = doc(db, 'shared', key)
+      // Concatenate password and salt
+      const saltedPassword = this.sharedNoteInputPassword + this.sharedPasswordSalt;
+      // Hash the salted password
+      const hash = CryptoJS.SHA256(saltedPassword);
+      // Convert the hash to a string to store it easily
+      const hashHEX = hash.toString(CryptoJS.enc.Hex);
+      if (hashHEX === this.sharedPasswordHash) {
+        //initialize firebase
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        let docRef = doc(db, 'shared', this.sharedKey)
         let docSnap = await getDoc(docRef)
         this.sharedTitle = docSnap.data().title
         this.sharedContent = docSnap.data().note
@@ -203,7 +209,7 @@ export default {
       }
     },
     isMobileDevice() {
-      var userAgent = navigator.userAgent || navigator.vendor || window.opera
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera
       // Check against all known Mobile Device User Agent substrings
       if (/windows phone/i.test(userAgent)) {
         return true
@@ -556,15 +562,15 @@ export default {
   },
   async mounted() {
     if (window.location.pathname.includes('shared/')) {
-      let key = window.location.pathname.split('/')[2]
+      this.sharedKey = window.location.pathname.split('/')[2]
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      let docRef = doc(db, 'shared', key)
+      let docRef = doc(db, 'shared', this.sharedKey)
       let docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
         this.shared = true
         let data = docSnap.data()
-        if (data.password.length > 0) {
+        if (data.password) {
           this.sharedPasswordProtected = true
           this.sharedPasswordHash = data.password
           this.sharedPasswordSalt = data.salt
@@ -698,7 +704,7 @@ export default {
     <div v-if="this.sharedContent !== ''">
       <div class="flex justify-between items-center h-10 mx-2.5 mt-2.5">
         <div
-          class="h-10 mr-2.5 text-lg font-semibold flex-grow border rounded-md items-center text-base flex align-center"
+          class="h-10 mr-2.5 text-lg font-semibold flex-grow border rounded-md items-center flex align-center"
         >
           <a class="pl-2.5">{{ this.sharedTitle }}</a>
         </div>
@@ -710,7 +716,6 @@ export default {
     </div>
     <div v-else>
       <div class="flex items-center justify-center h-screen w-screen">
-        <Label for="email">This note is protected with a password</Label>
         <div class="flex w-full max-w-sm items-center gap-1.5">
           <Input
             type="password"
