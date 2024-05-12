@@ -381,6 +381,29 @@
                   servers. The uncencrypted version cannot be linked back to your account. Changes
                   you make to your note will not be reflected in the shared version.
                 </AlertDialogDescription>
+                <FormField name="password">
+                  <FormItem
+                    class="flex flex-row items-center justify-between rounded-md border p-2.5 mt-2.5 h-16"
+                  >
+                    <div v-if="!protectSharedNoteWithPassword" class="space-y-0.5">
+                      <FormLabel class="text-base"> Password protection</FormLabel>
+                      <FormDescription> Protect your shared note with a password. </FormDescription>
+                    </div>
+                    <Input
+                      v-else
+                      type="password"
+                      placeholder="Your super secure password"
+                      class="w-80 ml-px"
+                      v-model="sharedNotePassword"
+                    />
+                    <FormControl>
+                      <Switch
+                        :checked="protectSharedNoteWithPassword"
+                        @update:checked="changeProtectSharedNoteWithPassword"
+                      />
+                    </FormControl>
+                  </FormItem>
+                </FormField>
               </div>
               <div v-else>
                 <AlertDialogDescription> This is the link: </AlertDialogDescription>
@@ -540,9 +563,13 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form'
+import { Switch } from '@/components/ui/switch'
 //Firebase imports
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, setDoc } from 'firebase/firestore'
+//crypto js
+import CryptoJS from 'crypto-js'
 
 export default {
   components: {
@@ -592,7 +619,13 @@ export default {
     LinkIcon,
     LinkIconOff,
     Share,
-    Copy
+    Copy,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    Switch
   },
 
   props: {
@@ -618,6 +651,8 @@ export default {
       url: '',
       showShareDialog: false,
       shareURL: null,
+      protectSharedNoteWithPassword: false,
+      sharedNotePassword: '',
       firebaseConfig: {
         apiKey: 'AIzaSyBV9FOnKKOBNLuQsCn9T4OdfxT39cRhF6g',
         authDomain: 'noter-6e08f.firebaseapp.com',
@@ -760,10 +795,28 @@ export default {
         const db = getFirestore(app)
         let docRef = doc(db, 'shared', key)
         //save document to firebase
-        setDoc(docRef, {
-          note: this.editor.getHTML(),
-          title: localStorage.getItem('activeDocument')
-        })
+        if (this.protectSharedNoteWithPassword) {
+          const salt = CryptoJS.lib.WordArray.random(128 / 8) //Generate Salt
+          //Hash with salt
+          var hash = CryptoJS.PBKDF2(this.sharedNotePassword, salt, {
+            keySize: 512 / 32,
+            iterations: 1000
+          })
+          //set to firebase
+          setDoc(docRef, {
+            note: this.editor.getHTML(),
+            title: localStorage.getItem('activeDocument'),
+            password: hash,
+            salt: salt
+          })
+          this.sharedNotePassword = ''
+          this.protectSharedNoteWithPassword = false
+        } else {
+          setDoc(docRef, {
+            note: this.editor.getHTML(),
+            title: localStorage.getItem('activeDocument')
+          })
+        }
         this.shareURL = window.location.protocol + '//' + window.location.host + '/shared/' + key
       } else {
         this.showShareDialog = false
@@ -772,6 +825,13 @@ export default {
     },
     copyToClipboard(text) {
       navigator.clipboard.writeText(text).then
+    },
+    changeProtectSharedNoteWithPassword() {
+      if (!this.protectSharedNoteWithPassword) {
+        this.protectSharedNoteWithPassword = true
+      } else if (this.protectSharedNoteWithPassword) {
+        this.protectSharedNoteWithPassword = false
+      }
     }
   },
   mounted() {

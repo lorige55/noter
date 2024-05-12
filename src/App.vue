@@ -144,6 +144,10 @@ export default {
   data() {
     return {
       shared: false,
+      sharedPasswordProtected: false,
+      sharedPasswordHash: '',
+      sharedPasswordSalt: '',
+      sharedNoteInputPassword: '',
       sharedTitle: '',
       sharedContent: '',
       isLoggedIn: false,
@@ -183,6 +187,21 @@ export default {
     }
   },
   methods: {
+    async enterSharedNoteWithPassword() {
+      var hash = await CryptoJS.PBKDF2(this.sharedNoteInputPassword, this.sharedPasswordSalt, {
+        keySize: 512 / 32,
+        iterations: 1000
+      })
+      if (hash === this.sharedPasswordHash) {
+        let docRef = doc(db, 'shared', key)
+        let docSnap = await getDoc(docRef)
+        this.sharedTitle = docSnap.data().title
+        this.sharedContent = docSnap.data().note
+        document.title = 'Noter - ' + this.sharedTitle
+      } else {
+        alert('Nice try!')
+      }
+    },
     isMobileDevice() {
       var userAgent = navigator.userAgent || navigator.vendor || window.opera
       // Check against all known Mobile Device User Agent substrings
@@ -545,9 +564,16 @@ export default {
       if (docSnap.exists()) {
         this.shared = true
         let data = docSnap.data()
-        this.sharedTitle = data.title
-        this.sharedContent = data.note
-        document.title = 'Noter - ' + this.sharedTitle
+        if (data.password.length > 0) {
+          this.sharedPasswordProtected = true
+          this.sharedPasswordHash = data.password
+          this.sharedPasswordSalt = data.salt
+          document.title = 'Noter - Enter Password'
+        } else {
+          this.sharedContent = data.note
+          this.sharedTitle = data.title
+          document.title = 'Noter - ' + this.sharedTitle
+        }
       } else {
         alert('This shared note does not exist')
       }
@@ -652,7 +678,7 @@ export default {
           docRef = doc(db, this.userId, key)
           await setDoc(docRef, {
             note: this.encryptString(data.note),
-            title: this.encryptString(data.title)
+            title: this.encryptString(data.title + ' Copy')
           })
           //getDocument
           this.getDocument(data.title)
@@ -669,16 +695,31 @@ export default {
 
 <template>
   <div v-if="this.shared === true" class="flex flex-col h-screen">
-    <div class="flex justify-between items-center h-10 mx-2.5 mt-2.5">
-      <div
-        class="h-10 mr-2.5 text-lg font-semibold flex-grow border rounded-md items-center text-base flex align-center"
-      >
-        <a class="pl-2.5">{{ this.sharedTitle }}</a>
+    <div v-if="this.sharedContent !== ''">
+      <div class="flex justify-between items-center h-10 mx-2.5 mt-2.5">
+        <div
+          class="h-10 mr-2.5 text-lg font-semibold flex-grow border rounded-md items-center text-base flex align-center"
+        >
+          <a class="pl-2.5">{{ this.sharedTitle }}</a>
+        </div>
+        <Button variant="outline" @click="cloneAndEdit()">Clone & Edit</Button>
       </div>
-      <Button variant="outline" @click="cloneAndEdit()">Clone & Edit</Button>
+      <div class="inset-0 mx-2.5 my-2.5 border rounded-md h-full">
+        <div class="prose p-2.5 overlfow-y-scroll" v-html="this.sharedContent"></div>
+      </div>
     </div>
-    <div class="inset-0 mx-2.5 my-2.5 border rounded-md h-full">
-      <div class="prose p-2.5 overlfow-y-scroll" v-html="this.sharedContent"></div>
+    <div v-else>
+      <div class="flex items-center justify-center h-screen w-screen">
+        <Label for="email">This note is protected with a password</Label>
+        <div class="flex w-full max-w-sm items-center gap-1.5">
+          <Input
+            type="password"
+            placeholder="Enter the password"
+            v-model="sharedNoteInputPassword"
+          />
+          <Button type="submit" @click="enterSharedNoteWithPassword">Enter</Button>
+        </div>
+      </div>
     </div>
   </div>
   <div v-else-if="isMobileDevice() == true">
