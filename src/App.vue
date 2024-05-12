@@ -11,12 +11,9 @@ import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore
 import { Button } from '@/components/ui/button'
 import {
   Menubar,
-  MenubarCheckboxItem,
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
   MenubarSeparator,
   MenubarShortcut,
   MenubarSub,
@@ -38,8 +35,6 @@ import {
 import { Switch } from '@/components/ui/switch'
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -49,6 +44,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
+import { Label } from '@/components/ui/label'
 
 //Tiptap Import
 import Tiptap from './components/Tiptap.vue'
@@ -71,23 +67,23 @@ import {
 } from 'lucide-vue-next'
 
 export default {
-  name: 'Noter',
   components: {
+    // eslint-disable-next-line vue/no-reserved-component-names
+    Label,
     Tiptap,
+    // eslint-disable-next-line vue/no-reserved-component-names
     Button,
     Menubar,
-    MenubarCheckboxItem,
     MenubarContent,
     MenubarItem,
     MenubarMenu,
-    MenubarRadioGroup,
-    MenubarRadioItem,
     MenubarSeparator,
     MenubarShortcut,
     MenubarSub,
     MenubarSubContent,
     MenubarSubTrigger,
     MenubarTrigger,
+    // eslint-disable-next-line vue/no-reserved-component-names
     Input,
     AlertCircle,
     Alert,
@@ -109,10 +105,9 @@ export default {
     CardHeader,
     CardTitle,
     X,
+    // eslint-disable-next-line vue/no-reserved-component-names
     Switch,
     AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
     AlertDialogFooter,
@@ -173,7 +168,7 @@ export default {
       trust: true,
       documentToRename: '',
       displayError: false,
-      errorMessage: 'An Error has occured. Please try again or submit an Issue.',
+      errorMessage: 'An Error has occurred. Please try again or submit an Issue.',
       ready: false,
       progress: 'Ready, set go!',
       showSettings: false,
@@ -205,7 +200,7 @@ export default {
         this.sharedContent = docSnap.data().note
         document.title = 'Noter - ' + this.sharedTitle
       } else {
-        alert('Nice try!')
+        alert('Nice try! Wrong password.')
       }
     },
     isMobileDevice() {
@@ -260,7 +255,7 @@ export default {
       const db = getFirestore(app)
       let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
       //save document to firebase
-      setDoc(docRef, {
+      await setDoc(docRef, {
         note: this.encryptString(this.activeDocumentContent),
         title: this.encryptString(this.activeDocument)
       })
@@ -271,7 +266,7 @@ export default {
       //save active document after 3 seconds of inactivity
       this.activeSavingProcesses++
       setTimeout(() => {
-        if (this.activeSavingProcesses == 1) {
+        if (this.activeSavingProcesses === 1) {
           this.saveActiveDocument()
         }
         this.activeSavingProcesses--
@@ -286,7 +281,7 @@ export default {
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
       const indexToRemove = this.index.indexOf(item)
-      //make sure if the item to remove is the the last note to remain
+      //make sure if the item to remove is the last note to remain
       if (this.index.length === 1) {
         this.activeDocument = ''
         this.activeDocumentContent = null
@@ -305,16 +300,16 @@ export default {
         //remove key from keyIndex and push new keyIndex to firebase
         this.keyIndex.splice(indexToRemove, 1)
         let docRef = doc(db, this.userId, 'keyIndex')
-        setDoc(docRef, { index: this.keyIndex })
-        //set activeDocument Varialbles
+        await setDoc(docRef, { index: this.keyIndex })
+        //set activeDocument Variables
         this.activeDocument = ''
         this.activeDocumentContent = ''
         this.activeDocumentIndex = null
         //hide dialog
         this.showNoteDeleteConformation = false
       } else {
-        console.log('An Error has occured. Please try again or create an Issue on GitHub.')
-        this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'
+        console.log('An Error has occurred. Please try again or create an Issue on GitHub.')
+        this.errorMessage = 'An Error has occurred. Please try again or submit an Issue.'
         this.displayError = true
       }
     },
@@ -328,7 +323,7 @@ export default {
       //find name
       let newNoteName = 'New Note'
       let nameFound = false
-      for (let i = 0; i < this.index.length && nameFound == false; i++) {
+      for (let i = 0; i < this.index.length && nameFound === false; i++) {
         if (this.index.includes(newNoteName)) {
           newNoteName = 'New Note ' + (i + 1)
         } else {
@@ -342,10 +337,10 @@ export default {
       this.keyIndex.unshift(key)
       //push new keyIndex to firebase
       let docRef = doc(db, this.userId, 'keyIndex')
-      setDoc(docRef, { index: this.keyIndex })
+      await setDoc(docRef, { index: this.keyIndex })
       //push new note to firebase
       docRef = doc(db, this.userId, key)
-      setDoc(docRef, {
+      await setDoc(docRef, {
         note: this.encryptString(''),
         title: this.encryptString(newNoteName)
       })
@@ -408,14 +403,14 @@ export default {
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
         let docRef = doc(db, this.userId, 'secretKey')
-        setDoc(docRef, { key: this.secretKey })
+        await setDoc(docRef, { key: this.secretKey })
       } else if (this.trust) {
         this.trust = false
         //if trust changed to false remove secretKey from firebase
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)
         let docRef = doc(db, this.userId, 'secretKey')
-        setDoc(docRef, { key: 'nah' })
+        await setDoc(docRef, { key: 'nah' })
         localStorage.setItem('secretKey', this.secretKey)
       }
     },
@@ -497,7 +492,7 @@ export default {
 
           //keyIndex
           let docRef = doc(db, this.userId, 'keyIndex')
-          setDoc(docRef, {
+          await setDoc(docRef, {
             index: parsedData.keyIndex
           })
           //notes
@@ -604,7 +599,7 @@ export default {
         localStorage.setItem('userId', this.userId)
       } catch (error) {
         console.log(error)
-        this.errorMessage = 'An Error has occured. Please try again or submit an Issue.'
+        this.errorMessage = 'An Error has occurred. Please try again or submit an Issue.'
         this.displayError = true
       }
       this.progress = 'Initializing secret key...'
@@ -629,7 +624,7 @@ export default {
         //if there is no secretKey in firebase, generate a new one and push it to firebase
         let key = await this.generateKey(256)
         docRef = doc(db, this.userId, 'secretKey')
-        setDoc(docRef, { key: key })
+        await setDoc(docRef, { key: key })
         this.secretKey = key
       }
       this.progress = 'Syncing your notes...'
@@ -650,14 +645,14 @@ export default {
             this.progress = 'Loading your last note...'
             //recover last note or select first in array if equal to null
             if (localStorage.getItem('lastNote') !== 'undefined') {
-              this.getDocument(localStorage.getItem('lastNote'))
+              await this.getDocument(localStorage.getItem('lastNote'))
             }
           }
         } else {
           //if keyIndex does not exist, create a new one and push it to firebase
           let key = await this.generateKey(128)
           this.keyIndex = [key]
-          setDoc(docRef, { index: this.keyIndex })
+          await setDoc(docRef, { index: this.keyIndex })
           //set to no note
           this.index = []
           this.activeDocument = ''
@@ -679,7 +674,7 @@ export default {
           this.keyIndex.unshift(key)
           //push new keyIndex to firebase
           let docRef = doc(db, this.userId, 'keyIndex')
-          setDoc(docRef, { index: this.keyIndex })
+          await setDoc(docRef, { index: this.keyIndex })
           //push new note to firebase
           docRef = doc(db, this.userId, key)
           await setDoc(docRef, {
@@ -687,7 +682,7 @@ export default {
             title: this.encryptString(data.title + ' Copy')
           })
           //getDocument
-          this.getDocument(data.title)
+          await this.getDocument(data.title)
         } else {
           alert("Couldn't clone note.")
         }
@@ -711,7 +706,7 @@ export default {
         <Button variant="outline" @click="cloneAndEdit()">Clone & Edit</Button>
       </div>
       <div class="inset-0 mx-2.5 my-2.5 border rounded-md h-full">
-        <div class="prose p-2.5 overlfow-y-scroll" v-html="this.sharedContent"></div>
+        <div class="prose p-2.5 overflow-y-scroll" v-html="this.sharedContent"></div>
       </div>
     </div>
     <div v-else>
@@ -727,7 +722,7 @@ export default {
       </div>
     </div>
   </div>
-  <div v-else-if="isMobileDevice() == true">
+  <div v-else-if="isMobileDevice() === true">
     <div
       class="absolute inset-0 mx-2.5 my-2.5 border rounded-md flex items-center justify-center flex-col"
     >
@@ -956,7 +951,7 @@ export default {
                 </div>
                 <div
                   v-else
-                  class="h-full w-full border rounded-md grid place-content-center flex flex-col"
+                  class="h-full w-full border rounded-md grid place-content-center flex-col"
                 >
                   <Sticker class="mx-auto"></Sticker>
                   <p class="text-center text-lg">Select a note to start editing.</p>
@@ -969,17 +964,17 @@ export default {
             <!--No file message-->
             <div
               v-else
-              class="h-screen border rounded-md m-2.5 grid place-content-center flex flex-col"
+              class="h-screen border rounded-md m-2.5 grid place-content-center flex-col"
             >
               <Frown class="mx-auto"></Frown>
               <p class="text-center text-lg">Create a new note to edit.</p>
               <p class="text-center text-sm">Select "File", "New File" in the Menubar</p>
             </div>
             <!--Error Alert-->
-            <div v-if="displayError == true">
+            <div v-if="displayError === true">
               <Alert
                 variant="destructive"
-                class="absolute bottom-0 right-0 z-50 fixed w-1/3 mr-5 mb-5"
+                class="absolute bottom-0 right-0 z-50 w-1/3 mr-5 mb-5"
                 @click="() => (displayError = false)"
                 style="cursor: pointer"
               >
