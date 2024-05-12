@@ -1,8 +1,8 @@
 # noter
 
-Hi there! Thanks for checking out this repo! Noter is a Note-App specifically for Students. It's, as you can see, still in development. Therefor it has many bugs and lacks a lot of features. If (I don't know why) you'd want to try it out, just follow these steps:
+Hi there! Thanks for checking out this repo! Noter is a Note-App specifically for Students. It's, as you can see, still in development. Therefor it has many bugs and lacks a lot of features. If (I don't know why) you'd want to try it out, just open https://noter.yeomid.com. However if you want host it for yourself or build your own features on top of my code, follow the following instructions. 
 
-## Installation
+## Run local instance of Noter
 ### 1. Install required Software
 
 To be able to run Noter and host it for yourself, you need to make sure that you've installed [Node.js](https://nodejs.org/en) and [Git](https://git-scm.com/downloads)
@@ -33,16 +33,19 @@ And now run
 npm install
 ```
 
-### 4. Run
+### 4. Build and Host
 
-Now just run
+Now just run the build command
 
 ```
-npm run dev
+npm run build:watch
 ```
 
-And voila you get a localhost address to your self-hosted Noter Application. Enjoy!
+To start a web server that hosts the website, run
 
+```
+npm run preview
+```
 ### Update!
 
 I constantly commit new code to this repo so I would recommend regularly running
@@ -50,5 +53,3 @@ I constantly commit new code to this repo so I would recommend regularly running
 ```
 git pull
 ```
-
-Thankss!
