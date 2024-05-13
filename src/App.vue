@@ -705,7 +705,7 @@ export default {
         </div>
         <Button variant="outline" @click="cloneAndEdit()">Clone & Edit</Button>
       </div>
-      <div class="inset-0 mx-2.5 my-2.5 border rounded-md h-full">
+      <div class="mx-2.5 my-2.5 border rounded-md" style="height: calc(100vh - 70px)">
         <div class="prose p-2.5 overflow-y-scroll" v-html="this.sharedContent"></div>
       </div>
     </div>
