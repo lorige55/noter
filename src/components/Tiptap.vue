@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full w-full mt-2.5 box-border">
+  <div class="flex flex-col h-full w-full box-border">
     <div
       class="h-[3.25rem] w-full justify-start p-0 m-0 border rounded-t-md border-b-0 box-border flex"
     >
@@ -484,7 +484,7 @@
     </bubble-menu>
     <editor-content
       class="w-full prose max-w-none"
-      style="height: calc(100vh - 213px)"
+      style="height: calc(100vh - 72px)"
       :editor="editor"
     />
     <div class="h-10 flex items-center border-x border-b rounded-b-md">
@@ -501,6 +501,7 @@
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 //Tiptap extensions
+import Document from '@tiptap/extension-document'
 import Highlight from '@tiptap/extension-highlight'
 import CodeBlock from '@tiptap/extension-code-block'
 import Underline from '@tiptap/extension-underline'
@@ -514,6 +515,9 @@ import Image from '@tiptap/extension-image'
 import Dropcursor from '@tiptap/extension-dropcursor'
 import Placeholder from '@tiptap/extension-placeholder'
 import Link from '@tiptap/extension-link'
+const CustomDocument = Document.extend({
+  content: 'heading block*',
+})
 //Firebase imports
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 //Tailwind imports
@@ -845,7 +849,10 @@ export default {
         }
       },
       extensions: [
-        StarterKit,
+        CustomDocument,
+        StarterKit.configure({
+          document: false,
+        }),
         Highlight,
         CodeBlock,
         Underline,
@@ -865,7 +872,13 @@ export default {
         Image,
         Dropcursor,
         Placeholder.configure({
-          placeholder: "C'mon, start typing!"
+          placeholder: ({ node }) => {
+            if (node.type.name === 'heading') {
+              return 'What’s the title?'
+            }
+
+            return "C'mon, say some more!"
+          },
         }),
         Link.configure({
           HTMLAttributes: {
@@ -912,5 +925,13 @@ export default {
 
 .tiptapLink {
   cursor: pointer;
+}
+
+.tiptap .is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #ced4da;
+  pointer-events: none;
+  height: 0;
 }
 </style>

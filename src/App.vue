@@ -133,6 +133,7 @@ export default {
       localStorage.setItem('activeDocument', newActiveDocument)
     },
     activeDocumentContent() {
+      this.activeDocument = this.activeDocumentContent.split("<h1>")[1].split("</h1>")[0]
       this.autoSave()
     }
   },
@@ -223,13 +224,11 @@ export default {
       if (this.activeDocument !== '') {
         await this.saveActiveDocument()
       }
+      //set active document index
+      this.activeDocumentIndex = this.index.indexOf(item)
       //initialize firebase
       const app = initializeApp(this.firebaseConfig)
       const db = getFirestore(app)
-      //set active document and lastNote
-      this.activeDocumentIndex = this.index.indexOf(item)
-      this.activeDocument = this.index[this.activeDocumentIndex]
-      localStorage.setItem('lastNote', this.activeDocument)
       //get document from firebase and set activeDocumentContent to content
       let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
       let docSnap = await getDoc(docRef)
@@ -238,6 +237,9 @@ export default {
       } else {
         console.error('A note could not be found. Please try again or create an Issue on GitHub.')
       }
+      //set activeDocument and lastNote
+      this.activeDocument = this.index[this.activeDocumentIndex]
+      localStorage.setItem('lastNote', this.activeDocument)
     },
     async saveActiveDocument() {
       //input validation
@@ -640,7 +642,8 @@ export default {
             for (let i = 0; i < this.keyIndex.length; i++) {
               let docRef = doc(db, this.userId, this.keyIndex[i])
               let docSnap = await getDoc(docRef)
-              this.index[i] = this.decryptString(docSnap.data().title)
+              try { this.index[i] = this.decryptString(docSnap.data().title) }
+              catch { console.log("error getting note, skipped") }
             }
             this.progress = 'Loading your last note...'
             //recover last note or select first in array if equal to null
@@ -937,15 +940,6 @@ export default {
 
               <ResizablePanel class="w-3/4 pt-2.5 pr-2.5 pl-1 pb-2.5 min-w-[500px]">
                 <div v-if="activeDocumentIndex !== null" class="flex flex-col h-full w-full">
-                  <!--Editor-->
-                  <!--Title Editor-->
-                  <Input
-                    class="justify-between text-base font-semibold px-4 py-2"
-                    type="text"
-                    v-model="activeDocument"
-                    @input="autoSave()"
-                  />
-
                   <!--Content Editor-->
                   <tiptap v-model="activeDocumentContent"></tiptap>
                 </div>
