@@ -133,7 +133,7 @@ export default {
       localStorage.setItem('activeDocument', newActiveDocument)
     },
     activeDocumentContent() {
-      this.activeDocument = this.activeDocumentContent.split("<h1>")[1].split("</h1>")[0]
+      this.activeDocument = this.activeDocumentContent.split('<h1>')[1].split('</h1>')[0]
       this.autoSave()
     }
   },
@@ -186,11 +186,11 @@ export default {
   methods: {
     async enterSharedNoteWithPassword() {
       // Concatenate password and salt
-      const saltedPassword = this.sharedNoteInputPassword + this.sharedPasswordSalt;
+      const saltedPassword = this.sharedNoteInputPassword + this.sharedPasswordSalt
       // Hash the salted password
-      const hash = CryptoJS.SHA256(saltedPassword);
+      const hash = CryptoJS.SHA256(saltedPassword)
       // Convert the hash to a string to store it easily
-      const hashHEX = hash.toString(CryptoJS.enc.Hex);
+      const hashHEX = hash.toString(CryptoJS.enc.Hex)
       if (hashHEX === this.sharedPasswordHash) {
         //initialize firebase
         const app = initializeApp(this.firebaseConfig)
@@ -642,8 +642,11 @@ export default {
             for (let i = 0; i < this.keyIndex.length; i++) {
               let docRef = doc(db, this.userId, this.keyIndex[i])
               let docSnap = await getDoc(docRef)
-              try { this.index[i] = this.decryptString(docSnap.data().title) }
-              catch { console.error("couldn't get document, skipped") }
+              try {
+                this.index[i] = this.decryptString(docSnap.data().title)
+              } catch {
+                console.error("couldn't get document, skipped")
+              }
             }
             this.progress = 'Loading your last note...'
             //recover last note or select first in array if equal to null
@@ -699,17 +702,15 @@ export default {
 
 <template>
   <div v-if="this.shared === true" class="flex flex-col h-screen">
-    <div v-if="this.sharedContent !== ''">
-      <div class="flex justify-between items-center h-10 mx-2.5 mt-2.5">
-        <div
-          class="h-10 mr-2.5 text-lg font-semibold flex-grow border rounded-md items-center flex align-center"
-        >
-          <a class="pl-2.5">{{ this.sharedTitle }}</a>
-        </div>
-        <Button variant="outline" @click="cloneAndEdit()">Clone & Edit</Button>
+    <div v-if="this.sharedContent !== ''" class="h-screen">
+      <div
+        class="relative mx-2.5 my-2.5 border rounded-md overflow-y-scroll"
+        style="height: calc(100vh - 20px)"
+      >
+        <div class="prose p-2.5 max-w-none" v-html="this.sharedContent"></div>
       </div>
-      <div class="mx-2.5 my-2.5 border rounded-md overflow-y-scroll" style="height: calc(100vh - 70px)">
-        <div class="prose p-2.5" v-html="this.sharedContent"></div>
+      <div class="absolute top-0 right-0">
+        <Button class="m-5 shadow" variant="outline" @click="cloneAndEdit()">Clone & Edit </Button>
       </div>
     </div>
     <div v-else>
@@ -751,8 +752,10 @@ export default {
           <p class="text-xl w-1/3 text-center">{{ progress }}</p>
           <HoverCard class="w-96">
             <HoverCardTrigger>
-              <Button variant="outline" class="mt-3"><Info></Info></Button
-            ></HoverCardTrigger>
+              <Button variant="outline" class="mt-3">
+                <Info></Info>
+              </Button>
+            </HoverCardTrigger>
             <HoverCardContent>
               <p class="text-sm text-center">
                 This should only take a few seconds. If it takes too long, a slow internet
@@ -761,8 +764,8 @@ export default {
                 resetting.
               </p>
               <Button variant="destructive" @click="deleteAccountData()" class="w-full mt-3"
-                >Delete My Data</Button
-              >
+                >Delete My Data
+              </Button>
             </HoverCardContent>
           </HoverCard>
         </div>
@@ -776,29 +779,38 @@ export default {
                 <MenubarTrigger>Home</MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem @click="(tabToOpen = 'account'), (showSettings = true)">
-                    <User class="mr-2 h-4 w-4" /> Account
+                    <User class="mr-2 h-4 w-4" />
+                    Account
                   </MenubarItem>
                   <MenubarItem @click="(tabToOpen = 'privacyAndSecurity'), (showSettings = true)">
-                    <Lock class="mr-2 h-4 w-4" /> Privacy & Security
+                    <Lock class="mr-2 h-4 w-4" />
+                    Privacy & Security
                   </MenubarItem>
                   <MenubarSeparator />
                   <a href="https://github.com/lorige55/noter" target="_blank">
-                    <MenubarItem> <Github class="mr-2 h-4 w-4" /> GitHub </MenubarItem>
+                    <MenubarItem>
+                      <Github class="mr-2 h-4 w-4" />
+                      GitHub
+                    </MenubarItem>
                   </a>
                   <a href="https://github.com/lorige55/noter/issues" target="_blank">
-                    <MenubarItem> <LifeBuoy class="mr-2 h-4 w-4" /> Support </MenubarItem>
+                    <MenubarItem>
+                      <LifeBuoy class="mr-2 h-4 w-4" />
+                      Support
+                    </MenubarItem>
                   </a>
                   <MenubarSeparator />
                   <MenubarItem @click="logout()">
-                    <LogOut class="mr-2 h-4 w-4" /> Logout
+                    <LogOut class="mr-2 h-4 w-4" />
+                    Logout
                   </MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
               <MenubarMenu>
                 <MenubarTrigger>File</MenubarTrigger>
                 <MenubarContent>
-                  <MenubarItem @click="createNewDocument()"> New File </MenubarItem>
-                  <MenubarItem disabled> New Folder </MenubarItem>
+                  <MenubarItem @click="createNewDocument()"> New File</MenubarItem>
+                  <MenubarItem disabled> New Folder</MenubarItem>
                   <MenubarSeparator />
                   <MenubarItem
                     @click="(showNoteDeleteConformation = true), (noteToDelete = activeDocument)"
@@ -816,32 +828,51 @@ export default {
                   </MenubarSub>
                   <MenubarSeparator />
                   <MenubarItem @click="(tabToOpen = 'account'), (showSettings = true)"
-                    >Import Data</MenubarItem
-                  >
+                    >Import Data
+                  </MenubarItem>
                   <MenubarItem @click="exportData()">Export Data</MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
               <MenubarMenu>
                 <MenubarTrigger>Edit</MenubarTrigger>
                 <MenubarContent>
-                  <MenubarItem disabled> Undo <MenubarShortcut>⌘Z</MenubarShortcut> </MenubarItem>
-                  <MenubarItem disabled> Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut> </MenubarItem>
+                  <MenubarItem disabled>
+                    Undo
+                    <MenubarShortcut>⌘Z</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem disabled>
+                    Redo
+                    <MenubarShortcut>⇧⌘Z</MenubarShortcut>
+                  </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem disabled> Find <MenubarShortcut>⌘F</MenubarShortcut> </MenubarItem>
+                  <MenubarItem disabled>
+                    Find
+                    <MenubarShortcut>⌘F</MenubarShortcut>
+                  </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem disabled>Cut <MenubarShortcut>⌘X</MenubarShortcut></MenubarItem>
-                  <MenubarItem disabled>Copy <MenubarShortcut>⌘C</MenubarShortcut></MenubarItem>
-                  <MenubarItem disabled>Paste <MenubarShortcut>⌘P</MenubarShortcut></MenubarItem>
+                  <MenubarItem disabled
+                    >Cut
+                    <MenubarShortcut>⌘X</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem disabled
+                    >Copy
+                    <MenubarShortcut>⌘C</MenubarShortcut>
+                  </MenubarItem>
+                  <MenubarItem disabled
+                    >Paste
+                    <MenubarShortcut>⌘P</MenubarShortcut>
+                  </MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
               <MenubarMenu>
                 <MenubarTrigger>View</MenubarTrigger>
                 <MenubarContent>
                   <MenubarItem @click="reload()">
-                    Reload <MenubarShortcut>⌘R</MenubarShortcut>
+                    Reload
+                    <MenubarShortcut>⌘R</MenubarShortcut>
                   </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem @click="fullscreen()"> Toggle Fullscreen </MenubarItem>
+                  <MenubarItem @click="fullscreen()"> Toggle Fullscreen</MenubarItem>
                 </MenubarContent>
               </MenubarMenu>
             </Menubar>
@@ -866,8 +897,8 @@ export default {
                   @click="createNewDocument()"
                   variant="outline"
                   class="w-auto ml-2.5 mb-2.5 h-10"
-                  >New Note</Button
-                >
+                  >New Note
+                </Button>
                 <div class="rounded-md border h-full ml-2.5 overflow-y-auto">
                   <div v-for="item in index" :key="item" style="cursor: pointer">
                     <div
@@ -927,8 +958,8 @@ export default {
                     <AlertDialogFooter>
                       <Button @click="showNoteDeleteConformation = false">Cancel</Button>
                       <Button variant="destructive" @click="deleteDocument(noteToDelete)"
-                        >Continue</Button
-                      >
+                        >Continue
+                      </Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
@@ -956,10 +987,7 @@ export default {
               </ResizablePanel>
             </ResizablePanelGroup>
             <!--No file message-->
-            <div
-              v-else
-              class="h-screen border rounded-md m-2.5 grid place-content-center flex-col"
-            >
+            <div v-else class="h-screen border rounded-md m-2.5 grid place-content-center flex-col">
               <Frown class="mx-auto"></Frown>
               <p class="text-center text-lg">Create a new note to edit.</p>
               <p class="text-center text-sm">Select "File", "New File" in the Menubar</p>
@@ -983,8 +1011,8 @@ export default {
           <!--Account, Privacy and Security-->
           <Tabs :default-value="tabToOpen" class="mx-2.5 my-2.5 h-screen">
             <TabsList class="grid w-full grid-cols-2">
-              <TabsTrigger value="account"> Account </TabsTrigger>
-              <TabsTrigger value="privacyAndSecurity"> Privacy & Security </TabsTrigger>
+              <TabsTrigger value="account"> Account</TabsTrigger>
+              <TabsTrigger value="privacyAndSecurity"> Privacy & Security</TabsTrigger>
             </TabsList>
             <TabsContent value="account" class="h-full">
               <Card class="relative" style="height: calc(100vh - 70px)">
@@ -1010,14 +1038,14 @@ export default {
                   <Button class="mr-3" @click="logout()">Log Out</Button>
                   <Button class="mr-3" variant="outline" @click="exportData()">Export Data</Button>
                   <Button class="mr-3" variant="outline" @click="showImportConformation = true"
-                    >Import Data</Button
-                  >
+                    >Import Data
+                  </Button>
                   <Button
                     class="mr-3"
                     variant="destructive"
                     @click="showAccountDataDeletionConformation = true"
-                    >Delete My Data</Button
-                  >
+                    >Delete My Data
+                  </Button>
                 </CardFooter>
                 <!--Import Conformation Dialog-->
                 <AlertDialog v-model:open="showImportConformation">
@@ -1052,8 +1080,8 @@ export default {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <Button variant="destructive" @click="deleteAccountData()"
-                        >Delete Data</Button
-                      >
+                        >Delete Data
+                      </Button>
                       <Button @click="showAccountDataDeletionConformation = false">Cancel</Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -1135,8 +1163,8 @@ export default {
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <Button variant="destructive" @click="generateNewSecretKey()"
-                          >Generate New</Button
-                        >
+                          >Generate New
+                        </Button>
                         <Button @click="showNewSecretKeyConformation = false">Cancel</Button>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -1158,8 +1186,8 @@ export default {
                         v-model="customSecretKeyInput"
                       />
                       <AlertDialogDescription
-                        >The secret key is case sensitive.</AlertDialogDescription
-                      >
+                        >The secret key is case sensitive.
+                      </AlertDialogDescription>
                       <AlertDialogFooter>
                         <Button variant="destructive" @click="saveNewSecretKey()">Save</Button>
                         <Button @click="showChangeSecretKeyConformation = false">Cancel</Button>
@@ -1167,7 +1195,7 @@ export default {
                     </AlertDialogContent>
                   </AlertDialog>
                 </CardContent>
-                <CardFooter> </CardFooter>
+                <CardFooter></CardFooter>
               </Card>
             </TabsContent>
           </Tabs>
