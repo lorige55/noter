@@ -483,7 +483,7 @@
       ></Button>
     </bubble-menu>
     <editor-content
-      class="w-full prose max-w-none"
+      class="w-full prose max-w-none overflow-y-scroll"
       style="height: calc(100vh - 72px)"
       :editor="editor"
     />

@@ -224,6 +224,8 @@ export default {
       if (this.activeDocument !== '') {
         await this.saveActiveDocument()
       }
+      //set activeDocument
+      this.activeDocument = item
       //set active document index
       this.activeDocumentIndex = this.index.indexOf(item)
       //initialize firebase
@@ -237,8 +239,6 @@ export default {
       } else {
         console.error('A note could not be found. Please try again or create an Issue on GitHub.')
       }
-      //set activeDocument and lastNote
-      this.activeDocument = this.index[this.activeDocumentIndex]
       localStorage.setItem('lastNote', this.activeDocument)
     },
     async saveActiveDocument() {
@@ -643,7 +643,7 @@ export default {
               let docRef = doc(db, this.userId, this.keyIndex[i])
               let docSnap = await getDoc(docRef)
               try { this.index[i] = this.decryptString(docSnap.data().title) }
-              catch { console.log("error getting note, skipped") }
+              catch { console.error("couldn't get document, skipped") }
             }
             this.progress = 'Loading your last note...'
             //recover last note or select first in array if equal to null
