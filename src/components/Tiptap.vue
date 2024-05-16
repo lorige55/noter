@@ -7,26 +7,26 @@
         <Popover>
           <PopoverTrigger>
             <Button variant="ghost" class="h-10 mr-1.5">
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                :value="editor.getAttributes('textStyle').color"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: editor.getAttributes('textStyle').color }"
                 @click.prevent
               />
             </Button>
           </PopoverTrigger>
-          <PopoverContent>
+          <PopoverContent class="w-full">
             <!--Black-->
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('textStyle', { color: '#000000' }) }"
+              @click="editor.chain().focus().setColor('#000000').run()"
             >
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                value="#000000"
-                @click.prevent="editor.chain().focus().setColor('#000000').run()"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: '#000000' }"
               />
             </Button>
             <!--Red-->
@@ -34,12 +34,12 @@
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('textStyle', { color: '#fc0707' }) }"
+              @click="editor.chain().focus().setColor('#fc0707').run()"
             >
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                value="#fc0707"
-                @click.prevent="editor.chain().focus().setColor('#fc0707').run()"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: '#fc0707' }"
               />
             </Button>
             <!--Orange-->
@@ -47,12 +47,12 @@
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('textStyle', { color: '#fc8a07' }) }"
+              @click="editor.chain().focus().setColor('#fc8a07').run()"
             >
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                value="#fc8a07"
-                @click.prevent="editor.chain().focus().setColor('#fc8a07').run()"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: '#fc8a07' }"
               />
             </Button>
             <!--Yellow-->
@@ -60,12 +60,12 @@
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('textStyle', { color: '#fcf007' }) }"
+              @click="editor.chain().focus().setColor('#fcf007').run()"
             >
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                value="#fcf007"
-                @click.prevent="editor.chain().focus().setColor('#fcf007').run()"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: '#fcf007' }"
               />
             </Button>
             <!--Green-->
@@ -73,12 +73,12 @@
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('textStyle', { color: '#13fc07' }) }"
+              @click="editor.chain().focus().setColor('#13fc07').run()"
             >
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                value="#13fc07"
-                @click.prevent="editor.chain().focus().setColor('#13fc07').run()"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: '#13fc07' }"
               />
             </Button>
             <!--Blue-->
@@ -86,12 +86,12 @@
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('textStyle', { color: '#0e02f7' }) }"
+              @click="editor.chain().focus().setColor('#0e02f7').run()"
             >
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                value="#0e02f7"
-                @click.prevent="editor.chain().focus().setColor('#0e02f7').run()"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: '#0e02f7' }"
               />
             </Button>
             <!--Purple-->
@@ -99,12 +99,12 @@
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('textStyle', { color: '#a207fc' }) }"
+              @click="editor.chain().focus().setColor('#a207fc').run()"
             >
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                value="#a207fc"
-                @click.prevent="editor.chain().focus().setColor('#a207fc').run()"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: '#a207fc' }"
               />
             </Button>
             <!--Pink-->
@@ -112,19 +112,21 @@
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('textStyle', { color: '#f807fc' }) }"
+              @click="editor.chain().focus().setColor('#f807fc').run()"
             >
-              <input
+              <div
                 type="color"
-                class="h-[25px] w-[25px] bg-transparent cursor-pointer"
-                value="#f807fc"
-                @click.prevent="editor.chain().focus().setColor('#f807fc').run()"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                :style="{ backgroundColor: '#f807fc' }"
               />
             </Button>
           </PopoverContent>
         </Popover>
         <Popover>
           <PopoverTrigger>
-            <Button variant="ghost" class="h-10 mr-1.5"><Type class="h-4 w-4"></Type></Button>
+            <Button variant="ghost" class="h-10 mr-1.5">
+              <Type class="h-4 w-4"></Type>
+            </Button>
           </PopoverTrigger>
           <PopoverContent class="w-50 p-2.5">
             <Button
@@ -133,84 +135,95 @@
               @click="editor.chain().focus().toggleBold().run()"
               :disabled="!editor.can().chain().focus().toggleBold().run()"
               :class="{ activeToggle: editor.isActive('bold') }"
-              ><Bold class="h-4 w-4"></Bold
-            ></Button>
+            >
+              <Bold class="h-4 w-4"></Bold>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleItalic().run()"
               :disabled="!editor.can().chain().focus().toggleItalic().run()"
               :class="{ activeToggle: editor.isActive('italic') }"
-              ><Italic class="h-4 w-4"></Italic
-            ></Button>
+            >
+              <Italic class="h-4 w-4"></Italic>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleUnderline().run()"
               :disabled="!editor.can().chain().focus().toggleUnderline().run()"
               :class="{ activeToggle: editor.isActive('underline') }"
-              ><UnderlineIcon class="h-4 w-4"></UnderlineIcon
-            ></Button>
+            >
+              <UnderlineIcon class="h-4 w-4"></UnderlineIcon>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleStrike().run()"
               :disabled="!editor.can().chain().focus().toggleStrike().run()"
               :class="{ activeToggle: editor.isActive('strike') }"
-              ><Strikethrough class="h-4 w-4"></Strikethrough
-            ></Button>
+            >
+              <Strikethrough class="h-4 w-4"></Strikethrough>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleHighlight().run()"
               :disabled="!editor.can().chain().focus().toggleHighlight().run()"
               :class="{ activeToggle: editor.isActive('highlight') }"
-              ><Highlighter class="h-4 w-4"></Highlighter
-            ></Button>
+            >
+              <Highlighter class="h-4 w-4"></Highlighter>
+            </Button>
             <Separator orientation="horizontal" class="my-2.5" />
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().setParagraph().run()"
               :class="{ activeToggle: editor.isActive('paragraph') }"
-              ><RemoveFormatting class="h-4 w-4"></RemoveFormatting
-            ></Button>
+            >
+              <RemoveFormatting class="h-4 w-4"></RemoveFormatting>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
               :class="{ activeToggle: editor.isActive('heading', { level: 1 }) }"
-              ><Heading1 class="h-4 w-4"></Heading1
-            ></Button>
+            >
+              <Heading1 class="h-4 w-4"></Heading1>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
               :class="{ activeToggle: editor.isActive('heading', { level: 2 }) }"
-              ><Heading2 class="h-4 w-4"></Heading2
-            ></Button>
+            >
+              <Heading2 class="h-4 w-4"></Heading2>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
               :class="{ activeToggle: editor.isActive('heading', { level: 3 }) }"
-              ><Heading3 class="h-4 w-4"></Heading3
-            ></Button>
+            >
+              <Heading3 class="h-4 w-4"></Heading3>
+            </Button>
             <Separator orientation="horizontal" class="my-2.5" />
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleBulletList().run()"
               :class="{ activeToggle: editor.isActive('bulletList') }"
-              ><List class="h-4 w-4"></List
-            ></Button>
+            >
+              <List class="h-4 w-4"></List>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleOrderedList().run()"
               :class="{ activeToggle: editor.isActive('orderedList') }"
-              ><ListOrdered class="h-4 w-4"></ListOrdered
-            ></Button>
+            >
+              <ListOrdered class="h-4 w-4"></ListOrdered>
+            </Button>
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
@@ -225,14 +238,15 @@
               @click="editor.chain().focus().toggleBlockquote().run()"
               :disabled="!editor.can().chain().focus().toggleBlockquote().run()"
               :class="{ activeToggle: editor.isActive('blockquote') }"
-              ><TextQuote class="h-4 w-4"></TextQuote
-            ></Button>
+            >
+              <TextQuote class="h-4 w-4"></TextQuote>
+            </Button>
           </PopoverContent>
         </Popover>
         <Popover>
           <PopoverTrigger>
-            <Button variant="ghost" class="h-10 mr-1.5"
-              ><AlignCenter
+            <Button variant="ghost" class="h-10 mr-1.5">
+              <AlignCenter
                 v-if="editor.isActive({ textAlign: 'center' })"
                 class="w-4 h-4"
               ></AlignCenter>
@@ -254,40 +268,48 @@
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive({ textAlign: 'left' }) }"
-              ><AlignLeft class="w-4 h-4"></AlignLeft
-            ></Button>
+            >
+              <AlignLeft class="w-4 h-4"></AlignLeft>
+            </Button>
             <Button
               v-if="!editor.isActive({ textAlign: 'center' })"
               @click="editor.chain().focus().setTextAlign('center').run()"
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive({ textAlign: 'center' }) }"
-              ><AlignCenter class="w-4 h-4"></AlignCenter
-            ></Button>
+            >
+              <AlignCenter class="w-4 h-4"></AlignCenter>
+            </Button>
             <Button
               v-if="!editor.isActive({ textAlign: 'justify' })"
               @click="editor.chain().focus().setTextAlign('justify').run()"
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive({ textAlign: 'justify' }) }"
-              ><AlignJustify class="w-4 h-4"></AlignJustify
-            ></Button>
+            >
+              <AlignJustify class="w-4 h-4"></AlignJustify>
+            </Button>
             <Button
               v-if="!editor.isActive({ textAlign: 'right' })"
               @click="editor.chain().focus().setTextAlign('right').run()"
               variant="ghost"
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive({ textAlign: 'right' }) }"
-              ><AlignRight class="w-4 h-4"></AlignRight></Button></PopoverContent
-        ></Popover>
+            >
+              <AlignRight class="w-4 h-4"></AlignRight>
+            </Button>
+          </PopoverContent>
+        </Popover>
         <Popover>
           <PopoverTrigger>
-            <Button variant="ghost" class="h-10 mr-1.5"><File class="h-4 w-4"></File> </Button>
+            <Button variant="ghost" class="h-10 mr-1.5">
+              <File class="h-4 w-4"></File>
+            </Button>
           </PopoverTrigger>
           <PopoverContent class="w-full">
-            <Button variant="ghost" class="h-10 mr-1.5" @click="addYoutubeVideo(1)"
-              ><Film class="h-4 w-4"></Film
-            ></Button>
+            <Button variant="ghost" class="h-10 mr-1.5" @click="addYoutubeVideo(1)">
+              <Film class="h-4 w-4"></Film>
+            </Button>
             <AlertDialog :open="showYouTubeDialog">
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -302,9 +324,9 @@
                   />
                   <Tabs v-model="youtubeVideoSize" default-value="medium" class="w-full">
                     <TabsList class="flex">
-                      <TabsTrigger value="small" class="w-1/3"> Small </TabsTrigger>
-                      <TabsTrigger value="medium" class="w-1/3"> Medium </TabsTrigger>
-                      <TabsTrigger value="large" class="w-1/3"> Large </TabsTrigger>
+                      <TabsTrigger value="small" class="w-1/3"> Small</TabsTrigger>
+                      <TabsTrigger value="medium" class="w-1/3"> Medium</TabsTrigger>
+                      <TabsTrigger value="large" class="w-1/3"> Large</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </AlertDialogHeader>
@@ -314,9 +336,9 @@
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Button variant="ghost" class="h-10 mr-1.5" @click="addImage(1)"
-              ><ImageIcon class="h-4 w-4"></ImageIcon
-            ></Button>
+            <Button variant="ghost" class="h-10 mr-1.5" @click="addImage(1)">
+              <ImageIcon class="h-4 w-4"></ImageIcon>
+            </Button>
             <AlertDialog :open="showImageDialog">
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -328,11 +350,11 @@
                   </AlertDialogDescription>
                   <div class="flex w-full items-center gap-1.5">
                     <Input type="url" placeholder="Enter a URL to an image" v-model="imageURL" />
-                    <Button @click="addImage(2)" type="submit"> Add </Button>
+                    <Button @click="addImage(2)" type="submit"> Add</Button>
                   </div>
                   <div class="flex w-full items-center gap-1.5">
                     <Input id="imageUpload" type="file" accept="image/*" />
-                    <Button @click="addImage(3)" type="submit"> Upload </Button>
+                    <Button @click="addImage(3)" type="submit"> Upload</Button>
                   </div>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -345,8 +367,9 @@
               class="h-10 mr-1.5"
               :class="{ activeToggle: editor.isActive('link') }"
               @click="setLink(1)"
-              ><LinkIcon class="h-4 w-4"></LinkIcon
-            ></Button>
+            >
+              <LinkIcon class="h-4 w-4"></LinkIcon>
+            </Button>
             <AlertDialog :open="showLinkDialog">
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -358,8 +381,8 @@
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel v-if="editor.isActive('link')" @click="setLink(4)"
-                    >Remove Link</AlertDialogCancel
-                  >
+                    >Remove Link
+                  </AlertDialogCancel>
                   <AlertDialogCancel @click="setLink(3)">Cancel</AlertDialogCancel>
                   <AlertDialogAction @click="setLink(2)">Save</AlertDialogAction>
                 </AlertDialogFooter>
@@ -367,9 +390,9 @@
             </AlertDialog>
           </PopoverContent>
         </Popover>
-        <Button variant="ghost" class="h-10 mr-1.5" @click="share(1)"
-          ><Share class="h-4 w-4"></Share
-        ></Button>
+        <Button variant="ghost" class="h-10 mr-1.5" @click="share(1)">
+          <Share class="h-4 w-4"></Share>
+        </Button>
         <AlertDialog :open="showShareDialog">
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -387,7 +410,7 @@
                   >
                     <div v-if="!protectSharedNoteWithPassword" class="space-y-0.5">
                       <FormLabel class="text-base"> Password protection</FormLabel>
-                      <FormDescription> Protect your shared note with a password. </FormDescription>
+                      <FormDescription> Protect your shared note with a password.</FormDescription>
                     </div>
                     <Input
                       v-else
@@ -406,12 +429,12 @@
                 </FormField>
               </div>
               <div v-else>
-                <AlertDialogDescription> This is the link: </AlertDialogDescription>
+                <AlertDialogDescription> This is the link:</AlertDialogDescription>
                 <div class="flex w-full items-center gap-1.5">
                   <Input type="url" v-model="shareURL" style="cursor: text" disabled />
-                  <Button variant="outline" @click="copyToClipboard(shareURL)"
-                    ><Copy class="h-4 w-4"></Copy
-                  ></Button>
+                  <Button variant="outline" @click="copyToClipboard(shareURL)">
+                    <Copy class="h-4 w-4"></Copy>
+                  </Button>
                 </div>
               </div>
             </AlertDialogHeader>
@@ -440,47 +463,53 @@
         @click="editor.chain().focus().toggleBold().run()"
         :disabled="!editor.can().chain().focus().toggleBold().run()"
         :class="{ activeToggle: editor.isActive('bold') }"
-        ><Bold class="h-4 w-4"></Bold
-      ></Button>
+      >
+        <Bold class="h-4 w-4"></Bold>
+      </Button>
       <Button
         variant="ghost"
         class="h-10 rounded-none"
         @click="editor.chain().focus().toggleItalic().run()"
         :disabled="!editor.can().chain().focus().toggleItalic().run()"
         :class="{ activeToggle: editor.isActive('italic') }"
-        ><Italic class="h-4 w-4"></Italic
-      ></Button>
+      >
+        <Italic class="h-4 w-4"></Italic>
+      </Button>
       <Button
         variant="ghost"
         class="h-10 rounded-none"
         @click="editor.chain().focus().toggleUnderline().run()"
         :disabled="!editor.can().chain().focus().toggleUnderline().run()"
         :class="{ activeToggle: editor.isActive('underline') }"
-        ><UnderlineIcon class="h-4 w-4"></UnderlineIcon
-      ></Button>
+      >
+        <UnderlineIcon class="h-4 w-4"></UnderlineIcon>
+      </Button>
       <Button
         variant="ghost"
         class="h-10 rounded-none"
         @click="editor.chain().focus().toggleStrike().run()"
         :disabled="!editor.can().chain().focus().toggleStrike().run()"
         :class="{ activeToggle: editor.isActive('strike') }"
-        ><Strikethrough class="h-4 w-4"></Strikethrough
-      ></Button>
+      >
+        <Strikethrough class="h-4 w-4"></Strikethrough>
+      </Button>
       <Button
         variant="ghost"
         class="h-10 rounded-none"
         @click="editor.chain().focus().toggleHighlight().run()"
         :disabled="!editor.can().chain().focus().toggleHighlight().run()"
         :class="{ activeToggle: editor.isActive('highlight') }"
-        ><Highlighter class="h-4 w-4"></Highlighter
-      ></Button>
+      >
+        <Highlighter class="h-4 w-4"></Highlighter>
+      </Button>
       <Button
         variant="ghost"
         class="h-10 rounded-none"
         :class="{ activeToggle: editor.isActive('link') }"
         @click="setLink(1)"
-        ><LinkIcon class="h-4 w-4"></LinkIcon
-      ></Button>
+      >
+        <LinkIcon class="h-4 w-4"></LinkIcon>
+      </Button>
     </bubble-menu>
     <editor-content
       class="w-full prose max-w-none overflow-y-scroll"
@@ -515,8 +544,9 @@ import Image from '@tiptap/extension-image'
 import Dropcursor from '@tiptap/extension-dropcursor'
 import Placeholder from '@tiptap/extension-placeholder'
 import Link from '@tiptap/extension-link'
+
 const CustomDocument = Document.extend({
-  content: 'heading block*',
+  content: 'heading block*'
 })
 //Firebase imports
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
@@ -803,11 +833,11 @@ export default {
         if (this.protectSharedNoteWithPassword) {
           const salt = CryptoJS.lib.WordArray.random(128 / 8) //Generate Salt
           // Concatenate password and salt
-          const saltedPassword = this.sharedNotePassword + salt;
+          const saltedPassword = this.sharedNotePassword + salt
           // Hash the salted password
-          const hash = CryptoJS.SHA256(saltedPassword);
+          const hash = CryptoJS.SHA256(saltedPassword)
           // Convert the hash to a string to store it easily
-          const hashHEX = hash.toString(CryptoJS.enc.Hex);
+          const hashHEX = hash.toString(CryptoJS.enc.Hex)
           //set to firebase
           setDoc(docRef, {
             note: this.editor.getHTML(),
@@ -851,7 +881,7 @@ export default {
       extensions: [
         CustomDocument,
         StarterKit.configure({
-          document: false,
+          document: false
         }),
         Highlight,
         CodeBlock,
@@ -878,7 +908,7 @@ export default {
             }
 
             return "C'mon, say some more!"
-          },
+          }
         }),
         Link.configure({
           HTMLAttributes: {

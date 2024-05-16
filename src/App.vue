@@ -133,7 +133,11 @@ export default {
       localStorage.setItem('activeDocument', newActiveDocument)
     },
     activeDocumentContent() {
-      this.activeDocument = this.activeDocumentContent.split('<h1>')[1].split('</h1>')[0]
+      let newActiveDocument = this.activeDocumentContent.split('<h1>')[1].split('</h1>')[0]
+      if (newActiveDocument.includes('<span')) {
+        newActiveDocument = newActiveDocument.split('>')[1].split('</span')[0]
+      }
+      this.activeDocument = newActiveDocument
       this.autoSave()
     }
   },
@@ -710,7 +714,7 @@ export default {
         <div class="prose p-2.5 max-w-none" v-html="this.sharedContent"></div>
       </div>
       <div class="absolute top-0 right-0">
-        <Button class="m-5 shadow" variant="outline" @click="cloneAndEdit()">Clone & Edit </Button>
+        <Button class="m-5 shadow" variant="outline" @click="cloneAndEdit()">Clone & Edit</Button>
       </div>
     </div>
     <div v-else>
