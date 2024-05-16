@@ -135,7 +135,7 @@ export default {
     activeDocumentContent() {
       let newActiveDocument = this.activeDocumentContent.split('<h1>')[1].split('</h1>')[0]
       if (newActiveDocument.includes('<span')) {
-        newActiveDocument = newActiveDocument.split('>')[1].split('</span')[0]
+        newActiveDocument = newActiveDocument.split('">')[1].split('</span')[0]
       }
       this.activeDocument = newActiveDocument
       this.autoSave()
