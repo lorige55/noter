@@ -9,7 +9,7 @@
             <Button variant="ghost" class="h-10 mr-1.5">
               <div
                 type="color"
-                class="h-4 w-4 bg-transparent cursor-pointer"
+                class="h-4 w-4 bg-transparent cursor-pointer bg-black"
                 :style="{ backgroundColor: editor.getAttributes('textStyle').color }"
                 @click.prevent
               />
@@ -941,10 +941,6 @@ export default {
   background-color: #f4f4f5;
 }
 
-.prose {
-  color: black;
-}
-
 .tiptap p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
@@ -963,5 +959,10 @@ export default {
   color: #ced4da;
   pointer-events: none;
   height: 0;
+}
+
+.prose {
+  --tw-prose-body: #000000;
+  --tw-prose-headings: #000000;
 }
 </style>
