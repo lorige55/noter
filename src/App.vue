@@ -137,6 +137,21 @@ export default {
       if (newActiveDocument.includes('<span')) {
         newActiveDocument = newActiveDocument.split('">')[1].split('</span')[0]
       }
+      if (newActiveDocument.includes('<strong>')) {
+        newActiveDocument = newActiveDocument.split('<strong>')[1].split('</strong>')[0]
+      }
+      if (newActiveDocument.includes('<em>')) {
+        newActiveDocument = newActiveDocument.split('<em>')[1].split('</em>')[0]
+      }
+      if (newActiveDocument.includes('<u>')) {
+        newActiveDocument = newActiveDocument.split('<u>')[1].split('</u>')[0]
+      }
+      if (newActiveDocument.includes('<s>')) {
+        newActiveDocument = newActiveDocument.split('<s>')[1].split('</s>')[0]
+      }
+      if (newActiveDocument.includes('<mark>')) {
+        newActiveDocument = newActiveDocument.split('<mark>')[1].split('</mark>')[0]
+      }
       this.activeDocument = newActiveDocument
       this.autoSave()
     }
