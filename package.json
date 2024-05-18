@@ -44,6 +44,7 @@
     "crypto-js": "^4.2.0",
     "firebase": "^10.8.0",
     "lucide-vue-next": "^0.340.0",
+    "postcss": "^8.4.31",
     "radix-vue": "^1.6.1",
     "shadcn-vue": "^0.10.3",
     "tailwind-merge": "^2.2.1",
