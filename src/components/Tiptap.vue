@@ -531,14 +531,6 @@
       >
         <Highlighter class="h-4 w-4"></Highlighter>
       </Button>
-      <Button
-        variant="ghost"
-        class="h-10 rounded-none"
-        :class="{ activeToggle: editor.isActive('link') }"
-        @click="setLink(1)"
-      >
-        <LinkIcon class="h-4 w-4"></LinkIcon>
-      </Button>
     </bubble-menu>
     <editor-content
       class="w-full prose max-w-none overflow-y-scroll"
