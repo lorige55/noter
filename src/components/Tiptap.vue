@@ -178,39 +178,6 @@
             <Button
               variant="ghost"
               class="h-10 mr-1.5"
-              @click="editor.chain().focus().setParagraph().run()"
-              :class="{ activeToggle: editor.isActive('paragraph') }"
-            >
-              <RemoveFormatting class="h-4 w-4"></RemoveFormatting>
-            </Button>
-            <Button
-              variant="ghost"
-              class="h-10 mr-1.5"
-              @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-              :class="{ activeToggle: editor.isActive('heading', { level: 1 }) }"
-            >
-              <Heading1 class="h-4 w-4"></Heading1>
-            </Button>
-            <Button
-              variant="ghost"
-              class="h-10 mr-1.5"
-              @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-              :class="{ activeToggle: editor.isActive('heading', { level: 2 }) }"
-            >
-              <Heading2 class="h-4 w-4"></Heading2>
-            </Button>
-            <Button
-              variant="ghost"
-              class="h-10 mr-1.5"
-              @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
-              :class="{ activeToggle: editor.isActive('heading', { level: 3 }) }"
-            >
-              <Heading3 class="h-4 w-4"></Heading3>
-            </Button>
-            <Separator orientation="horizontal" class="my-2.5" />
-            <Button
-              variant="ghost"
-              class="h-10 mr-1.5"
               @click="editor.chain().focus().toggleBulletList().run()"
               :class="{ activeToggle: editor.isActive('bulletList') }"
             >
@@ -240,6 +207,68 @@
               :class="{ activeToggle: editor.isActive('blockquote') }"
             >
               <TextQuote class="h-4 w-4"></TextQuote>
+            </Button>
+          </PopoverContent>
+        </Popover>
+        <Popover>
+          <PopoverTrigger>
+            <Button v-if="editor.isActive('paragraph')" variant="ghost" class="h-10 mr-1.5">
+              <Pilcrow class="h-4 w-4"></Pilcrow>
+            </Button>
+            <Button
+              v-if="editor.isActive('heading', { level: 1 })"
+              variant="ghost"
+              class="h-10 mr-1.5"
+            >
+              <Heading1 class="h-4 w-4"></Heading1>
+            </Button>
+            <Button
+              v-if="editor.isActive('heading', { level: 2 })"
+              variant="ghost"
+              class="h-10 mr-1.5"
+            >
+              <Heading2 class="h-4 w-4"></Heading2>
+            </Button>
+            <Button
+              v-if="editor.isActive('heading', { level: 3 })"
+              variant="ghost"
+              class="h-10 mr-1.5"
+            >
+              <Heading3 class="h-4 w-4"></Heading3>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent class="w-full">
+            <Button
+              v-if="!editor.isActive('paragraph')"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().setParagraph().run()"
+            >
+              <Pilcrow class="h-4 w-4"></Pilcrow>
+            </Button>
+            <Button
+              v-if="!editor.isActive('heading', { level: 1 })"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+            >
+              <Heading1 class="h-4 w-4"></Heading1>
+            </Button>
+            <Button
+              v-if="!editor.isActive('heading', { level: 2 })"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+            >
+              <Heading2 class="h-4 w-4"></Heading2>
+            </Button>
+            <Button
+              v-if="!editor.isActive('heading', { level: 3 })"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+            >
+              <Heading3 class="h-4 w-4"></Heading3>
             </Button>
           </PopoverContent>
         </Popover>
@@ -566,7 +595,7 @@ import {
   ListOrdered,
   Highlighter,
   Underline as UnderlineIcon,
-  RemoveFormatting,
+  Pilcrow,
   File,
   TextQuote,
   AlignCenter,
@@ -627,7 +656,7 @@ export default {
     Popover,
     PopoverContent,
     PopoverTrigger,
-    RemoveFormatting,
+    Pilcrow,
     File,
     TextQuote,
     AlignCenter,
