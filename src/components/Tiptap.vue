@@ -236,6 +236,13 @@
             >
               <Heading3 class="h-4 w-4"></Heading3>
             </Button>
+            <Button
+              v-if="editor.isActive('heading', { level: 4 })"
+              variant="ghost"
+              class="h-10 mr-1.5"
+            >
+              <Heading4 class="h-4 w-4"></Heading4>
+            </Button>
           </PopoverTrigger>
           <PopoverContent class="w-full">
             <Button
@@ -269,6 +276,14 @@
               @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
             >
               <Heading3 class="h-4 w-4"></Heading3>
+            </Button>
+            <Button
+              v-if="!editor.isActive('heading', { level: 4 })"
+              variant="ghost"
+              class="h-10 mr-1.5"
+              @click="editor.chain().focus().toggleHeading({ level: 4 }).run()"
+            >
+              <Heading4 class="h-4 w-4"></Heading4>
             </Button>
           </PopoverContent>
         </Popover>
@@ -533,7 +548,7 @@
       </Button>
     </bubble-menu>
     <editor-content
-      class="w-full prose max-w-none overflow-y-scroll"
+      class="w-full prose md:prose-lg lg:prose-xl max-w-none overflow-y-scroll"
       style="height: calc(100vh - 72px)"
       :editor="editor"
     />
@@ -583,6 +598,7 @@ import {
   Heading1,
   Heading2,
   Heading3,
+  Heading4,
   List,
   ListOrdered,
   Highlighter,
@@ -640,6 +656,7 @@ export default {
     Heading1,
     Heading2,
     Heading3,
+    Heading4,
     List,
     ListOrdered,
     Highlight,
