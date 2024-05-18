@@ -1,6 +1,7 @@
 <!-- eslint-disable no-undef -->
 <script>
 import CryptoJS from 'crypto-js'
+import bcrypt from 'bcryptjs'
 import '@tailwindcss/typography'
 import '@passageidentity/passage-elements/passage-auth'
 import { PassageUser } from '@passageidentity/passage-auth/passage-user'
@@ -204,13 +205,8 @@ export default {
   },
   methods: {
     async enterSharedNoteWithPassword() {
-      // Concatenate password and salt
-      const saltedPassword = this.sharedNoteInputPassword + this.sharedPasswordSalt
-      // Hash the salted password
-      const hash = CryptoJS.SHA256(saltedPassword)
-      // Convert the hash to a string to store it easily
-      const hashHEX = hash.toString(CryptoJS.enc.Hex)
-      if (hashHEX === this.sharedPasswordHash) {
+      const hash = bcrypt.hashSync(this.sharedNoteInputPassword, this.sharedPasswordSalt).toString() // GOOD
+      if (hash === this.sharedPasswordHash) {
         //initialize firebase
         const app = initializeApp(this.firebaseConfig)
         const db = getFirestore(app)

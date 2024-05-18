@@ -639,8 +639,8 @@ import { Switch } from '@/components/ui/switch'
 //Firebase imports
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, setDoc } from 'firebase/firestore'
-//crypto js
-import CryptoJS from 'crypto-js'
+//cryptography
+import bcrypt from 'bcryptjs'
 
 export default {
   components: {
@@ -869,19 +869,14 @@ export default {
         let docRef = doc(db, 'shared', key)
         //save document to firebase
         if (this.protectSharedNoteWithPassword) {
-          const salt = CryptoJS.lib.WordArray.random(128 / 8) //Generate Salt
-          // Concatenate password and salt
-          const saltedPassword = this.sharedNotePassword + salt
-          // Hash the salted password
-          const hash = CryptoJS.SHA256(saltedPassword)
-          // Convert the hash to a string to store it easily
-          const hashHEX = hash.toString(CryptoJS.enc.Hex)
+          const salt = bcrypt.genSaltSync(10)
+          const hash = bcrypt.hashSync(this.sharedNotePassword, salt).toString() // GOOD
           //set to firebase
           setDoc(docRef, {
             note: this.editor.getHTML(),
             title: localStorage.getItem('activeDocument'),
-            password: hashHEX,
-            salt: salt.toString()
+            password: hash,
+            salt: salt
           })
           this.sharedNotePassword = ''
           this.protectSharedNoteWithPassword = false

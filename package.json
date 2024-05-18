@@ -39,6 +39,7 @@
     "@tiptap/vue-3": "^2.2.4",
     "@vee-validate/zod": "^4.12.8",
     "@vueuse/core": "^10.8.0",
+    "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "crypto-js": "^4.2.0",
