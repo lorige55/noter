@@ -8,9 +8,26 @@
           <PopoverTrigger>
             <Button variant="ghost" class="h-10 mr-1.5">
               <div
+                v-if="
+                  editor.isActive('textStyle', { color: '#000000' }) ||
+                  editor.isActive('textStyle', { color: '#fc0707' }) ||
+                  editor.isActive('textStyle', { color: '#fc8a07' }) ||
+                  editor.isActive('textStyle', { color: '#fcf007' }) ||
+                  editor.isActive('textStyle', { color: '#13fc07' }) ||
+                  editor.isActive('textStyle', { color: '#0e02f7' }) ||
+                  editor.isActive('textStyle', { color: '#a207fc' }) ||
+                  editor.isActive('textStyle', { color: '#f807fc' })
+                "
                 type="color"
-                class="h-4 w-4 bg-transparent cursor-pointer bg-black"
+                class="h-4 w-4 bg-transparent cursor-pointer"
                 :style="{ backgroundColor: editor.getAttributes('textStyle').color }"
+                @click.prevent
+              />
+              <div
+                v-else
+                type="color"
+                class="h-4 w-4 bg-transparent cursor-pointer"
+                style="background-color: #000000"
                 @click.prevent
               />
             </Button>
