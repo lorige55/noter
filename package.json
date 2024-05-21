@@ -43,7 +43,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "crypto-js": "^4.2.0",
-    "firebase": "^10.8.0",
+    "firebase": "^10.12.1",
     "lucide-vue-next": "^0.378.0",
     "postcss": "^8.4.31",
     "radix-vue": "^1.6.1",
