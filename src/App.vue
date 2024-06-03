@@ -666,7 +666,11 @@ export default {
             this.progress = 'Loading your last note...'
             //recover last note or select first in array if equal to null
             if (localStorage.getItem('lastNote') !== 'undefined') {
-              await this.getDocument(localStorage.getItem('lastNote'))
+              try {
+                await this.getDocument(localStorage.getItem('lastNote'))
+              } catch {
+                console.log("couldn't get last note")
+              }
             }
           }
         } else {
