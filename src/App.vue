@@ -239,22 +239,29 @@ export default {
       if (this.activeDocument !== '') {
         await this.saveActiveDocument()
       }
-      //set activeDocument
-      this.activeDocument = item
-      //set active document index
-      this.activeDocumentIndex = this.index.indexOf(item)
-      //initialize firebase
-      const app = initializeApp(this.firebaseConfig)
-      const db = getFirestore(app)
-      //get document from firebase and set activeDocumentContent to content
-      let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
-      let docSnap = await getDoc(docRef)
-      if (docSnap.exists()) {
-        this.activeDocumentContent = this.decryptString(docSnap.data().note)
-      } else {
-        console.error('A note could not be found. Please try again or create an Issue on GitHub.')
+      try {
+        //set activeDocument
+        this.activeDocument = item
+        //set active document index
+        this.activeDocumentIndex = this.index.indexOf(item)
+        //initialize firebase
+        const app = initializeApp(this.firebaseConfig)
+        const db = getFirestore(app)
+        //get document from firebase and set activeDocumentContent to content
+        let docRef = doc(db, this.userId, this.keyIndex[this.activeDocumentIndex])
+        let docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          this.activeDocumentContent = this.decryptString(docSnap.data().note)
+        } else {
+          console.error('A note could not be found. Please try again or create an Issue on GitHub.')
+        }
+        localStorage.setItem('lastNote', this.activeDocument)
+      } catch (error) {
+        console.error("Couldn't get document. Please try again.")
+        this.errorMessage =
+          "Couldn't get document. Please try again. Click this message to make it disappear."
+        this.displayError = true
       }
-      localStorage.setItem('lastNote', this.activeDocument)
     },
     async saveActiveDocument() {
       //input validation
