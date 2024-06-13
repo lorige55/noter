@@ -48,7 +48,7 @@
     "clsx": "^2.1.0",
     "crypto-js": "^4.2.0",
     "firebase": "^10.12.2",
-    "lucide-vue-next": "^0.383.0",
+    "lucide-vue-next": "^0.394.0",
     "postcss": "^8.4.31",
     "radix-vue": "^1.8.2",
     "shadcn-vue": "^0.10.5",
