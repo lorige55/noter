@@ -50,7 +50,7 @@
     "firebase": "^10.12.2",
     "lucide-vue-next": "^0.394.0",
     "postcss": "^8.4.31",
-    "radix-vue": "^1.8.2",
+    "radix-vue": "^1.8.5",
     "shadcn-vue": "^0.10.5",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
