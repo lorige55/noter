@@ -39,7 +39,7 @@
     "@tiptap/extension-underline": "^2.3.0",
     "@tiptap/extension-youtube": "^2.4.0",
     "@tiptap/pm": "^2.2.4",
-    "@tiptap/starter-kit": "^2.2.4",
+    "@tiptap/starter-kit": "^2.6.6",
     "@tiptap/vue-3": "^2.2.4",
     "@vee-validate/zod": "^4.13.2",
     "@vueuse/core": "^10.10.0",
